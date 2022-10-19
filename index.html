@@ -683,6 +683,8 @@
 					<button onclick="save()">Save</button>
 					<button onclick="showVideo()">Show Video</button>
 					<button id="fix" onclick="fix()">fix</button>
+					<input type="text" id="portfield"/>
+					<button onclick="getData()">New port</button>
 					<i class="bi bi-arrow-bar-left"></i>
 				</div>
 
@@ -836,7 +838,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		var url = "https://lo-player.onrender.com";
+		var url = "http://localhost:8000";
 
 		const p = (s) => console.log(s);
 
@@ -1012,6 +1014,42 @@
 			return -1;
 
 			playlists.findIndex((el) => el.name == name);
+		}
+
+		function getData() {
+			url =	$('#portfield').val();
+			console.log(url)
+			$(document).ready(async () => {
+			await fetch(url + "/load")
+				.then((res) => res.json())
+				.then((res_data) => {
+					data = res_data;
+					p(data);
+
+					songs = data.songs;
+
+					playlists = data.playlists;
+
+					$("#myRange").val(data.config.volume);
+					songIndex = data.config.songIndex;
+					Ftime = data.config.time;
+					tog_shuffle = data.config.shuffle;
+					column_sort = data.config.column;
+
+					if (column_sort) {
+						$("#tt").css("flex-direction", "column-reverse");
+						$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+					}
+
+					loadPl();
+					loadSongs();
+
+					precleanUp();
+				})
+				.catch((err) => {
+					p("(865 <Initializers>) failed to get songs data: " + err);
+				});
+		});
 		}
 
 		function download(filename, text) {
