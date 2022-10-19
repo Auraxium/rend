@@ -13,6 +13,8 @@ const mongoose = require("mongoose");
 var dataModel = mongoose.model('Data', new mongoose.Schema({data: {}}))
 const URI = "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority"
 
+
+
 p = (s) => console.log(s);
 
 mongoose.connect(URI, {
@@ -40,7 +42,7 @@ app.use(upload());
 //app.use(express.static(path.join(__dirname, 'build')))
 
 app.get("/", (req, res) => {
-	res.sendFile("C:\\Vscodez\\VS-Codes\\Mewseek\\v5\\index.html")
+	res.sendFile(__dirname+"/./index.html")
 });
 
 app.get("/load", (req, res) => {
@@ -132,6 +134,7 @@ app.post("/art/:path", (req, res) => {
   });
 });
 
-app.listen(8000, null, () => console.log("Running"));
+const PORT = process.env.PORT || 8000
+app.listen(PORT, null, () => console.log("Running on " + PORT));
 
 //#endregion
