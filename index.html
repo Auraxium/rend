@@ -1,0 +1,2865 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>Lo Player v5</title>
+	<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">-->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" />
+	<script src="https://code.jquery.com/jquery-3.6.0.js" integrity="sha256-H+K7U5CnXl1h5ywQfKtSj8PCmoN9aaq30gDh27Xc0jk="
+		crossorigin="anonymous"></script>
+	<style type="text/css">
+		.disclaimer {
+			display: none;
+		}
+	</style>
+	<script type="application/javascript">
+		document.insertCohort = null;
+	</script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.0.0-alpha.1/axios.min.js"></script>
+	<script src="https://apis.google.com/js/api.js"></script>
+	<!-- <script defer src="main.js"></script>
+	<link defer rel="stylesheet" href="style.css"> -->
+</head>
+
+<body>
+	<!--CSS-->
+	<style>
+		/*#region Junk*/
+
+		body {
+			margin: 0;
+			padding: 0;
+
+			height: 100vh;
+			width: 100vw;
+
+			display: flex;
+			flex-direction: column;
+
+			background-color: rgb(12, 12, 12);
+
+			font-family: "Open Sans", sans-serif;
+		}
+
+		* {
+			box-sizing: border-box;
+			color: white;
+
+			-webkit-touch-callout: none;
+			-webkit-user-select: none;
+			-khtml-user-select: none;
+			-moz-user-select: none;
+			-ms-user-select: none;
+			user-select: none;
+		}
+
+		/* @import url("https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"); */
+
+		::-webkit-scrollbar {
+			display: none;
+		}
+
+		row {
+			display: flex;
+			flex-direction: row;
+		}
+
+		column {
+			display: flex;
+			flex-direction: column;
+		}
+
+		/*#endregion */
+
+		/*#region MAIN */
+		.nav {
+			width: 100%;
+			background-color: lime;
+
+			display: flex;
+			flex-wrap: nowrap;
+			flex-direction: row;
+			justify-content: space-between;
+			align-content: center;
+		}
+
+		.main-container {
+			overflow: hidden;
+			display: flex;
+			height: 100%;
+			width: 100%;
+		}
+
+		.container {
+			/* overflow: scroll; */
+			display: flex;
+			flex-direction: column;
+			flex-wrap: nowrap;
+			flex-grow: 1;
+		}
+
+		.right {
+			max-width: 20%;
+
+			/* border-style: solid; */
+
+			height: 100%;
+			border-style: solid;
+			border-width: 2px;
+		}
+
+		.left {
+			width: 15%;
+			overflow: scroll;
+			border-style: solid;
+			border-width: 2px;
+			height: 100%;
+		}
+
+		.displaay {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			overflow: scroll;
+		}
+
+		#tt {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.accept-menu {
+			width: 100%;
+			height: 100px;
+			background-color: #04aa6d;
+
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			display: none;
+		}
+
+		#st {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.queue-list-container {
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			overflow: scroll;
+			border-radius: 2px;
+		}
+
+		#songsList {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.selected {
+			background-color: lightgreen;
+		}
+
+		#choose {
+			display: inline-block;
+			width: 200px;
+		}
+
+		.song {
+			background-color: rgb(33, 33, 33);
+			/* border-style: solid;
+        border-width: 2px; */
+			padding: 5px;
+
+			display: flex;
+			flex-wrap: nowrap;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		
+
+		.song:hover {
+			background-color: rgb(58, 58, 58);
+		}
+
+		.song.highlight {
+			background-color: rgb(164, 164, 164);
+		}
+
+		.song.playing {
+			background-color: rgb(38, 30, 151);
+		}
+
+		.song.selected {
+			background-color: rgb(14, 129, 12);
+		}
+
+		.playlist {
+			background-color: rgb(33, 33, 33);
+			padding: 5px;
+
+			display: flex;
+			flex-wrap: nowrap;
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		.playlist:hover {
+			background-color: rgb(58, 58, 58);
+		}
+
+		#choose {
+			overflow-y: scroll;
+			height: 300px;
+		}
+
+		/*#endregion */
+
+		/*#region PART2*/
+		.crop {
+			height: 50px;
+			width: 50px;
+			/* border: 1px solid black; */
+			background-position: center;
+			background-size: cover;
+		}
+
+		.form {}
+
+		#sng {
+			max-height: 200px;
+			max-width: 355px;
+			aspect-ratio: 16/9;
+		}
+
+		.tools {
+			min-width: 40%;
+		}
+
+		.queue-lable {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.row {
+			display: flex;
+			align-items: center;
+		}
+
+		.col {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.bi-three-dots {
+			font-size: 30px;
+			z-index: 3;
+		}
+
+		.bi-three-dots:hover {
+			background-color: gainsboro;
+		}
+
+		.bim {
+			font-size: 30px;
+		}
+
+		.dropdown-menu {
+			position: absolute;
+			margin: 0, 30px;
+			background-color: rgb(44, 44, 44);
+			padding: 0.75rem;
+			border-radius: 0.25rem;
+			box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.1);
+			opacity: 0;
+			pointer-events: none;
+			z-index: 100;
+			top: 0;
+			left: 0;
+		}
+
+		.dropdown-menu.active {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.dropdown-menu .dd-option {
+			padding: 5px;
+			font-size: 17px;
+		}
+
+		.dropdown-menu .dd-option:hover {
+			background-color: rgb(101, 38, 38);
+		}
+
+		.add-song-form {
+			position: absolute;
+			display: flex;
+			flex-direction: column;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			padding: 7px;
+			background-color: rgb(44, 44, 44);
+			min-width: 10%;
+			max-width: 75%;
+			min-height: 10%;
+			max-height: 75%;
+
+			/* height: 75%; */
+			/* width: 75%; */
+
+			opacity: 0;
+			pointer-events: none;
+			z-index: 2;
+		}
+
+		.add-song-form.active {
+			opacity: 1;
+			pointer-events: all;
+		}
+
+		.form-option {
+			font-size: 25px;
+			margin: 10px 5px;
+			padding: 4px;
+		}
+
+		.playlist-form {
+			display: flex;
+			flex-direction: column;
+			background-color: rgb(44, 44, 44);
+			font-size: 15px;
+			margin: 3px;
+			z-index: 2;
+		}
+
+		.form-blur {
+			position: absolute;
+			background-color: black;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 1;
+			pointer-events: none;
+
+			opacity: 0;
+		}
+
+		.form-blur.active {
+			opacity: 0.8;
+			pointer-events: auto;
+		}
+
+		.bi {
+			font-size: 30px;
+		}
+
+		.float-duration {
+			position: absolute;
+			background-color: rgb(192, 192, 192);
+			color: black;
+			padding: 1px 3px;
+			font-size: 15px;
+
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+
+			top: auto;
+			left: auto;
+			opacity: 0;
+			pointer-events: none;
+			z-index: 4;
+		}
+
+		.float-duration.active {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.float-volume {
+			position: absolute;
+			background-color: rgb(192, 192, 192);
+			color: black;
+			padding: 1px 3px;
+			font-size: 15px;
+
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+
+			top: auto;
+			left: auto;
+			opacity: 0;
+			pointer-events: none;
+			z-index: 4;
+		}
+
+		.float-volume.active {
+			opacity: 1;
+			pointer-events: auto;
+		}
+
+		.no-click {
+			pointer-events: none;
+		}
+
+		.pictest {
+			width: 275px;
+			height: 275px;
+			border: 1px solid black;
+			/* background-position: center; */
+			/* background-size: cover; */
+		}
+
+		/*#endregion */
+	</style>
+
+	<!--Foot-->
+	<style>
+		.foot {
+			background-color: rgb(15, 37, 15);
+			display: flex;
+		}
+
+		.song-info {
+			width: 25%;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+
+		#songInfoName {
+			width: 100%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.footmid {
+			width: 50%;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		#controls {
+			font-size: 45px;
+
+			display: flex;
+			justify-content: space-around;
+			width: 80%;
+			max-width: 300px;
+		}
+
+		.duration {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 90%;
+		}
+
+		.progress-container {
+			background: rgb(117, 117, 117);
+			border-radius: 5px;
+			cursor: pointer;
+			margin: 10px 0;
+			height: 12px;
+			width: 75%;
+		}
+
+		.progress {
+			background-color: #fe8daa;
+			border-radius: 5px;
+			height: 100%;
+			width: 0%;
+			pointer-events: none;
+		}
+
+		.misc {
+			width: 25%;
+			display: flex;
+			align-items: center;
+			justify-content: end;
+		}
+
+		.buttons {
+			font-size: 25px;
+			margin: 0px 5px;
+			display: flex;
+			line-height: 0px;
+			flex-wrap: wrap;
+		}
+
+		.volume {
+			display: flex;
+			align-items: center;
+		}
+
+		.bi-volume-up {
+			font-size: 25px;
+			line-height: 5px;
+			/*margin: 0 10px 0 0;*/
+		}
+
+		.slidecontainer {
+			width: 100%;
+			max-width: 150px;
+			min-width: 100px;
+		}
+
+		/* The slider itself */
+		.slider {
+			-webkit-appearance: none;
+			/* Override default CSS styles */
+			appearance: none;
+			width: 90%;
+			/* Full-width */
+			height: 15px;
+			/* Specified height */
+			background: #d3d3d3;
+			/* Grey background */
+			outline: none;
+			/* Remove outline */
+			opacity: 0.7;
+			/* Set transparency (for mouse-over effects on hover) */
+			-webkit-transition: 0.2s;
+			/* 0.2 seconds transition on hover */
+			transition: opacity 0.2s;
+		}
+
+		/* Mouse-over effects */
+		.slider:hover {
+			opacity: 1;
+			/* Fully shown on mouse-over */
+		}
+
+		/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+		.slider::-webkit-slider-thumb {
+			-webkit-appearance: none;
+			/* Override default look */
+			appearance: none;
+			width: 15px;
+			/* Set a specific slider handle width */
+			height: 15px;
+			/* Slider handle height */
+			background: #04aa6d;
+			/* Green background */
+			cursor: pointer;
+			/* Cursor on hover */
+		}
+
+		.slider::-moz-range-thumb {
+			width: 25px;
+			/* Set a specific slider handle width */
+			height: 25px;
+			/* Slider handle height */
+			background: #04aa6d;
+			/* Green background */
+			cursor: pointer;
+			/* Cursor on hover */
+		}
+
+		.togglable {
+			opacity: 0.3;
+		}
+
+		.bi-star {}
+
+		.resize {
+			font-size: 25px;
+			margin: 0px 5px;
+			line-height: 0px;
+		}
+	</style>
+
+	<!-- anis -->
+	<style>
+		.arc:before {
+			-webkit-animation: spin 0.5s infinite linear;
+			animation: spin 0.5s infinite linear;
+			border-radius: 100%;
+			border-top: 6px solid var(--primary, #fff);
+			content: "";
+			display: block;
+			height: 50px;
+			width: 50px;
+		}
+
+		@-webkit-keyframes spin {
+			to {
+				-webkit-transform: rotate(360deg);
+				transform: rotate(360deg);
+			}
+		}
+
+		@keyframes spin {
+			to {
+				-webkit-transform: rotate(360deg);
+				transform: rotate(360deg);
+			}
+		}
+	</style>
+
+	<style>
+		.yt-abs {
+			position: absolute;
+			padding: 5px;
+			height: calc(100% - 200px);
+			width: 300px;
+			background-color: black;
+			display: none;
+			overflow: scroll;
+		}
+
+		.yt-vids {}
+	</style>
+
+	<!--#region HTML-->
+
+	<div absolutes>
+		<div class="add-song-form"></div>
+		<div class="float-duration">
+			<div id="floatDurationElapsed"></div>
+		</div>
+
+		<div class="float-volume">
+			<div id="floatVolume"></div>
+		</div>
+
+		<div class="dropdown-menu" id="context-memu" dropdown_menu></div>
+
+		<div class="form-blur" form-blur></div>
+
+		<div class="yt-abs">
+			<input class="yt-search" onkeydown="if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
+			<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
+			<div class="yt-vids"></div>
+		</div>
+
+		<audio src="" id="audio"></audio>
+	</div>
+
+	<div class="nav">
+		<div>hi</div>
+		<button onclick="ytMenu()" tysbut>my</button>
+		<div>name</div>
+		<div>is</div>
+		<div>
+			<input type="file" name="" id="JData" />
+		</div>
+	</div>
+
+	<div class="main-container">
+		<div class="left">
+			<label class="plabel">playlists:</label>
+			<div id="playlists">
+				<div class="playlist" onclick="showAllSongs()">All Songs</div>
+				<div class="playlist" onclick="openFavs()">Favorites</div>
+				<hr />
+			</div>
+			<div class="playlist-form"></div>
+			<button onclick="buttonAddPlaylist()" id="pbut">add playlist</button>
+		</div>
+
+		<div class="container">
+			<div class="tools">
+				<div id="songName">name</div>
+				<div>
+					<button onclick="buttonAddSong()">Add Song</button>
+					<button onclick="edit()">Edit</button>
+					<button onclick="save()">Save</button>
+					<button onclick="showVideo()">Show Video</button>
+					<button id="fix" onclick="fix()">fix</button>
+					<i class="bi bi-arrow-bar-left"></i>
+				</div>
+
+				<i class="bi bi-search-heart"></i>
+				<div class="pll">
+					<div id="pln"></div>
+					<div id="psongs"></div>
+				</div>
+
+				<div id="sng"></div>
+			</div>
+
+			<div>
+				<i class="bi bi-three-dots"></i>
+				<i class="bi bi-arrow-bar-up bim"></i>
+				<input type="text" id="search" />
+				<i class="bi bi-plus-circle-dotted" onclick=""></i>
+				<button onclick="submitSelect()">get it</button>
+			</div>
+
+			<div class="displaay">
+				<div id="tt"></div>
+				<div id="st"></div>
+			</div>
+
+			<div class="accept-menu">
+				<div id="selected">0 songs selected</div>
+				<i class="bi bi-three-dots-vertical" data-type="sel"></i>
+			</div>
+		</div>
+
+		<div class="right">
+			<div class="queue-lable">
+				Queue
+				<i class="bi bi-arrow-bar-right" data-arrow-direction="open"></i>
+			</div>
+			<div class="queue-list-container">
+				<div id="songsList"></div>
+			</div>
+		</div>
+	</div>
+
+	<div class="foot">
+		<div class="song-info">
+			<div class="row">
+				<img id="songInfoImage" class="crop" src="" alt="" />
+				<i class="bi-star resize"></i>
+				<div class="songInfoName"></div>
+			</div>
+		</div>
+
+		<div class="footmid">
+			<div id="controls">
+				<i class="bi-arrow-repeat togglable"></i>
+				<i class="bi-chevron-double-left" onclick="prevSong()"></i>
+				<i class="bi-play" onclick="PlayPauseFlip()" play-pause-button></i>
+				<i class="bi-chevron-double-right" onclick="nextSong()"></i>
+				<i class="bi-shuffle togglable shuffle-button"></i>
+			</div>
+
+			<div class="duration">
+				<div id="elapsed">-:--</div>
+				<div class="progress-container">
+					<div class="progress"></div>
+				</div>
+				<div id="length">-:--</div>
+			</div>
+		</div>
+
+		<div class="misc">
+			<div class="buttons"></div>
+			<div class="volume">
+				<i class="bi bi-volume-up"></i>
+				<div class="slidecontainer">
+					<input type="range" min="0" max="100" value="0" class="slider" id="myRange" />
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!--#endregion-->
+
+	<!--JS-->
+	<script>
+		//#region ------------------Initializers-(vars)-----------------
+
+		var input = document.querySelector("#JData");
+		//var i=0;
+		var songs = [];
+		var selects = [];
+		var selectp = [];
+		var data;
+		var temp = [];
+		var playlists = [];
+		var favorites = [];
+		var songIndex = 0;
+		var playlistIndex = 0;
+		var lastPlayed = 0;
+		var hoverSongId = -1;
+		var hoverSongElement;
+		var player;
+		var queue;
+		var time = 0;
+		var currentType = -1;
+		var currentId = -1;
+		var Ftime = -1;
+
+		var playing = false;
+		var rdy = true;
+		var column_sort = false;
+		var seek_ready = true;
+		var selecting = false;
+		var fade_bool = false;
+		var end_fade = false;
+		var is_typing = false;
+		var boob = false;
+		var fetching = false;
+
+		var fetchQueue;
+
+		var slider = document.getElementById("myRange");
+		var output = document.getElementById("volumeNum");
+		var audio = document.getElementById("audio");
+		var search = $("#search");
+		var progress = $(".progress")[0];
+		var elapsed = $("#elapsed");
+		var suffleBut = $(".shuffle-button");
+		var contextMenu = $("[dropdown_menu]");
+
+		var shift = false;
+		var shift2 = false;
+		var last_clicked;
+		var test;
+		var songFile;
+
+		var ctx = new AudioContext();
+		var gain = ctx.createGain();
+		gain.connect(ctx.destination);
+		var source = {
+			buffer: null,
+			stop: (n) => {}
+		};
+
+		var jsmediatags = window.jsmediatags;
+		//var axios = window.axios;
+		// = ctx.createBufferSource();
+
+		var duration;
+		var elapseInterval;
+
+		var tog_shuffle = true;
+		var tog_repeat = true;
+
+		var url = "http://localhost:8000";
+
+		const p = (s) => console.log(s);
+
+		var tag = document.createElement("script");
+
+		tag.src = "https://www.youtube.com/iframe_api";
+		var firstScriptTag = document.getElementsByTagName("script")[0];
+		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+		//$(document).ready($(".accept-menu").hide());
+		$(document).ready(async () => {
+			await fetch(url + "/load")
+				.then((res) => res.json())
+				.then((res_data) => {
+					data = res_data;
+					p(data);
+
+					songs = data.songs;
+
+					playlists = data.playlists;
+
+					$("#myRange").val(data.config.volume);
+					songIndex = data.config.songIndex;
+					Ftime = data.config.time;
+					tog_shuffle = data.config.shuffle;
+					column_sort = data.config.column;
+
+					if (column_sort) {
+						$("#tt").css("flex-direction", "column-reverse");
+						$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+					}
+
+					loadPl();
+					loadSongs();
+
+					precleanUp();
+				})
+				.catch((err) => {
+					p("(865 <Initializers>) failed to get songs data: " + err);
+				});
+		});
+
+		//#endregion
+
+		//#region ------------------Loading-----------------
+
+		async function fix() {
+			// for (let i = 0; i < songs.length; i++) {
+			// 	try {
+			// 		await axios.post('/search', songs[i].id).then(res => {
+			// 			let a = res.data[0].duration_raw.split(':');
+			// 			s = 0, m = 1;
+
+			// 			while (a.length > 0) {
+			// 				s += m * parseInt(a.pop(), 10);
+			// 				m *= 60;
+			// 			}
+
+			// 			songs[i].end = s;
+			// 		})
+			// 		p(songs[i])
+			// 	} catch (e) {
+			// 		continue
+			// 	}
+			// }
+
+			for (let i = 0; i < songs.length; i++) {
+				songs[i].end_raw = (() => {
+					const h = Math.floor(songs[i].end / 3600);
+					const m = Math.floor((songs[i].end % 3600) / 60);
+					const s = Math.round(songs[i].end % 60);
+					return [
+						h,
+						m > 9 ? m : (h ? '0' + m : m || '0'),
+						s > 9 ? s : '0' + s
+					].filter(Boolean).join(':');
+				})()
+
+			}
+			p(songs)
+			AutoSave()
+
+		}
+
+		input.addEventListener("change", () => {
+			// songs file selected (ALSO IS SOMEHWOW RUNNING FUCNTION ASYC???)
+
+			let files = input.files;
+			if (files.length == 0) return;
+			const file = files[0];
+			let reader = new FileReader();
+
+			reader.onload = (e) => {
+				const contents = e.target.result;
+				data = JSON.parse(contents);
+
+				songs = data.songs;
+
+				playlists = data.playlists;
+
+				$("#myRange").val(data.config.volume);
+				songIndex = data.config.songIndex;
+				Ftime = data.config.time;
+				tog_shuffle = data.config.shuffle;
+				column_sort = data.config.column;
+
+				if (column_sort) {
+					$("#tt").css("flex-direction", "column-reverse");
+					//   $("#st").css("flex-direction", "column-reverse");
+					//  $("#songsList").css("flex-direction", "column");
+					$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+				}
+
+				loadPl();
+				loadSongs();
+
+				precleanUp();
+			};
+			reader.onerror = (e) => alert(e.target.error.name);
+			reader.readAsText(file);
+		});
+
+		function loadPl() {
+			var str = "";
+
+			for (let j = 0; j < playlists.length; j++) {
+				playlists[j].songs = Array(playlists[j].size);
+				str += `<div class="playlist" id="playlist${j}" onclick=openPl(${j})>${eval(
+					j + 1
+				)}: ${playlists[j].name}</div>`;
+			}
+
+			$("#playlists").append(str);
+		}
+
+		function loadSongs() {
+			$("#tt").html("");
+			let str = "";
+			for (i = 0; i < songs.length; i++) {
+				for (let j = 0; j < songs[i].playlists.length; j++) {
+					let index = FindPlaylistIndexByName(songs[i].playlists[j].name);
+					if (index == -1) {
+						songs[i].playlists.splice(j, 1);
+						j--;
+						continue;
+					}
+					playlists[index].songs[songs[i].playlists[j].position] = i;
+				}
+
+				if (songs[i].favorited) favorites.push(i);
+
+				str += songBuilder(i, songs[i].id, songs[i].name, songs[i].type);
+
+				//if (songs[i].type == 0) ReqCoverArt(i, songs[i].link);
+			}
+			$("#tt").html(str);
+			queue = Array.apply(null, Array(songs.length)).map(function (x, i) {
+				return i;
+			});
+
+			if (tog_shuffle) {
+				$(".shuffle-button").css("opacity", "1");
+			}
+
+			// clickedSong(songIndex);
+			updateQueueHUD();
+		}
+
+		function FindPlaylistIndexByName(name) {
+			for (let i = 0; i < playlists.length; i++)
+				if (playlists[i].name == name) return i;
+
+			return -1;
+
+			playlists.findIndex((el) => el.name == name);
+		}
+
+		function download(filename, text) {
+			var pom = document.createElement("a");
+			pom.setAttribute(
+				"href",
+				"data:text/plain;charset=utf-8," + encodeURIComponent(text)
+			);
+			pom.setAttribute("download", filename);
+
+			if (document.createEvent) {
+				var event = document.createEvent("MouseEvents");
+				event.initEvent("click", true, true);
+				pom.dispatchEvent(event);
+			} else {
+				pom.click();
+			}
+		}
+
+		function save() {
+			var config = {
+				volume: parseInt($("#myRange").val()),
+				songIndex: queue[songIndex],
+				time: Ftime,
+				shuffle: tog_shuffle,
+				column: column_sort,
+			};
+
+			if (songs == null || config == null || data == null) return;
+
+			var dataS = {
+				config: config,
+				songs: songs,
+				playlists: playlists,
+			};
+			str = JSON.stringify(dataS);
+			download("test.json", str);
+		}
+
+		AutoSave = () => {
+			var config = {
+				volume: parseInt($("#myRange").val()),
+				songIndex: queue[songIndex],
+				time: Ftime,
+				shuffle: tog_shuffle,
+				column: column_sort,
+			};
+
+			p(!songs || !config || !data);
+			if (!songs || !config || !data) {
+				p('nothing to save')
+				return;
+			}
+
+			var dataS = {
+				config: config,
+				songs: songs,
+				playlists: playlists,
+			};
+
+			//fetch(url + "/save", { method: "post"})
+
+			let xhr = new XMLHttpRequest();
+			xhr.open("POST", url + "/save", true);
+			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+			xhr.onreadystatechange = function () {
+				if (xhr.readyState === 4 && xhr.status === 200) p(this.responseText);
+			};
+
+			xhr.send(JSON.stringify(dataS));
+		};
+
+		function songBuilder(id_num, im_link_id, name, type) {
+			switch (type) {
+				case 0:
+					return `<div class="song" id="song${id_num}" data-song-id="${id_num}" data-type="all">
+					<div class="row no-click">
+						<img src="${im_link_id}"
+								class="crop"
+								alt="" />
+								<div>${eval(id_num + 1)}: ${name}</div>
+							</div>
+							<dd>
+								 <i class="bi bi-three-dots"></i>
+							</dd>
+					</div>`;
+
+				case 1:
+					return `<div class="song" id="song${id_num}" data-song-id="${id_num}" data-type="all">
+							<div class="row no-click">
+								<img src="http://img.youtube.com/vi/${im_link_id}/0.jpg"
+								class="crop"
+								alt="" />
+								<div>${eval(id_num + 1)}: ${name}</div>
+							</div>
+							<dd>
+								 <i class="bi bi-three-dots"></i>
+							</dd>
+						</div>`;
+			}
+		}
+
+		ReqCoverArt = async (id, sng) => {
+			var ll = sng.replace(/\\/g, "☹☸☼☺☿☾☻").replace(/\//g, "☹☸☼☺☿☾☻");
+			fetch(url + "/art/" + ll, {
+					method: "post"
+				})
+				.then((res) => res.text())
+				.then((txt) => {
+					// $(`[data-song-id="${id}"]`).find('pic').css("background-image",
+					// `url(data:image/jpeg;base64,${window.btoa(txt)})`);
+
+					$(`[data-song-id="${id}"]`)
+						.find("img")
+						.attr("src", `data:image/jpeg;base64,${window.btoa(txt)}`);
+				})
+				.catch((err) =>
+					p("<ReqCoverArt()> failed to get song cover: " + err)
+				);
+		};
+
+		function precleanUp() {
+			$("#st").hide();
+			$('.yt-abs').css({
+				'top': `${$('[tysbut]').offset().top + 20}px`,
+				'left': `${$('[tysbut]').offset().left -30}px`
+			})
+			$('.yt-abs').hide()
+		}
+		//#endregion
+
+		//#region ------------------Functions-----------------
+
+		//#region Song players and HUD
+		async function playSong() {
+			seek_ready = false;
+
+			time = 0;
+
+			progress.style.width = "0%";
+			elapsed.html("0:00");
+
+			clearInterval(elapseInterval);
+			elapseInterval = null;
+
+			Ftime = 0;
+
+			var still = queue[songIndex];
+
+			$(".playing").removeClass("playing");
+			$(`[data-song-id="${queue[songIndex]}"]`).addClass("playing");
+
+			var the_song = songs[queue[songIndex]];
+			ChangeType(currentType, the_song.type);
+			currentType = the_song.type;
+			currentId = queue[songIndex];
+
+			// updateQueueHUD();
+
+			switch (currentType) {
+				case 0:
+					if (source.buffer != null) source.buffer = null;
+
+					var path = the_song.link
+						.replace(/\\/g, "☹☸☼☺☿☾☻")
+						.replace(/\//g, "☹☸☼☺☿☾☻");
+
+					if (fetching) {
+						fetchQueue = path;
+						return;
+					}
+					fetching = true;
+					await fetch(url + "/song/" + path)
+						.then((res) => {
+							//p(res)
+							return res.arrayBuffer();
+						})
+						.then((ab) => {
+							return ctx.decodeAudioData(ab);
+						})
+						.then((decodedAudio) => {
+							songFile = decodedAudio;
+						})
+						.then(() => {
+							source.stop(0);
+							fetching = false;
+							if (fetchQueue != null) {
+								fetchQueue = null;
+								playSong();
+
+								return;
+							}
+							source = ctx.createBufferSource();
+							source.buffer = songFile;
+							source.connect(gain);
+							//p("playing Song");
+							source.start(0, Ftime);
+							//$(source).on("ended", (e) => nextSong());
+
+							duration = source.buffer.duration;
+							if (elapseInterval == null)
+								elapseInterval = setInterval(UpdateElapsed, 1000);
+							updateHUDInfo(the_song);
+						})
+						.catch((err) => {
+							p(err);
+							fetching = false;
+							nextSong();
+						});
+
+					break;
+
+				case 1:
+					// player.setVolume(slider.value);
+					await delay(100);
+
+					player.loadVideoById({
+						videoId: the_song.id,
+						startSeconds: Ftime,
+					});
+					updateHUDInfo(the_song);
+					break;
+			}
+
+			await delay(50);
+			setVolume(slider.value);
+		}
+
+		function clickedSong(i) {
+			if (!Number.isInteger(i)) {
+				p("clicked song id is not a number!");
+				return;
+			}
+
+			if (shift) {
+				if (i == queue[songIndex] || i == queue[songIndex + 1]) return;
+				var ind = queue.indexOf(i);
+				if (ind < songIndex) songIndex--;
+				queue.splice(ind, 1);
+				queue.splice(songIndex + 1, 0, i);
+
+				updateQueueHUD();
+				return;
+			}
+
+			songIndex = queue.indexOf(i);
+
+			if (songIndex == -1)
+				p("ERROR: something weird happened in clickedSong()");
+			// updateQueueHUD();
+			if (tog_shuffle) {
+				shuffle(i);
+			} else updateQueueHUD();
+
+			if (i != currentId) playSong();
+		}
+
+		function clickedQueueSong(i) {
+			$(`#song${queue[songIndex]}`).removeClass("playing");
+
+			songIndex = i;
+
+			playSong(i);
+		}
+
+		function updateHUDInfo(thesong) {
+			$(`#song${queue[songIndex]}`).addClass("playing");
+
+			$("#songInfoImage").attr(
+				"src",
+				`http://img.youtube.com/vi/${thesong.id}/0.jpg`
+			);
+
+			$(".songInfoName").html(
+				thesong.name.length > 25 ?
+				`${thesong.name.substring(0, 25)}...` :
+				thesong.name
+			);
+			$("#songName").html(thesong.name);
+			document.title = thesong.name;
+			var temp = $(".resize");
+			if (thesong.favorited) {
+				$(temp).attr("class", "bi-star-fill resize");
+			} else {
+				$(temp).attr("class", "bi-star resize");
+			}
+
+			$("#length").html(function () {
+				return `${Math.floor(
+					duration / 60
+				)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
+			});
+
+			seek_ready = true;
+
+			// LoadDuration();
+			//	$(`[data-song-id="${queue[songIndex]}"`)[0].scrollIntoView();
+		}
+
+		function updateQueueHUD() {
+			var div = $("#songsList");
+			div.html("");
+			var str = "";
+
+			for (j = 0; j < queue.length; j++) {
+				var el = $(`#song${queue[j]}`).clone().attr("data-type", "inqueue");
+				el.find("dd").remove();
+				str += el.prop("outerHTML");
+			}
+			div.html(str);
+
+			//var cont = $(".queue-list-container");
+			//cont.scrollTop(
+			//  cont.find(`[data-song-id="${queue[songIndex]}"`).offset().top -
+			//    cont.offset().top +
+			//    cont.scrollTop()
+			//);
+		}
+
+		//#endregion
+
+		//#region UI (Button Logic)
+		function openPl(i) {
+			playlistIndex = i;
+			var str = "";
+			$("#st").html("");
+			altSongView();
+			for (j = 0; j < playlists[i].songs.length; j++) {
+				str += $(`#song${playlists[i].songs[j]}`)
+					.clone()
+					.attr("data-type", "inplaylist")
+					.prop("outerHTML");
+			}
+			$("#st").html(str);
+		}
+
+		function openFavs() {
+			var str = "";
+			$("#st").html("");
+			altSongView();
+			for (j = 0; j < favorites.length; j++) {
+				str += $(`#song${favorites[j]}`)
+					.clone()
+					.attr("data-type", "inplaylist")
+					.prop("outerHTML");
+			}
+			$("#st").html(str);
+		}
+
+		function buttonAddSong() {
+			var form = $(".add-song-form");
+			var formContent = `<div class="col" id="forma">
+			<div>Name</div>
+			<input class="form-option" id="name" />
+
+			<row>
+				<column style="width: 70%">
+					<div>Link</div>
+					<input class="form-option" id="link" />
+				</column>
+
+				<column style="width: 30%">
+					<div>Type</div>
+					<input class="form-option" style="background-color: #d3d3d3" id="type"/>
+
+
+				</column>
+			</row>
+
+			<row>
+				<column>
+					<div>Start Time</div>
+					<input class="form-option" id="startTime" />
+				</column>
+				<column>
+					<div>End Time</div>
+					<input class="form-option" id="endTime" />
+				</column>
+			</row>
+
+			<row>
+				<button
+					class="form-option"
+					style="width: 50%"
+					onclick="submitNewSong()"
+				>
+					Add Song
+				</button>
+				<button
+					class="form-option"
+					style="width: 50%"
+					onclick="closeSongForm()"
+				>
+					Cancel
+				</button>
+			</row>
+		</div>`;
+
+			//formContent = $("#forma");
+			form.html(formContent);
+
+			form.toggleClass("active");
+			$(".form-blur").addClass("active");
+		}
+
+		function submitNewSong() {
+			var n = $("#name").val();
+			var l = $("#link").val();
+			var t = $("#type").val();
+
+			if (!l || !n) {
+				p("invalid");
+				closeSongForm();
+				return;
+			}
+
+			var links = l.split("|");
+			p(links);
+
+			//   for (let i = 0; i < links.length; i++) {
+			if (t == 0) {
+				var sng = {
+					name: n,
+					link: l,
+					id: "offline",
+					playlists: [],
+					favorited: false,
+					type: 0,
+				};
+				songs.push(sng);
+				queue.push(songs.length - 1);
+				$("#form").html("");
+
+				$("#tt").append(
+					songBuilder(songs.length - 1, songs[songs.length - 1].id, n, 0)
+				);
+			} else if (t == 1) {
+				var sng = {
+					name: n,
+					link: linkParser(l),
+					id: idParser(linkParser(l)),
+					playlists: [],
+					favorited: false,
+					type: 1,
+				};
+				songs.push(sng);
+				queue.push(songs.length - 1);
+				$("#form").html("");
+
+				$("#tt").append(
+					songBuilder(songs.length - 1, songs[songs.length - 1].id, n, 1)
+				);
+			}
+			// var check = linkParser(links[i]);
+			// if (check !== "") {
+			//   var sng = {
+			//     name: n,
+			//     link: check,
+			//     id: idParser(check),
+			//     playlists: [],
+			//     favorited: false,
+			//     type: 0,
+			//   };
+			//   songs.push(sng);
+			//   queue.push(songs.length - 1);
+			//   $("#form").html("");
+
+			//   $("#tt")[0].innerHTML += songBuilder(
+			//     songs.length - 1,
+			//     songs[songs.length - 1].id,
+			//     n,
+			// 		0
+			//   );
+			// }
+			// }
+
+			closeSongForm();
+		}
+
+		YT_SEARCH = (s) => {
+			axios.post(url + '/search', s).then(res => {
+				vids = res.data;
+				p(vids)
+				var str = "";
+				vids.forEach(el => str += `<div class="song" data-type="ytSearch" data-name="${el.title}" data-link="${el.url}">
+							<div class="row no-click">
+								<img src="http://img.youtube.com/vi/${el.id.videoId}/0.jpg"
+								class="crop"
+								alt="" />
+								<div>${el.title}</div>
+							</div>
+							<dd>
+								 <i class="bi bi-three-dots"></i>
+							</dd>
+						</div>`);
+				$('.yt-vids').html(str);
+			})
+		}
+
+		ytMenu = () => {
+			p('asd')
+			let el = $('.yt-abs')
+			el.toggle()
+		}
+
+		function buttonAddPlaylist() {
+			var plForm = $(".playlist-form");
+			var plFormContent = `Name
+								<input id="pname">
+								<button onclick="submitPlaylist()">Create</button>`;
+
+			plForm.html(plFormContent);
+			$("#pbut").hide();
+		}
+
+		function submitPlaylist() {
+			var n = $("#pname").val();
+			$("#pbut").show();
+
+			if (!n) {
+				$(".playlist-form").html("");
+				return;
+			}
+			var pl = {
+				name: n,
+				songs: [],
+			};
+			playlists.push(pl);
+			selectp = [];
+			$(".playlist-form").html("");
+
+			$("#playlists").append(`<div class="playlist" id="playlist${
+				playlists.length
+			}"
+							 onclick=openPl(${playlists.length - 1})>${eval(
+				playlists.length
+			)}: ${n}</div>`);
+		}
+
+		function submitSelect(e) {
+			selecting = false;
+			for (let i = selects.length - 1; i > 0; i--) {
+				songs[selects[i]].playlists.push({
+					name: playlists[playlistIndex].name,
+					position: playlists[playlistIndex].songs.length,
+				});
+				playlists[playlistIndex].songs.push(selects[i]);
+			}
+			playlists[playlistIndex].size = playlists[playlistIndex].songs.length;
+			selects = [];
+			$(".selected").removeClass("selected");
+		}
+
+		function setVolume(v) {
+			switch (currentType) {
+				case 0:
+					gain.gain.setValueAtTime(v / 100, ctx.currentTime);
+					//audio.volume = (v / 100) * 0.45;
+					break;
+
+				case 1:
+					player.setVolume(v);
+					break;
+			}
+			volume = v;
+		}
+
+
+
+		GetTitleAndUurl = (fi) => {
+			return new Promise((resolve, reject) => {
+				jsmediatags.read(fi, {
+					onSuccess: (tag) => {
+						var pdata = tag.tags.picture.data;
+						var format = tag.tags.picture.format;
+						let base64String = "";
+
+						for (let i = 0; i < pdata.length; i++)
+							base64String += String.fromCharCode(pdata[i]);
+
+						var uurl = `data:${format};base64,${window.btoa(base64String)}`;
+						var title = tag.tags.title;
+						resolve({
+							title,
+							uurl
+						});
+					},
+					onError: (err) => {
+						p(err);
+						reject(err);
+					},
+				});
+			});
+		};
+
+		DragSong = async (ffs) => {
+			var getArr = [];
+
+			var title, uurl;
+
+			for (let i = 0; i < ffs.length; i++) {
+				var fdata = ffs[i];
+
+				jsmediatags.read(fdata, {
+					onSuccess: (tag) => {
+						var pdata = tag.tags.picture.data;
+						var format = tag.tags.picture.format;
+						let base64String = "";
+
+						for (let i = 0; i < pdata.length; i++)
+							base64String += String.fromCharCode(pdata[i]);
+
+						uurl = `data:${format};base64,${window.btoa(base64String)}`;
+						title = tag.tags.title;
+					},
+					onError: (err) => {
+						p(err);
+					},
+				});
+
+				var myFile = new FormData();
+				myFile.append("file", fdata);
+
+				await fetch("/upload", {
+						method: "POST",
+						body: myFile,
+					})
+					.then((res) => res.text())
+					.then((path) => {
+						sng = {
+							filename: ffs[i].name,
+							name: title,
+							link: path,
+							id: "",
+							playlists: [],
+							favorited: false,
+							type: 0,
+							path_found: false,
+						};
+
+						getArr.push({
+							location: songs.length,
+							target: fdata.name,
+							deleteTemp: path,
+						});
+
+						songs.push(sng);
+						p(sng);
+						$("#tt").append(songBuilder(songs.length - 1, uurl, title, 0));
+
+						delete myFile;
+					});
+			}
+
+			p(getArr);
+
+			await axios
+				.post("/dragevent", getArr)
+				.then((res) => res.data.result)
+				.then((json_paths) => {
+					p(json_paths);
+					json_paths.forEach((el) => {
+						songs[el.loc].link = el.newpath;
+					});
+				});
+
+			// await fetch('/dragevent', {method: 'post', body: JSON.stringify(getArr), headers: {'Content-Type': 'application/json'}})
+			// .then(res => res.json().result)
+			// .then(json_paths => {
+			// 	p(typeof json_paths)
+			// 	json_paths.forEach((el) => {
+			//      songs[el.loc].link = el.newpath;
+			//    });
+			// })
+		};
+
+		UpdateElapsed = () => {
+			if (!seek_ready) return;
+
+			if (Ftime > duration - 1) {
+				Ftime = 0;
+				nextSong();
+				return;
+			}
+
+			$("#elapsed").html(() => {
+				var temp = ++Ftime % 60;
+				return `${Math.floor(Ftime / 60)}:${temp < 10 ? `0${temp}` : temp}`;
+			});
+			progress.style.width = `${(Ftime / duration) * 100}%`;
+		};
+		//#endregion
+
+		//#region misc
+
+		function GetSongsInView() {
+			var nums = [];
+			p($("#st").is(":visible"));
+			if ($("#st").is(":visible")) {
+				var el = $("#st").children();
+				for (let i = 0; i < el.length; i++)
+					nums.push(parseInt(el[i].dataset.songId));
+
+				return [...nums];
+			} else {
+				nums = Array.apply(null, Array(songs.length)).map(function (x, i) {
+					return i;
+				});
+				return [...nums];
+			}
+		}
+
+		ChangeType = (i, j) => {
+			if (i == j) return;
+			//remove
+			switch (i) {
+				case 0:
+					source.stop();
+					ctx.suspend();
+					//clearInterval(elapseInterval)
+					break;
+
+				case 1:
+					player.pauseVideo();
+					// $("#sng").hide();
+					break;
+			}
+
+			//boot engine
+			switch (j) {
+				case 0:
+					ctx.resume();
+					//elapseInterval = setInterval(UpdateElapsed, 1000)
+					break;
+
+				case 1:
+					//$("#sng").show();
+					break;
+			}
+		};
+
+		function linkParser(s) {
+			//https://www.youtube.com/watch?v=fgZ-Pyk7G6A&ab_channel=MoriCalliope-Topic
+			//https://youtu.be/fgZ-Pyk7G6A
+			//https://www.youtube.com/embed/fgZ-Pyk7G6A
+			var n = 0;
+			var id = "";
+			var str = "";
+
+			if (s.length < 9) return "";
+
+			if (s.includes("embed")) return s;
+
+			if (s[8] == "w") {
+				i = 32;
+				while (i < s.length) {
+					if (s[i] == "&") break;
+					id += s[i++];
+				}
+
+				return "https://www.youtube.com/embed/" + id + "?autoplay=1";
+			}
+
+			i = 17;
+			while (i < s.length) {
+				id += s[i++];
+			}
+
+			return "https://www.youtube.com/embed/" + id + "?autoplay=1";
+		}
+
+		function idParser(link) {
+			return link.match(/youtube\.com.*(\?v=|\/embed\/)(.{11})/).pop();
+		}
+
+		function shuffle(ink) {
+			queue.sort(() => Math.random() - 0.5);
+
+			var temp = queue.indexOf(ink);
+			var temp2 = queue[0];
+			queue[0] = ink;
+			queue[temp] = temp2;
+			songIndex = 0;
+
+			updateQueueHUD();
+		}
+
+		function togQueue() {
+			$(".queue-list-container").hide();
+		}
+
+		function reverseQueue() {
+			var temp = queue[songIndex];
+			queue.reverse();
+			songIndex = queue.indexOf(temp);
+		}
+
+		function clamp(num, min, max) {
+			return num <= min ? min : num >= max ? max : num;
+		}
+
+		function setProgress(e) {
+			const width = e.target.clientWidth;
+			const clickX = e.offsetX;
+
+			progress.style.width = `${clamp((clickX / width) * 100, 0, 100)}%`;
+
+			t = clamp((clickX / width) * duration, 0, duration);
+
+			$("#elapsed").html(() => {
+				var temp = Math.floor(t % 60);
+				return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp}`;
+			});
+		}
+
+		function seekTo(e) {
+			const width = e.target.clientWidth;
+			const clickX = e.offsetX;
+			//var duration;
+
+			switch (currentType) {
+				case 0:
+					source.stop();
+					source = ctx.createBufferSource();
+					source.buffer = songFile;
+					source.connect(gain);
+					source.start(0, clamp((clickX / width) * duration, 0, duration));
+					break;
+
+				case 1:
+					player.seekTo(
+						clamp((clickX / width) * duration, 0, duration),
+						true
+					);
+					break;
+			}
+			Ftime = Math.floor(clamp((clickX / width) * duration, 0, duration));
+		}
+
+		SeekByNum = (v) => {
+			v = clamp(v, 0, duration);
+			$("#elapsed").html(() => {
+				var temp = v % 60;
+				return `${Math.floor(v / 60)}:${temp < 10 ? `0${temp}` : temp}`;
+			});
+			progress.style.width = `${(v / duration) * 100}%`;
+			p(currentType);
+
+			switch (currentType) {
+				case 0:
+					source.stop();
+					source = ctx.createBufferSource();
+					source.buffer = songFile;
+					source.connect(gain);
+					source.start(0, clamp(v, 0, duration));
+
+					break;
+
+				case 1:
+					player.seekTo(v);
+					break;
+			}
+		};
+
+		function editSong(id) {
+			var form = $(".add-song-form");
+			var formContent = `Name
+								<input class="form-option" id="name" value="${songs[id].name}">
+								Link
+								<input class="form-option" id="link" value="${songs[id].link}">
+								Start Time
+								<input class="form-option" id="startTime">
+								End Time
+								<input class="form-option" id="endTime">
+
+								<button class="form-option" onclick="submitEditedSong(${id})">Edit Song</button>
+								<button class="form-option" onclick="closeSongForm()">Cancel</button>`;
+
+			form.html(formContent);
+			form.addClass("active");
+			$(".form-blur").addClass("active");
+		}
+
+		function edit() {
+			editSong(queue[songIndex]);
+		}
+
+		function submitEditedSong(id) {
+			songs[id].name = $("#name").val();
+			songs[id].link = $("#link").val();
+			songs[id].id = idParser(linkParser($("#link").val()));
+
+			$(`#song${id}`)[0].outerHTML = songBuilder(
+				id,
+				songs[id].id,
+				songs[id].name,
+				songs[id].type
+			);
+
+			updateHUDInfo(songs[id]);
+			closeSongForm();
+		}
+
+		function closeSongForm() {
+			$(".add-song-form").removeClass("active");
+			$(".form-blur").removeClass("active");
+		}
+
+		function showAllSongs() {
+			$("#tt").show();
+			$("#st").hide();
+
+			var cont = $(".displaay");
+			cont.scrollTop(
+				cont.find(`[data-song-id="${queue[songIndex]}"`).offset().top -
+				cont.offset().top +
+				cont.scrollTop() -
+				125
+			);
+		}
+
+		function altSongView() {
+			$("#tt").hide();
+			$("#st").show();
+		}
+
+		function flipSort() {
+			column_sort = !column_sort;
+			if (column_sort) {
+				$("#tt").css("flex-direction", "column-reverse");
+				// $("#st").css("flex-direction", "column-reverse");
+				// $("#songsList").css("flex-direction", "column");
+				$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+			} else {
+				$("#tt").css("flex-direction", "column");
+				//$("#st").css("flex-direction", "column");
+				//$("#songsList").css("flex-direction", "column-reverse");
+				$(".bi-arrow-bar-down").attr("class", "bi bi-arrow-bar-up bim");
+			}
+		}
+
+		function delay(secs) {
+			return new Promise((resolve) => {
+				setTimeout(() => resolve(""), secs);
+			});
+		}
+
+		LoadDuration = (v) => {
+			$("#length").html(function () {
+				return `${Math.floor(
+					duration / 60
+				)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
+			});
+		};
+
+		updateProgress = (e) => {
+			const {
+				duration,
+				currentTime
+			} = e.target;
+			var progressPercent = (currentTime / duration) * 100;
+			progress.style.width = `${progressPercent}%`;
+		};
+
+		function openContextMenu(e) {
+			var content;
+			var type = hoverSongElement.dataset.type;
+			switch (type) {
+				case "sel": {
+					content = `<div title="sel-play" class="dd-option">Play</div>
+							<div title="sel-queue-next" class="dd-option">Play Next</div>
+							<div title="sel-queue" class="dd-option">Queue</div>
+							<hr />
+							<div title="sel-favorite" class="dd-option">Favorite</div>
+							<div title="sel-add-to-playlist" class="dd-option">Add to playlist</div>
+							<hr />
+							<div title="sel-delete" class="dd-option" style="color: red">Delete</div>`;
+					break;
+				}
+
+				default: {
+					p(type);
+					content = `<div title="play" class="dd-option">Play</div>
+							<div title="queue-next" class="dd-option">Play Next</div>
+							<div title="queue" class="dd-option">Queue</div>
+							<hr />
+							<div title="favorite" class="dd-option">${
+								songs[hoverSongId].favorited ? "Unfavorite" : "Favorite"
+							}</div>
+							<div title="add-to-playlist" class="dd-option">Add to playlist</div>
+							${
+								type == "inplaylist"
+									? `<div title="remove-from-playlist" class="dd-option">
+								Remove From Playlist
+							</div>`
+									: ""
+							}
+							<hr />
+							<div title="select" class="dd-option">Select</div>
+							<div title="edit" class="dd-option">Edit</div>
+							<div title="delete" class="dd-option" style="color: red">Delete</div>`;
+					break;
+				}
+			}
+			contextMenu.html(content);
+			contextMenu.show();
+
+			let middlehalf = window.innerHeight / 2;
+			if (e.clientY > middlehalf) {
+				contextMenu.css("top", `${e.pageY - 300}px`);
+				contextMenu.css("left", `${e.pageX - 10}px`);
+			} else {
+				contextMenu.css("top", `${e.pageY - 10}px`);
+				contextMenu.css("left", `${e.pageX - 10}px`);
+			}
+
+			contextMenu.addClass("active");
+		}
+
+		async function fadeAudio(start, end, iterations, add, delays) {
+			if (start == end) {
+				if (isPlaying()) pauseSong();
+				else ResumeSong();
+				return;
+			}
+
+			var increasing = start < end;
+			setVolume(start);
+			for (let i = 0; i < iterations; i++) {
+				await delay(delays);
+				start = eval(start + add);
+				if (increasing && start >= end) {
+					setVolume(slider.value);
+					return;
+				}
+				if (!increasing && start <= end) {
+					setVolume(end);
+					pauseSong();
+					return;
+				}
+				setVolume(start);
+			}
+			if (!increasing) {
+				pauseSong();
+				setVolume(end);
+			}
+		}
+		//#endregion
+
+		//#endregion
+
+		//#region ---------------------API-------------------------
+
+		function onYouTubeIframeAPIReady() {
+			player = new YT.Player("sng", {
+				events: {
+					onReady: onPlayerReady,
+					onStateChange: onPlayerStateChange,
+					onError: err,
+				},
+			});
+
+			//var iframeWindow = player.getIframe().contentWindow;
+			//
+			//var lastTimeUpdate = 0;
+
+			// window.addEventListener("message", function (event) {
+			//   if (event.source === iframeWindow) {
+			//     var data = JSON.parse(event.data);
+
+			//     if (
+			//       data.event === "infoDelivery" &&
+			//       data.info &&
+			//       data.info.currentTime
+			//     ) {
+			//       time = Math.floor(data.info.currentTime);
+
+			//       if (time !== lastTimeUpdate && seek_ready) {
+			//         $("#elapsed").html(() => {
+			//           var temp = time % 60;
+			//           return `${Math.floor(time / 60)}:${
+			//             temp < 10 ? `0${temp}` : temp
+			//           }`;
+			//         });
+			//         progress.style.width = `${(time / duration) * 100}%`;
+			//       }
+			//     }
+			//   }
+			// });
+		}
+
+		function onPlayerReady(event) {
+			//event.target.pauseVideo();
+			// clickedSong(songIndex);
+		}
+
+		function onPlayerStateChange(event) {
+			if (currentType != 1) return;
+			switch (event.data) {
+				case YT.PlayerState.PLAYING: {
+					playing = true;
+					duration = event.target.getDuration();
+					p(duration)
+					songs[queue[songIndex]].end = duration
+					if (elapseInterval == null)
+						elapseInterval = setInterval(UpdateElapsed, 1000);
+					$("#length").html(function () {
+						return `${Math.floor(
+							duration / 60
+						)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
+					});
+					$("[play-pause-button]").attr("class", "bi-pause");
+
+					break;
+				}
+				case YT.PlayerState.ENDED: {
+					playing = false;
+					Ftime = 0;
+					progress.style.width = "0%";
+					elapsed.html("0:00");
+					nextSong();
+					break;
+				}
+				case YT.PlayerState.PAUSED: {
+					playing = false;
+					$("[play-pause-button]").attr("class", "bi-play");
+					clearInterval(elapseInterval);
+					elapseInterval = null;
+					break;
+				}
+				case YT.PlayerState.BUFFERING: {
+					//$("[play-pause-button]").attr("class", "arc");
+					clearInterval(elapseInterval);
+					elapseInterval = null;
+					break;
+				}
+				case YT.PlayerState.CUED: {
+					break;
+				}
+			}
+		}
+
+		function stopVideo() {
+			player.stopVideo();
+		}
+
+		function err(er) {
+			p(er);
+			if (!data) return;
+			if (currentType != 1) return;
+
+			//songs[queue[songIndex]].isBroken = true;
+			//$(`#song${songIndex}`).css("background-color", "orange");
+			nextSong();
+		}
+
+		function nextSong() {
+			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
+			Ftime = 0;
+
+			songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
+			playSong(songIndex);
+		}
+
+		function prevSong() {
+			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
+			Ftime = 0;
+
+			songIndex = songIndex ? songIndex - 1 : queue.length - 1;
+			playSong(songIndex);
+		}
+
+		function pauseSong() {
+			clearInterval(elapseInterval);
+			elapseInterval = null;
+			switch (currentType) {
+				case 0:
+					ctx.suspend();
+					$("[play-pause-button]").attr("class", "bi-play");
+					break;
+
+				case 1:
+					player.pauseVideo();
+					break;
+			}
+			playing = false;
+		}
+
+		function ResumeSong() {
+			switch (currentType) {
+				case 0:
+					ctx.resume();
+					$("[play-pause-button]").attr("class", "bi-pause");
+					break;
+
+				case 1:
+					player.playVideo();
+					break;
+			}
+			playing = true;
+
+			if (elapseInterval == null)
+				elapseInterval = setInterval(UpdateElapsed, 1000);
+		}
+
+		function showVideo() {
+			$("#sng").toggle();
+		}
+
+		function isPlaying() {
+			return (
+				!!Array.prototype.find.call(
+					document.querySelectorAll("audio,video"),
+					function (elem) {
+						return elem.duration > 0 && !elem.paused;
+					}
+				) || playing
+			);
+		}
+
+		async function PlayPauseFlip() {
+			if (isPlaying()) {
+				fadeAudio(slider.value, 0, 200, -4.5, 10);
+			} else {
+				setVolume(0);
+				await delay(100);
+				ResumeSong();
+				fadeAudio(0, slider.value, 200, 1.5, 10);
+			}
+		}
+
+		//#endregion
+
+		//#region ------------------Listeners---------------------------
+
+		$("#fileSong").on("change", (e) => {
+			const file = e.target.files[0];
+
+			jsmediatags.read(file, {
+				onSuccess: (tag) => {
+					var pdata = tag.tags.picture.data;
+					var format = tag.tags.picture.format;
+					let base64String = "";
+
+					for (let i = 0; i < pdata.length; i++)
+						base64String += String.fromCharCode(pdata[i]);
+
+					var uurl = `url(data:${format};base64,${window.btoa(
+						base64String
+					)})`;
+
+					//document.querySelector('#pictest').style.backgroundImage
+					//= `url(data:${format};base64,${window.btoa(base64String)})`
+
+					sng = {
+						name: tag.tags.title,
+						link: "",
+						id: "",
+						playlists: [],
+						favorited: false,
+						type: 0,
+					};
+
+					p(sng);
+
+					songs.push(sng);
+
+					$("#tt").append(
+						songBuilder(songs.length - 1, uurl, tag.tags.title, 0)
+					);
+				},
+				onError: (err) => p(err),
+			});
+		});
+
+		$(".progress-container").on("pointerdown", (e) => {
+			seek_ready = false;
+			$(".progress-container")[0].setPointerCapture(e.pointerId);
+			setProgress(e);
+
+			$(".progress-container").on("pointermove", setProgress);
+			$(".progress-container").on("pointerup", (e) => {
+				seekTo(e);
+				$(".progress-container").off("pointermove", setProgress);
+				seek_ready = true;
+			});
+		});
+
+		$(".progress-container").on("pointerenter", (e) => {
+			var el = $(".float-duration");
+			el.addClass("active");
+
+			$(".progress-container").on("pointermove", (e) => {
+				$("#floatDurationElapsed").html(() => {
+					const width = e.target.clientWidth;
+					const clickX = e.offsetX;
+					//const duration = player.getDuration();
+
+					t = clamp((clickX / width) * duration, 0, duration);
+
+					var temp = Math.floor(t % 60);
+					return `${Math.floor(t / 60)}:${
+						temp < 10 ? `0${temp}` : temp
+					} / ${$("#length").html()}`;
+				});
+				el.css("top", `${e.pageY - 35}px`);
+				el.css("left", `${e.pageX - 27}px`);
+			});
+			$(".progress-container").on("pointerleave", (e) => {
+				el.removeClass("active");
+			});
+		});
+
+		$(".slidecontainer").on("pointerenter", (e) => {
+			var el = $(".float-volume");
+			el.addClass("active");
+
+			$(".slidecontainer").on("pointermove", (e) => {
+				$("#floatVolume").html(() => {
+					const width = e.target.clientWidth;
+					const clickX = e.offsetX;
+
+					return `${slider.value}`;
+				});
+				el.css("top", `${e.pageY - 35}px`);
+				el.css("left", `${e.pageX - 10}px`);
+			});
+			$(".slidecontainer").on("pointerleave", (e) => {
+				el.removeClass("active");
+			});
+		});
+
+		$(".togglable").on("click", (e) => {
+			var el = e.target;
+			el.style.opacity = el.style.opacity == 1 ? 0.3 : 1;
+		});
+
+		$("#sng").on("mouseover", (e) => {
+			e.preventDefault();
+		});
+
+		$(".shuffle-button").on("click", () => {
+			tog_shuffle = !tog_shuffle;
+			if (tog_shuffle) {
+				shuffle(queue[songIndex]);
+			} else {
+				var temp = queue[songIndex];
+				queue = GetSongsInView();
+				songIndex = queue.indexOf(temp);
+				updateQueueHUD();
+			}
+			//p(queue)
+			//p(songIndex)
+		});
+
+		$("[form-blur]").click(closeSongForm);
+
+		$(document).on("click", ".bi-three-dots-vertical", (e) => {
+			hoverSongElement = e.target;
+
+			// hoverSongElement.classList.toggle("highlight");
+
+			openContextMenu(e);
+		});
+
+		$(".bi-plus-circle-dotted").click((e) => {
+			selects = [];
+			selecting = true;
+			showAllSongs();
+			// $(".selected").removeClass("selected");
+			// playlists[playlistIndex].songs.forEach(element => {
+			// 	$('#song'+element).addClass('selected')
+			// });
+			// selects = [...playlists[playlistIndex].songs];
+		});
+
+		$(document).on("focus", "input", (e) => {
+			is_typing = true;
+			$(document).on("blur", "input", (e) => (is_typing = false));
+		});
+
+		$(document).on("click", "[data-arrow-direction]", (e) => {
+			var el = e.target;
+			if (el.dataset.arrowDirection) {
+				el.dataset.arrowDirection = "";
+				$(el).attr("class", "bi bi-arrow-bar-left");
+				$(".queue-list-container").hide();
+			} else {
+				el.dataset.arrowDirection = "open";
+				$(el).attr("class", "bi bi-arrow-bar-right");
+				$(".queue-list-container").show();
+			}
+		});
+
+		$(document).on("click", ".bi-three-dots", (e) => {
+			hoverSongElement = e.target.parentElement.parentElement;
+			hoverSongId = parseInt(hoverSongElement.dataset.songId);
+
+			hoverSongElement.classList.toggle("highlight");
+
+			openContextMenu(e);
+		});
+
+		$(document).on("contextmenu", "[data-type]", (e) => {
+			if (shift) return;
+			e.preventDefault();
+			hoverSongId = parseInt(e.target.dataset.songId);
+			hoverSongElement = e.target;
+			hoverSongElement.classList.toggle("highlight");
+
+			openContextMenu(e);
+		});
+
+		$(document).on("click", ".dd-option", (e) => {
+			switch (e.target.getAttribute("title")) {
+				case "edit": {
+					editSong(hoverSongId);
+					$(".form-blur").addClass("active");
+					break;
+				}
+				case "play": {
+					shift = true;
+					clickedSong(hoverSongId);
+					shift = false;
+					clickedSong(songs[queue[songIndex]]);
+					break;
+				}
+				case "queue-next": {
+					shift = true;
+					clickedSong(hoverSongId);
+					shift = false;
+					break;
+				}
+				case "favorite": {
+					var bool = songs[hoverSongId].favorited;
+					if (bool) {
+						songs[hoverSongId].favorited = false;
+						favorites.splice(favorites.indexOf(songIndex), 1);
+					} else {
+						songs[hoverSongId].favorited = true;
+						favorites.push(hoverSongId);
+					}
+					break;
+				}
+				case "remove-from-playlist": {
+					p(songs[hoverSongId]);
+					var the_playlist = playlists[playlistIndex];
+					//find where deleting song is in the playlist
+					var ind = the_playlist.songs.indexOf(hoverSongId);
+					if (ind == -1) return;
+
+					var icant = (() => {
+						for (let l = 0; l < songs[hoverSongId].playlists.length; l++) {
+							if (songs[hoverSongId].playlists[l].name == the_playlist.name)
+								return l;
+						}
+						return -1;
+					})();
+					songs[hoverSongId].playlists.splice(icant, 1);
+
+					//splice deleting song
+					the_playlist.songs.splice(ind, 1);
+					// move positions for songs after it down (couldve just loop through
+					// the songs array and set everysong to its new position but this is
+					// more effeciant)
+					for (let k = ind; k < the_playlist.songs.length; k++) {
+						var currentSong = songs[the_playlist.songs[k]];
+						var findIndexForRetrival = (() => {
+							for (let l = 0; l < currentSong.playlists.length; l++) {
+								if (currentSong.playlists[l].name == the_playlist.name)
+									return l;
+							}
+							return -1;
+						})();
+						currentSong.playlists[findIndexForRetrival].position--;
+					}
+					the_playlist.size = the_playlist.songs.length;
+
+					hoverSongElement.remove();
+					break;
+				}
+				case "delete": {
+					//loops through every playlists that has deleting song to remove it from that playlist.
+					for (let i = 0; i < songs[hoverSongId].playlists.length; i++) {
+						const element = songs[hoverSongId].playlists[i];
+						//find where playlist is in playlists array
+						var playlistId = FindPlaylistIndexByName(element.name);
+
+						if (playlistId == -1) return;
+						//find where deleting song is in the playlist
+						var ind = playlists[playlistId].songs.indexOf(hoverSongId);
+						if (ind == -1) return;
+
+						p(element);
+						//splice deleting song
+						playlists[playlistId].songs.splice(ind, 1);
+						// move positions for songs after it down (couldve just loop through
+						// the songs array and set everysong to its new position but this is
+						// more effeciant)
+						for (let k = ind; k < playlists[playlistId].songs.length; k++) {
+							var currentSong = songs[playlists[playlistId].songs[k]];
+							var findIndexForRetrival = (() => {
+								for (let l = 0; l < currentSong.playlists.length; l++) {
+									if (currentSong.playlists[l].name == element.name) return l;
+								}
+								return -1;
+							})();
+							currentSong.playlists[findIndexForRetrival].position--;
+						}
+						if (playlists[playlistId] != null)
+							playlists[playlistId].size = playlists[playlistId].songs.length;
+					}
+					songs.splice(hoverSongId, 1);
+					hoverSongElement.remove();
+					loadSongs();
+					break;
+				}
+
+				case "select": {
+					selecting = true;
+					$(".accept-menu").show();
+					hoverSongElement.classList.toggle("selected");
+					if (hoverSongElement.classList.contains("selected"))
+						selects.push(hoverSongId);
+					else {
+						selects.splice(selects.indexOf(hoverSongId), 1);
+						if (!selects.length) {
+							selecting = false;
+							$(".accept-menu").hide();
+						}
+					}
+					break;
+				}
+
+				case "sel-delete": {
+					for (let g = 0; g < selects.length; g++) {
+						var sel_num = selects[g];
+						//if(songs[sel_num] == null) continue
+						if (songs[sel_num] != null && songs[sel_num].playlists != null) {
+							for (let i = 0; i < songs[sel_num].playlists.length; i++) {
+								const element = songs[sel_num].playlists[i];
+								//find where playlist is in playlists array
+								var playlistId = FindPlaylistIndexByName(element.name);
+
+								if (playlistId == -1) break;
+								//find where deleting song is in the playlist
+								var ind = playlists[playlistId].songs.indexOf(sel_num);
+								if (ind == -1) break;
+
+								// p(element);
+								//splice deleting song
+								playlists[playlistId].songs.splice(ind, 1);
+								// move positions for songs after it down (couldve just loop through
+								// the songs array and set everysong to its new position but this is
+								// more effeciant)
+								p(playlists[playlistId].songs);
+								for (
+									let k = ind; k < playlists[playlistId].songs.length; k++
+								) {
+									//p(songs[playlists[playlistId].songs[k]])
+									if (playlists[playlistId].songs[k] == null) continue;
+									var currentSong = songs[playlists[playlistId].songs[k]];
+									var findIndexForRetrival = currentSong.playlists.findIndex(
+										(el) => el.name == element.name
+									);
+
+									currentSong.playlists[findIndexForRetrival].position--;
+								}
+								if (playlists[playlistId] != null)
+									playlists[playlistId].size =
+									playlists[playlistId].songs.length;
+							}
+						}
+						songs[sel_num] = null;
+						$(`[data-song-id="${sel_num}"]`).remove();
+					}
+
+					songs = songs.filter((el) => el !== null);
+					selects = [];
+					selecting = false;
+					$(".accept-menu").hide();
+					//updateQueueHUD()
+					//loadSongs();
+
+					break;
+				}
+
+				default:
+					p(e.target.getAttribute("title"));
+			}
+			contextMenu.removeClass("active");
+			hoverSongElement.classList.remove("highlight");
+		});
+
+		$(document).on("mousedown", ".song", (e) => {
+			p('asd')
+			if (e.which != 1) return;
+			var id = parseInt(e.target.dataset.songId);
+
+			if (shift) {
+				selecting = true;
+				$(".accept-menu").show();
+			}
+
+			if (selecting) {
+				if (shift2 && last_clicked != null) {
+					var tar = e.target.dataset.songId;
+					if ($("#tt").is(":visible")) {
+						var elms = [...document.querySelector("#tt").children];
+						//	p(typeof elms)
+						var first = elms.findIndex((el) => el.dataset.songId == tar);
+						var second = elms.findIndex(
+							(el) => el.dataset.songId == last_clicked
+						);
+
+						if (second < first) {
+							var temp = first;
+							first = second;
+							second = temp;
+						}
+
+						p(first + " " + second);
+
+						for (let q = first; q < second + 1; q++) {
+							$("#song" + q).addClass("selected");
+							if ($("#song" + q)[0].classList.contains("selected"))
+								selects.push(q);
+							else {
+								selects.splice(selects.indexOf(id), 1);
+								if (!selects.length) {
+									selecting = false;
+									$(".accept-menu").hide();
+								}
+							}
+						}
+					}
+
+					return;
+				}
+
+				$("#song" + id).toggleClass("selected");
+				if (e.target.classList.contains("selected")) selects.push(id);
+				else {
+					selects.splice(selects.indexOf(id), 1);
+					if (!selects.length) {
+						selecting = false;
+						$(".accept-menu").hide();
+					}
+				}
+				last_clicked = e.target.dataset.songId;
+				return;
+			}
+
+			if (e.target.dataset.type == "inplaylist") {
+				queue = GetSongsInView();
+			} else if (e.target.dataset.type == "inqueue") {
+				songIndex = queue.indexOf(id);
+				playSong();
+				return;
+			} else if (e.target.dataset.type == "ytSearch") {
+				let sng = {
+					name: e.target.dataset.name,
+					link: e.target.dataset.link,
+					id: idParser(e.target.dataset.link),
+					playlists: [],
+					favorited: false,
+					type: 1,
+				};
+				songs.push(sng);
+				queue.push(songs.length - 1);
+				$("#tt").append(
+					songBuilder(songs.length - 1, songs[songs.length - 1].id, e.target.dataset.name, 1)
+				);
+				return;
+			} else if (queue.length < songs.length)
+				queue = Array.apply(null, Array(songs.length)).map(function (x, i) {
+					return i;
+				});
+
+			$(".playing").removeClass("playing");
+
+			clickedSong(id);
+		});
+
+		$(document).on("mousedown", (e) => {
+			if (
+				selecting &&
+				!e.target.classList.contains("song") &&
+				!e.target.classList.contains("bi-three-dots-vertical") &&
+				!e.target.classList.contains("dd-option") &&
+				!e.target.classList.contains("accept-menu")
+			) {
+				$(".selected").removeClass("selected");
+				selects = [];
+				selecting = false;
+				$(".accept-menu").hide();
+			}
+		});
+
+		$(document).click((e) => {
+			//main listeners
+
+			if (
+				!e.target.classList.contains("bi-three-dots") &&
+				!e.target.classList.contains("bi-three-dots-vertical")
+			) {
+				$("[dropdown_menu]").removeClass("active");
+			}
+
+			//   $(`#song${hoverSongId}`).css("background-color", "rgb(33, 33, 33)");
+			var item = e.target.classList;
+
+			switch (e.target.getAttribute("class")) {
+				case "bi bi-arrow-bar-up bim": {
+					flipSort();
+					break;
+				}
+
+				case "bi bi-arrow-bar-down bim": {
+					flipSort();
+					break;
+				}
+
+				case "bi-star resize": {
+					$(e.target).attr("class", "bi-star-fill resize");
+					songs[queue[songIndex]].favorited = true;
+					favorites.push(queue[songIndex]);
+					break;
+				}
+				case "bi-star-fill resize": {
+					$(e.target).attr("class", "bi-star resize");
+					songs[queue[songIndex]].favorited = false;
+					favorites.splice(favorites.indexOf(queue[songIndex]), 1);
+					break;
+				}
+			}
+		});
+
+		document.addEventListener("keydown", (e) => {
+			if (is_typing) return;
+			switch (e.keyCode) {
+				case 37: {
+					if (shift) {
+						prevSong();
+					} else player.seekTo(time - 5);
+					break;
+				}
+				case 39: {
+					if (shift) {
+						nextSong();
+					} else player.seekTo(time + 5);
+					break;
+				}
+				case 38: {
+					slider.value = parseInt(slider.value) + 5;
+					player.setVolume(slider.value);
+					break;
+				}
+				case 40: {
+					slider.value -= 5;
+					player.setVolume(slider.value);
+					break;
+				}
+				case 32: {
+					e.preventDefault();
+					PlayPauseFlip();
+					break;
+				}
+				case 17: {
+					e.preventDefault();
+					shift = true;
+					break;
+				}
+				case 16: {
+					e.preventDefault();
+					shift2 = true;
+					break;
+				}
+			}
+			//p(e.keyCode)
+		});
+
+		$(document).on("keyup", (e) => {
+			switch (e.keyCode) {
+				case 17: {
+					e.preventDefault();
+					shift = false;
+					break;
+				}
+				case 16: {
+					e.preventDefault();
+					shift2 = false;
+					break;
+				}
+			}
+		});
+
+		document.addEventListener("dragover", (event) => {
+			event.stopPropagation();
+			event.preventDefault();
+			event.dataTransfer.dropEffect = "copy";
+		});
+
+		document.addEventListener("drop", (event) => {
+			event.stopPropagation();
+			event.preventDefault();
+			DragSong(event.dataTransfer.files);
+		});
+
+		audio.addEventListener("ended", nextSong);
+		audio.addEventListener("timeupdate", updateProgress);
+
+		window.addEventListener(
+			"beforeunload",
+			function (e) {
+				AutoSave();
+			},
+			false
+		);
+
+		search.on("input", (e) => {
+			if (!(e.target.value === "")) {
+				$("#tt").hide();
+				$("#st").show();
+				$("#st").html(() => {
+					var list = [];
+					for (let i = 0; i < songs.length; i++) {
+						if (
+							songs[i].name
+							.toLowerCase()
+							.includes(e.target.value.toLowerCase())
+						)
+							list.push(i);
+					}
+					return list.map((j) => $(`#song${j}`).clone());
+				});
+			} else {
+				$("#tt").show();
+				$("#st").hide();
+			}
+		});
+
+		slider.oninput = function () {
+			setVolume(this.value);
+		};
+		//#endregion
+	</script>
+</body>
+
+</html>
