@@ -685,6 +685,7 @@
 					<button id="fix" onclick="fix()">fix</button>
 					<input type="text" id="portfield"/>
 					<button onclick="getData()">New port</button>
+					<button onclick="function but() {console.log(window.location.origin)}; but()">print window</button>
 					<i class="bi bi-arrow-bar-left"></i>
 				</div>
 
@@ -838,7 +839,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		var url = "http://localhost:8000";
+		var url = window.location.origin;
 
 		const p = (s) => console.log(s);
 
