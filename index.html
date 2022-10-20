@@ -685,7 +685,7 @@
 					<button id="fix" onclick="fix()">fix</button>
 					<input type="text" id="portfield"/>
 					<button onclick="getData()">New port</button>
-					<button onclick="function but() {console.log(window.location.origin)}; but()">print window</button>
+					<button onclick="but()">print window</button>
 					<i class="bi bi-arrow-bar-left"></i>
 				</div>
 
@@ -848,6 +848,7 @@
 		tag.src = "https://www.youtube.com/iframe_api";
 		var firstScriptTag = document.getElementsByTagName("script")[0];
 		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+		function but() {console.log(window.location.origin)}; 
 
 		//$(document).ready($(".accept-menu").hide());
 		$(document).ready(async () => {
