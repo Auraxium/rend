@@ -183,7 +183,7 @@
 			justify-content: space-between;
 		}
 
-		
+
 
 		.song:hover {
 			background-color: rgb(58, 58, 58);
@@ -680,10 +680,10 @@
 				<div>
 					<button onclick="buttonAddSong()">Add Song</button>
 					<button onclick="edit()">Edit</button>
-					<button onclick="save()">Save</button>
+					<button onclick="AutoSave()">Save</button>
 					<button onclick="showVideo()">Show Video</button>
 					<button id="fix" onclick="fix()">fix</button>
-					<input type="text" id="portfield"/>
+					<input type="text" id="portfield" />
 					<button onclick="getData()">New port</button>
 					<button onclick="but()">print window</button>
 					<i class="bi bi-arrow-bar-left"></i>
@@ -848,7 +848,10 @@
 		tag.src = "https://www.youtube.com/iframe_api";
 		var firstScriptTag = document.getElementsByTagName("script")[0];
 		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-		function but() {console.log(window.location.origin)}; 
+
+		function but() {
+			console.log(window.location.origin)
+		};
 
 		//$(document).ready($(".accept-menu").hide());
 		$(document).ready(async () => {
@@ -1019,39 +1022,39 @@
 		}
 
 		function getData() {
-			url =	$('#portfield').val();
+			url = $('#portfield').val();
 			console.log(url)
 			$(document).ready(async () => {
-			await fetch(url + "/load")
-				.then((res) => res.json())
-				.then((res_data) => {
-					data = res_data;
-					p(data);
+				await fetch(url + "/load")
+					.then((res) => res.json())
+					.then((res_data) => {
+						data = res_data;
+						p(data);
 
-					songs = data.songs;
+						songs = data.songs;
 
-					playlists = data.playlists;
+						playlists = data.playlists;
 
-					$("#myRange").val(data.config.volume);
-					songIndex = data.config.songIndex;
-					Ftime = data.config.time;
-					tog_shuffle = data.config.shuffle;
-					column_sort = data.config.column;
+						$("#myRange").val(data.config.volume);
+						songIndex = data.config.songIndex;
+						Ftime = data.config.time;
+						tog_shuffle = data.config.shuffle;
+						column_sort = data.config.column;
 
-					if (column_sort) {
-						$("#tt").css("flex-direction", "column-reverse");
-						$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-					}
+						if (column_sort) {
+							$("#tt").css("flex-direction", "column-reverse");
+							$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+						}
 
-					loadPl();
-					loadSongs();
+						loadPl();
+						loadSongs();
 
-					precleanUp();
-				})
-				.catch((err) => {
-					p("(865 <Initializers>) failed to get songs data: " + err);
-				});
-		});
+						precleanUp();
+					})
+					.catch((err) => {
+						p("(865 <Initializers>) failed to get songs data: " + err);
+					});
+			});
 		}
 
 		function download(filename, text) {

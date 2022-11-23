@@ -13,8 +13,6 @@ const mongoose = require("mongoose");
 var dataModel = mongoose.model('Data', new mongoose.Schema({data: {}}))
 const URI = "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority"
 
-
-
 p = (s) => console.log(s);
 
 mongoose.connect(URI, {
@@ -44,6 +42,14 @@ app.use(upload());
 app.get("/", (req, res) => {
 	res.sendFile(__dirname+"/./index.html")
 });
+
+app.get("/test", (req, res) => {
+	res.send({"howdy": 'hey'})
+})
+
+app.get("/native", (req, res) => {
+	res.sendFile(__dirname+"/songs.json", (err) => console.log(err))
+})
 
 app.get("/load", (req, res) => {
 
@@ -134,7 +140,7 @@ app.post("/art/:path", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 8080
 app.listen(PORT, null, () => console.log("Running on " + PORT));
 
 //#endregion
