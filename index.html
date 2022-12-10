@@ -34,15 +34,9 @@
 			margin: 0;
 			padding: 0;
 
-			height: 100vh;
-			width: 100vw;
-
-			display: flex;
-			flex-direction: column;
-
 			background-color: rgb(12, 12, 12);
 
-			font-family: "Open Sans", sans-serif;
+			font-family: 'Helvetica', 'Arial', sans-serif;
 		}
 
 		* {
@@ -57,27 +51,23 @@
 			user-select: none;
 		}
 
-		/* @import url("https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"); */
-
 		::-webkit-scrollbar {
 			display: none;
-		}
-
-		row {
-			display: flex;
-			flex-direction: row;
-		}
-
-		column {
-			display: flex;
-			flex-direction: column;
 		}
 
 		/*#endregion */
 
 		/*#region MAIN */
+
+		.app {
+			height: 100vh;
+			width: 100vw;
+
+			display: flex;
+			flex-direction: column;
+		}
+
 		.nav {
-			width: 100%;
 			background-color: lime;
 
 			display: flex;
@@ -87,37 +77,45 @@
 			align-content: center;
 		}
 
+		.nav-mobile {
+			display: none;
+			
+		}
+
 		.main-container {
+			flex: 75;
 			overflow: hidden;
 			display: flex;
-			height: 100%;
-			width: 100%;
+			
+
 		}
 
 		.container {
-			/* overflow: scroll; */
+			flex: 90;
+
 			display: flex;
 			flex-direction: column;
 			flex-wrap: nowrap;
-			flex-grow: 1;
-		}
+			flex: auto;
 
-		.right {
-			max-width: 20%;
-
-			/* border-style: solid; */
-
-			height: 100%;
-			border-style: solid;
-			border-width: 2px;
+			
 		}
 
 		.left {
-			width: 15%;
+			flex: 5;
+
 			overflow: scroll;
 			border-style: solid;
 			border-width: 2px;
 			height: 100%;
+		}
+
+		.right {
+			flex: 5;
+
+			height: 100%;
+			border-style: solid;
+			border-width: 2px;
 		}
 
 		.displaay {
@@ -172,18 +170,20 @@
 
 		.song {
 			background-color: rgb(33, 33, 33);
-			/* border-style: solid;
-        border-width: 2px; */
 			padding: 5px;
 
 			display: flex;
-			flex-wrap: nowrap;
 			flex-direction: row;
 			align-items: center;
 			justify-content: space-between;
 		}
 
-
+		.song-text {
+			width: 200px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
 
 		.song:hover {
 			background-color: rgb(58, 58, 58);
@@ -431,6 +431,8 @@
 	<!--Foot-->
 	<style>
 		.foot {
+			flex: 10;
+
 			background-color: rgb(15, 37, 15);
 			display: flex;
 		}
@@ -627,144 +629,215 @@
 		.yt-vids {}
 	</style>
 
+
+	<!-- media queries -->
+	<style>
+		@media (max-width: 500px) {
+
+			.nav,
+			.left,
+			.right,
+			.tools,
+			.tools2,
+			.song-info,
+			.misc {
+				display: none;
+			}
+
+			.nav-mobile {
+				flex: 5;
+				background-color: #04aa6d;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			.foot {
+				flex: 15;
+				background-color: rgb(15, 37, 15);
+				overflow: scroll;
+			}
+
+			.footmid {
+				width: 100%;
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: space-around;
+
+			}
+
+
+			.progress-container {
+			background: rgb(117, 117, 117);
+			border-radius: 5px;
+			cursor: pointer;
+			margin: 10px 0;
+			height: 12px;
+			width: 75%;
+			padding: 10px 0;
+		}
+
+		.progress {
+			padding: 10px 0;
+		}
+
+		#controls > * {
+			border: dashed 1px
+		}
+
+		}
+	</style>
+
 	<!--#region HTML-->
 
-	<div absolutes>
-		<div class="add-song-form"></div>
-		<div class="float-duration">
-			<div id="floatDurationElapsed"></div>
-		</div>
+	<div class="app">
 
-		<div class="float-volume">
-			<div id="floatVolume"></div>
-		</div>
-
-		<div class="dropdown-menu" id="context-memu" dropdown_menu></div>
-
-		<div class="form-blur" form-blur></div>
-
-		<div class="yt-abs">
-			<input class="yt-search" onkeydown="if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
-			<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
-			<div class="yt-vids"></div>
-		</div>
-
-		<audio src="" id="audio"></audio>
-	</div>
-
-	<div class="nav">
-		<div>hi</div>
-		<button onclick="ytMenu()" tysbut>my</button>
-		<div>name</div>
-		<div>is</div>
-		<div>
-			<input type="file" name="" id="JData" />
-		</div>
-	</div>
-
-	<div class="main-container">
-		<div class="left">
-			<label class="plabel">playlists:</label>
-			<div id="playlists">
-				<div class="playlist" onclick="showAllSongs()">All Songs</div>
-				<div class="playlist" onclick="openFavs()">Favorites</div>
-				<hr />
-			</div>
-			<div class="playlist-form"></div>
-			<button onclick="buttonAddPlaylist()" id="pbut">add playlist</button>
-		</div>
-
-		<div class="container">
-			<div class="tools">
-				<div id="songName">name</div>
-				<div>
-					<button onclick="buttonAddSong()">Add Song</button>
-					<button onclick="edit()">Edit</button>
-					<button onclick="AutoSave()">Save</button>
-					<button onclick="showVideo()">Show Video</button>
-					<button id="fix" onclick="fix()">fix</button>
-					<input type="text" id="portfield" />
-					<button onclick="getData()">New port</button>
-					<button onclick="but()">print window</button>
-					<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake server</button>
-					<i class="bi bi-arrow-bar-left"></i>
-				</div>
-
-				<i class="bi bi-search-heart"></i>
-				<div class="pll">
-					<div id="pln"></div>
-					<div id="psongs"></div>
-				</div>
-
-				<div id="sng"></div>
+		<div absolutes>
+			<div class="add-song-form"></div>
+			<div class="float-duration">
+				<div id="floatDurationElapsed"></div>
 			</div>
 
+			<div class="float-volume">
+				<div id="floatVolume"></div>
+			</div>
+
+			<div class="dropdown-menu" id="context-memu" dropdown_menu></div>
+
+			<div class="form-blur" form-blur></div>
+
+			<div class="yt-abs">
+				<input class="yt-search" onkeydown="if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
+				<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
+				<div class="yt-vids"></div>
+			</div>
+
+			<audio src="" id="audio"></audio>
+		</div>
+
+		<div class="nav-mobile">
+			<img id="nm-img" class="crop" src="" alt="" />
+			<div class="nm-name"></div>
+			<i class="bi bi-three-dots-vertical"></i>
+		</div>
+
+		<div class="nav">
+			<div>hi</div>
+			<button onclick="ytMenu()" tysbut>my</button>
+			<div>name</div>
+			<div>is</div>
 			<div>
-				<i class="bi bi-three-dots"></i>
-				<i class="bi bi-arrow-bar-up bim"></i>
-				<input type="text" id="search" />
-				<i class="bi bi-plus-circle-dotted" onclick=""></i>
-				<button onclick="submitSelect()">get it</button>
-			</div>
-
-			<div class="displaay">
-				<div id="tt"></div>
-				<div id="st"></div>
-			</div>
-
-			<div class="accept-menu">
-				<div id="selected">0 songs selected</div>
-				<i class="bi bi-three-dots-vertical" data-type="sel"></i>
+				<input type="file" name="" id="JData" />
 			</div>
 		</div>
 
-		<div class="right">
-			<div class="queue-lable">
-				Queue
-				<i class="bi bi-arrow-bar-right" data-arrow-direction="open"></i>
-			</div>
-			<div class="queue-list-container">
-				<div id="songsList"></div>
-			</div>
-		</div>
-	</div>
-
-	<div class="foot">
-		<div class="song-info">
-			<div class="row">
-				<img id="songInfoImage" class="crop" src="" alt="" />
-				<i class="bi-star resize"></i>
-				<div class="songInfoName"></div>
-			</div>
-		</div>
-
-		<div class="footmid">
-			<div id="controls">
-				<i class="bi-arrow-repeat togglable"></i>
-				<i class="bi-chevron-double-left" onclick="prevSong()"></i>
-				<i class="bi-play" onclick="PlayPauseFlip()" play-pause-button></i>
-				<i class="bi-chevron-double-right" onclick="nextSong()"></i>
-				<i class="bi-shuffle togglable shuffle-button"></i>
-			</div>
-
-			<div class="duration">
-				<div id="elapsed">-:--</div>
-				<div class="progress-container">
-					<div class="progress"></div>
+		<div class="main-container">
+			<div class="left">
+				<label class="plabel">playlists:</label>
+				<div id="playlists">
+					<div class="playlist" onclick="showAllSongs()">All Songs</div>
+					<div class="playlist" onclick="openFavs()">Favorites</div>
+					<hr />
 				</div>
-				<div id="length">-:--</div>
+				<div class="playlist-form"></div>
+				<button onclick="buttonAddPlaylist()" id="pbut">add playlist</button>
 			</div>
-		</div>
 
-		<div class="misc">
-			<div class="buttons"></div>
-			<div class="volume">
-				<i class="bi bi-volume-up"></i>
-				<div class="slidecontainer">
-					<input type="range" min="0" max="100" value="0" class="slider" id="myRange" />
+			<div class="container">
+				<div class="tools">
+					<div id="songName">name</div>
+					<div>
+						<button onclick="buttonAddSong()">Add Song</button>
+						<button onclick="edit()">Edit</button>
+						<button onclick="AutoSave()">Save</button>
+						<button onclick="showVideo()">Show Video</button>
+						<button id="fix" onclick="fix()">fix</button>
+						<input type="text" id="portfield" />
+						<button onclick="getData()">New port</button>
+						<button onclick="but()">print window</button>
+						<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake
+							server</button>
+						<i class="bi bi-arrow-bar-left"></i>
+					</div>
+
+					<i class="bi bi-search-heart"></i>
+					<div class="pll">
+						<div id="pln"></div>
+						<div id="psongs"></div>
+					</div>
+
+					<div id="sng"></div>
+				</div>
+
+				<div class="tools2">
+					<i class="bi bi-three-dots"></i>
+					<i class="bi bi-arrow-bar-up bim"></i>
+					<input type="text" id="search" />
+					<i class="bi bi-plus-circle-dotted" onclick=""></i>
+					<button onclick="submitSelect()">get it</button>
+				</div>
+
+				<div class="displaay">
+					<div id="tt"></div>
+					<div id="st"></div>
+				</div>
+
+				<div class="accept-menu">
+					<div id="selected">0 songs selected</div>
+					<i class="bi bi-three-dots-vertical" data-type="sel"></i>
 				</div>
 			</div>
+
+			<div class="right">
+				<div class="queue-lable">
+					Queue
+					<i class="bi bi-arrow-bar-right" data-arrow-direction="open"></i>
+				</div>
+				<div class="queue-list-container">
+					<div id="songsList"></div>
+				</div>
+			</div>
 		</div>
+
+		<div class="foot">
+			<div class="song-info">
+				<div class="row">
+					<img id="songInfoImage" class="crop" src="" alt="" />
+					<i class="bi-star resize"></i>
+					<div class="songInfoName"></div>
+				</div>
+			</div>
+
+			<div class="footmid">
+				<div id="controls">
+					<i class="bi-arrow-repeat togglable"></i>
+					<i class="bi-chevron-double-left" onclick="prevSong()"></i>
+					<i class="bi-play" onclick="PlayPauseFlip()" play-pause-button></i>
+					<i class="bi-chevron-double-right" onclick="nextSong()"></i>
+					<i class="bi-shuffle togglable shuffle-button"></i>
+				</div>
+
+				<div class="duration">
+					<div id="elapsed">-:--</div>
+					<div class="progress-container">
+						<div class="progress"></div>
+					</div>
+					<div id="length">-:--</div>
+				</div>
+			</div>
+
+			<div class="misc">
+				<div class="buttons"></div>
+				<div class="volume">
+					<i class="bi bi-volume-up"></i>
+					<div class="slidecontainer">
+						<input type="range" min="0" max="100" value="0" class="slider" id="myRange" />
+					</div>
+				</div>
+			</div>
+		</div>
+
 	</div>
 
 	<!--#endregion-->
@@ -840,7 +913,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		var url = window.location.origin;
+		var url = 'https://lo-player.onrender.com	' //window.location.origin;
 
 		const p = (s) => console.log(s);
 
@@ -1137,7 +1210,7 @@
 						<img src="${im_link_id}"
 								class="crop"
 								alt="" />
-								<div>${eval(id_num + 1)}: ${name}</div>
+								<div class="song-text">${eval(id_num + 1)}: ${name}</div>
 							</div>
 							<dd>
 								 <i class="bi bi-three-dots"></i>
@@ -1336,6 +1409,13 @@
 				thesong.name
 			);
 			$("#songName").html(thesong.name);
+
+			$("#nm-img").attr(
+				"src",
+				`http://img.youtube.com/vi/${thesong.id}/0.jpg`
+			);
+			$('.nm-name').html(thesong.name)
+
 			document.title = thesong.name;
 			var temp = $(".resize");
 			if (thesong.favorited) {
