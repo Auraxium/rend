@@ -939,7 +939,9 @@
 
 					playlists = data.playlists;
 
-					$("#myRange").val(data.config.volume);
+					console.log("the width of the screen is " + screen.width)
+
+				$("#myRange").val((screen.width > 501) ? data.config.volume:100);
 					songIndex = data.config.songIndex;
 					Ftime = data.config.time;
 					tog_shuffle = data.config.shuffle;
@@ -1017,8 +1019,9 @@
 				songs = data.songs;
 
 				playlists = data.playlists;
+				console.log("the width of the screen is " + screen.width)
 
-				$("#myRange").val(data.config.volume);
+				$("#myRange").val((screen.width > 501) ? data.config.volume:100);
 				songIndex = data.config.songIndex;
 				Ftime = data.config.time;
 				tog_shuffle = data.config.shuffle;
