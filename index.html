@@ -91,12 +91,9 @@
 			flex: 75;
 			overflow: hidden;
 			display: flex;
-
-
 		}
 
 		.container {
-			flex: 90;
 
 			display: flex;
 			flex-direction: column;
@@ -107,7 +104,9 @@
 		}
 
 		.left {
-			flex: 5;
+			flex: 15;
+			min-width: 15%;
+			max-width: 15%;
 
 			overflow: scroll;
 			border-style: solid;
@@ -116,7 +115,9 @@
 		}
 
 		.right {
-			flex: 5;
+			flex: 15;
+			min-width: 15%;
+			max-width: 15%;
 
 			height: 100%;
 			border-style: solid;
@@ -831,8 +832,6 @@
 			</div>
 		</div>
 
-
-
 		<div class="foot">
 			<div class="song-info">
 				<div class="row">
@@ -872,8 +871,6 @@
 		</div>
 
 	</div>
-
-
 
 	<!--JS-->
 	<script>
@@ -968,7 +965,7 @@
 					data = res_data;
 					console.log(data);
 
-					songs = data.songs;
+					songs = data.songs.filter(e => e.type != 'FILE');
 
 					playlists = data.playlists;
 
@@ -1000,41 +997,13 @@
 		//#region ------------------Loading-----------------
 
 		async function fix() {
-			// for (let i = 0; i < songs.length; i++) {
-			// 	try {
-			// 		await axios.post('/search', songs[i].id).then(res => {
-			// 			let a = res.data[0].duration_raw.split(':');
-			// 			s = 0, m = 1;
-
-			// 			while (a.length > 0) {
-			// 				s += m * parseInt(a.pop(), 10);
-			// 				m *= 60;
-			// 			}
-
-			// 			songs[i].end = s;
-			// 		})
-			// 		console.log(songs[i])
-			// 	} catch (e) {
-			// 		continue
-			// 	}
-			// }
-
 			for (let i = 0; i < songs.length; i++) {
-				songs[i].end_raw = (() => {
-					const h = Math.floor(songs[i].end / 3600);
-					const m = Math.floor((songs[i].end % 3600) / 60);
-					const s = Math.round(songs[i].end % 60);
-					return [
-						h,
-						m > 9 ? m : (h ? '0' + m : m || '0'),
-						s > 9 ? s : '0' + s
-					].filter(Boolean).join(':');
-				})()
-
-			}
-			console.log(songs)
+				//songs[i].type = (songs[i].link.includes("http")) ? 'YOUTUBE':'FILE'
+				
+			 }
+			 console.log(songs)
+			 console.log('fixed')
 			AutoSave()
-
 		}
 
 		input.addEventListener("change", () => {
@@ -1240,7 +1209,7 @@
 
 		function songBuilder(id_num, im_link_id, name, type) {
 			switch (type) {
-				case 0:
+				case 'FILE':
 					return `<div class="song" id="song${id_num}" data-song-id="${id_num}" data-type="all">
 					<div class="row no-click">
 						<img src="${im_link_id}"
@@ -1253,7 +1222,7 @@
 							</dd>
 					</div>`;
 
-				case 1:
+				case 'YOUTUBE':
 					return `<div class="song" id="song${id_num}" data-song-id="${id_num}" data-type="all">
 							<div class="row no-click">
 								<img src="http://img.youtube.com/vi/${im_link_id}/0.jpg"
@@ -1301,6 +1270,7 @@
 
 		//#region Song players and HUD
 		async function playSong() {
+			if(songs[queue[songIndex]].type == "YOUTUBE")
 			seek_ready = false;
 
 			time = 0;
@@ -1313,12 +1283,12 @@
 
 			Ftime = 0;
 
-			var still = queue[songIndex];
+			let still = queue[songIndex];
 
 			$(".playing").removeClass("playing");
 			$(`[data-song-id="${queue[songIndex]}"]`).addClass("playing");
 
-			var the_song = songs[queue[songIndex]];
+			let the_song = songs[queue[songIndex]];
 			ChangeType(currentType, the_song.type);
 			currentType = the_song.type;
 			currentId = queue[songIndex];
@@ -1330,7 +1300,19 @@
 			// updateQueueHUD();
 
 			switch (currentType) {
-				case 0:
+
+				case 'YOUTUBE':
+					// player.setVolume(slider.value);
+					//await delay(100);
+
+					player.loadVideoById({
+						videoId: the_song.id,
+						startSeconds: Ftime,
+					});
+					updateHUDInfo(the_song);
+					break;
+
+				case 'FILE':
 					if (source.buffer != null) source.buffer = null;
 
 					var path = the_song.link
@@ -1382,16 +1364,7 @@
 
 					break;
 
-				case 1:
-					// player.setVolume(slider.value);
-					//await delay(100);
-
-					player.loadVideoById({
-						videoId: the_song.id,
-						startSeconds: Ftime,
-					});
-					updateHUDInfo(the_song);
-					break;
+				
 			}
 
 			//await delay(50);
@@ -1597,14 +1570,14 @@
 			console.log(links);
 
 			//   for (let i = 0; i < links.length; i++) {
-			if (t == 0) {
+			if (t == 'FILE') {
 				var sng = {
 					name: n,
 					link: l,
 					id: "offline",
 					playlists: [],
 					favorited: false,
-					type: 0,
+					type: t,
 				};
 				songs.push(sng);
 				queue.push(songs.length - 1);
@@ -1613,14 +1586,14 @@
 				$("#tt").append(
 					songBuilder(songs.length - 1, songs[songs.length - 1].id, n, 0)
 				);
-			} else if (t == 1) {
+			} else if (t == 'YOUTUBE') {
 				var sng = {
 					name: n,
 					link: linkParser(l),
 					id: idParser(linkParser(l)),
 					playlists: [],
 					favorited: false,
-					type: 1,
+					type: t,
 				};
 				songs.push(sng);
 				queue.push(songs.length - 1);
@@ -1732,12 +1705,12 @@
 
 		function setVolume(v) {
 			switch (currentType) {
-				case 0:
+				case 'FILE':
 					gain.gain.setValueAtTime(v / 100, ctx.currentTime);
 					//audio.volume = (v / 100) * 0.45;
 					break;
 
-				case 1:
+				case 'YOUTUBE':
 					if (screen.width < 500) {
 
 						slider.value = 100
@@ -1749,8 +1722,6 @@
 			}
 			volume = v;
 		}
-
-
 
 		GetTitleAndUurl = (fi) => {
 			return new Promise((resolve, reject) => {
@@ -1899,13 +1870,13 @@
 			if (i == j) return;
 			//remove
 			switch (i) {
-				case 0:
+				case 'FILE':
 					source.stop();
 					ctx.suspend();
 					//clearInterval(elapseInterval)
 					break;
 
-				case 1:
+				case 'YOUTUBE':
 					player.pauseVideo();
 					// $("#sng").hide();
 					break;
@@ -1913,12 +1884,12 @@
 
 			//boot engine
 			switch (j) {
-				case 0:
+				case 'FILE':
 					ctx.resume();
 					//elapseInterval = setInterval(UpdateElapsed, 1000)
 					break;
 
-				case 1:
+				case 'YOUTUBE':
 					//$("#sng").show();
 					break;
 			}
@@ -2004,7 +1975,7 @@
 			//var duration;
 
 			switch (currentType) {
-				case 0:
+				case 'FILE':
 					source.stop();
 					source = ctx.createBufferSource();
 					source.buffer = songFile;
@@ -2012,7 +1983,7 @@
 					source.start(0, clamp((clickX / width) * duration, 0, duration));
 					break;
 
-				case 1:
+				case 'YOUTUBE':
 					player.seekTo(
 						clamp((clickX / width) * duration, 0, duration),
 						true
@@ -2032,7 +2003,7 @@
 			console.log(currentType);
 
 			switch (currentType) {
-				case 0:
+				case 'FILE':
 					source.stop();
 					source = ctx.createBufferSource();
 					source.buffer = songFile;
@@ -2041,7 +2012,7 @@
 
 					break;
 
-				case 1:
+				case 'YOUTUBE':
 					player.seekTo(v);
 					break;
 			}
@@ -2287,7 +2258,7 @@
 		}
 
 		function onPlayerStateChange(event) {
-			if (currentType != 1) return;
+			if (currentType != 'YOUTUBE') return;
 			switch (event.data) {
 				case YT.PlayerState.PLAYING: {
 					playing = true;
@@ -2339,7 +2310,7 @@
 		function err(er) {
 			console.log(er);
 			if (!data) return;
-			if (currentType != 1) return;
+			if (currentType != 'YOUTUBE') return;
 
 			//songs[queue[songIndex]].isBroken = true;
 			//$(`#song${songIndex}`).css("background-color", "orange");
@@ -2366,12 +2337,12 @@
 			clearInterval(elapseInterval);
 			elapseInterval = null;
 			switch (currentType) {
-				case 0:
+				case 'FILE':
 					ctx.suspend();
 					$("[play-pause-button]").attr("class", "bi-play");
 					break;
 
-				case 1:
+				case 'YOUTUBE':
 					player.pauseVideo();
 					break;
 			}
@@ -2380,12 +2351,12 @@
 
 		function ResumeSong() {
 			switch (currentType) {
-				case 0:
+				case 'FILE':
 					ctx.resume();
 					$("[play-pause-button]").attr("class", "bi-pause");
 					break;
 
-				case 1:
+				case 'YOUTUBE':
 					player.playVideo();
 					break;
 			}
@@ -2785,7 +2756,6 @@
 		});
 
 		$(document).on("mousedown", ".song", (e) => {
-			console.log('asd')
 			if (e.which != 1) return;
 			var id = parseInt(e.target.dataset.songId);
 
@@ -2850,18 +2820,19 @@
 				playSong();
 				return;
 			} else if (e.target.dataset.type == "ytSearch") {
+				console.log('lookdge')
 				let sng = {
 					name: e.target.dataset.name,
 					link: e.target.dataset.link,
 					id: idParser(e.target.dataset.link),
 					playlists: [],
 					favorited: false,
-					type: 1,
+					type: 'YOUTUBE',
 				};
 				songs.push(sng);
 				queue.push(songs.length - 1);
 				$("#tt").append(
-					songBuilder(songs.length - 1, songs[songs.length - 1].id, e.target.dataset.name, 1)
+					songBuilder(songs.length - 1, songs[songs.length - 1].id, e.target.dataset.name, 'YOUTUBE')
 				);
 				return;
 			} else if (queue.length < songs.length)
