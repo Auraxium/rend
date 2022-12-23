@@ -2958,17 +2958,17 @@
 			}
 		});
 
-		document.addEventListener("dragover", (event) => {
-			event.stopPropagation();
-			event.preventDefault();
-			event.dataTransfer.dropEffect = "copy";
-		});
+		// document.addEventListener("dragover", (event) => {
+		// 	event.stopPropagation();
+		// 	event.preventDefault();
+		// 	event.dataTransfer.dropEffect = "copy";
+		// });
 
-		document.addEventListener("drop", (event) => {
-			event.stopPropagation();
-			event.preventDefault();
-			DragSong(event.dataTransfer.files);
-		});
+		// document.addEventListener("drop", (event) => {
+		// 	event.stopPropagation();
+		// 	event.preventDefault();
+		// 	DragSong(event.dataTransfer.files);
+		// });
 
 		audio.addEventListener("ended", nextSong);
 		audio.addEventListener("timeupdate", updateProgress);

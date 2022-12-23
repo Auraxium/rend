@@ -56,8 +56,6 @@ app.get("/load", (req, res) => {
 	dataModel.findOne()
 		.then(data => res.json(data.data))
 		.catch(err => res.json("Error: " + err))
-
-  //res.sendFile(__dirname + "/test.json");
 });
 
 app.post("/save", (req, res) => {
@@ -110,7 +108,6 @@ app.delete("/del_path", bodyParser.text({ type: "*/*" }), (req, res) => {
 
 app.get("/song/:path", (req, res) => {
   var song_path = req.params.path.replace(/☹☸☼☺☿☾☻/g, "\\");
-  //	p('get ' + song_path)
   res.sendFile(song_path, (err) => {
     if (err) {
       console.log("ERROR: " + err);
