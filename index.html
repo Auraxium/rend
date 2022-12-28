@@ -94,13 +94,10 @@
 		}
 
 		.container {
-
 			display: flex;
 			flex-direction: column;
 			flex-wrap: nowrap;
 			flex: auto;
-
-
 		}
 
 		.left {
@@ -227,6 +224,10 @@
 			height: 300px;
 		}
 
+		.song-form {
+			display: flex;
+		}
+
 		/*#endregion */
 
 		/*#region PART2*/
@@ -253,6 +254,11 @@
 		.queue-lable {
 			display: flex;
 			justify-content: center;
+			align-items: center;
+		}
+
+		row {
+			display: flex;
 			align-items: center;
 		}
 
@@ -316,22 +322,26 @@
 			transform: translate(-50%, -50%);
 			padding: 7px;
 			background-color: rgb(44, 44, 44);
-			min-width: 10%;
-			max-width: 75%;
-			min-height: 10%;
-			max-height: 75%;
+			width: auto;
+			max-width: 50vh;
+
+			height: auto;
+
+			overflow: scroll;
 
 			/* height: 75%; */
 			/* width: 75%; */
 
-			opacity: 0;
-			pointer-events: none;
+			display: none;
 			z-index: 2;
 		}
 
 		.add-song-form.active {
-			opacity: 1;
-			pointer-events: all;
+			display: block;
+		}
+
+		.test-player {
+			display: none;
 		}
 
 		.form-option {
@@ -642,7 +652,7 @@
 
 	<!-- media queries -->
 	<style>
-		@media (max-width: 500px) {
+		@media (max-width: 600px) {
 
 			.nav,
 			.left,
@@ -724,7 +734,44 @@
 	<div class="app">
 
 		<div absolutes>
-			<div class="add-song-form"></div>
+			<div class="add-song-form">
+				<div>Name</div>
+				<input class="form-option" id="name" />
+
+				<div>Link</div>
+				<row>
+					<input class="form-option" id="link" style="width: 70%;" />
+					<button class="" onclick="yt_auto_fill()" style="width: 30%; height: 40px;">Auto Fill</button>
+				</row>
+
+				<row>
+					<div>Type</div>
+					<select class="form-option" style="background-color: #d3d3d3" id="type">
+						<option value="YOUTUBE">Youtube</option>
+						<option value="FILE">File</option>
+					</select>
+				</row>
+
+				<div>
+					<div>
+						<div>Start Time</div>
+						<input class="form-option" value="0" id="startTime" />
+					</div>
+					<div>
+						<div>End Time</div>
+						<input class="form-option" id="endTime" />
+					</div>
+				</div>
+
+				<div id="form_buttons">
+
+				</div>
+			</div>
+
+			<div class="test-player" id="info_player">
+
+			</div>
+
 			<div class="float-duration">
 				<div id="floatDurationElapsed"></div>
 			</div>
@@ -742,8 +789,7 @@
 				<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
 				<div class="yt-vids"></div>
 			</div>
-
-			<audio src="" id="audio"></audio>
+			
 		</div>
 
 		<div class="nav-mobile">
@@ -779,7 +825,7 @@
 					<div id="songName">name</div>
 					<div>
 						<button onclick="buttonAddSong()">Add Song</button>
-						<button onclick="edit()">Edit</button>
+						<button onclick="editSong(queue[songIndex])">Edit</button>
 						<button onclick="AutoSave()">Save</button>
 						<button onclick="showVideo()">Show Video</button>
 						<button id="fix" onclick="fix()">fix</button>
@@ -876,13 +922,12 @@
 	<script>
 		//#region ------------------Initializers-(vars)-----------------
 
+	
 		var input = document.querySelector("#JData");
-		//var i=0;
 		var songs = [];
 		var selects = [];
 		var selectp = [];
 		var data;
-		var temp = [];
 		var playlists = [];
 		var favorites = [];
 		var songIndex = 0;
@@ -890,18 +935,26 @@
 		var lastPlayed = 0;
 		var hoverSongId = -1;
 		var hoverSongElement;
+
 		var player;
 		var queue;
 		var time = 0;
 		var currentType = -1;
 		var currentId = -1;
 		var Ftime = -1;
+		var Etime = -1;
+		var Ytime = -1
+		var time_update_save = 0;
+
+		let info_player;
+		let the_song
 
 		var playing = false;
 		var rdy = true;
 		var column_sort = false;
 		var seek_ready = true;
 		var selecting = false;
+		var ensure_start_time = true;
 		var fade_bool = false;
 		var end_fade = false;
 		var is_typing = false;
@@ -909,10 +962,11 @@
 		var fetching = false;
 
 		var fetchQueue;
+		var mobileScreen = 601
 
 		var slider = document.getElementById("myRange");
 		var output = document.getElementById("volumeNum");
-		var audio = document.getElementById("audio");
+		//var audio = document.getElementById("audio");
 		var search = $("#search");
 		var progress = $(".progress")[0];
 		var elapsed = $("#elapsed");
@@ -930,7 +984,7 @@
 		gain.connect(ctx.destination);
 		var source = {
 			buffer: null,
-			stop: (n) => {}
+			stop: (n) => { }
 		};
 
 		var jsmediatags = window.jsmediatags;
@@ -943,7 +997,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		var url = 'https://lo-player.onrender.com	' //window.location.origin;
+		var url = 'http://localhost:8080' //window.location.origin;//'https://lo-player.onrender.com	'
 
 		//const p = (s) => console.log(s);
 
@@ -971,7 +1025,7 @@
 
 					console.log("the width of the screen is " + screen.width)
 
-					$("#myRange").val((screen.width > 501) ? data.config.volume : 100);
+					$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
 					songIndex = data.config.songIndex;
 					Ftime = data.config.time;
 					tog_shuffle = data.config.shuffle;
@@ -997,13 +1051,11 @@
 		//#region ------------------Loading-----------------
 
 		async function fix() {
-			for (let i = 0; i < songs.length; i++) {
-				//songs[i].type = (songs[i].link.includes("http")) ? 'YOUTUBE':'FILE'
-				
-			 }
-			 console.log(songs)
-			 console.log('fixed')
-			AutoSave()
+			// for (let i = 0; i < songs.length; i++) {
+			// 	songs[i].start = 0
+			// }
+			// console.log(songs)\
+
 		}
 
 		input.addEventListener("change", () => {
@@ -1023,7 +1075,7 @@
 				playlists = data.playlists;
 				console.log("the width of the screen is " + screen.width)
 
-				$("#myRange").val((screen.width > 501) ? data.config.volume : 100);
+				$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
 				songIndex = data.config.songIndex;
 				Ftime = data.config.time;
 				tog_shuffle = data.config.shuffle;
@@ -1240,8 +1292,8 @@
 		ReqCoverArt = async (id, sng) => {
 			var ll = sng.replace(/\\/g, "☹☸☼☺☿☾☻").replace(/\//g, "☹☸☼☺☿☾☻");
 			fetch(url + "/art/" + ll, {
-					method: "post"
-				})
+				method: "post"
+			})
 				.then((res) => res.text())
 				.then((txt) => {
 					// $(`[data-song-id="${id}"]`).find('pic').css("background-image",
@@ -1260,7 +1312,7 @@
 			$("#st").hide();
 			$('.yt-abs').css({
 				'top': `${$('[tysbut]').offset().top + 20}px`,
-				'left': `${$('[tysbut]').offset().left -30}px`
+				'left': `${$('[tysbut]').offset().left - 30}px`
 			})
 			$('.yt-abs').hide()
 		}
@@ -1270,45 +1322,42 @@
 
 		//#region Song players and HUD
 		async function playSong() {
-			if(songs[queue[songIndex]].type == "YOUTUBE")
-			seek_ready = false;
-
-			time = 0;
+			if (songs[queue[songIndex]].type == "YOUTUBE")
+				seek_ready = false;
 
 			progress.style.width = "0%";
 			elapsed.html("0:00");
 
-			clearInterval(elapseInterval);
-			elapseInterval = null;
-
-			Ftime = 0;
-
-			let still = queue[songIndex];
-
 			$(".playing").removeClass("playing");
 			$(`[data-song-id="${queue[songIndex]}"]`).addClass("playing");
 
-			let the_song = songs[queue[songIndex]];
+			the_song = songs[queue[songIndex]];
 			ChangeType(currentType, the_song.type);
 			currentType = the_song.type;
 			currentId = queue[songIndex];
 
-			if (screen.width < 501) {
+			Etime = 1;
+
+			if (screen.width < mobileScreen) {
 				setVolume(100)
 			}
-
-			// updateQueueHUD();
 
 			switch (currentType) {
 
 				case 'YOUTUBE':
-					// player.setVolume(slider.value);
-					//await delay(100);
+
+					console.log(screen.width < mobileScreen)
+					if (screen.width < mobileScreen) {
+						player.loadPlaylist([the_song.id,'cdwal5Kw3Fc'])
+						break;
+					}
 
 					player.loadVideoById({
 						videoId: the_song.id,
-						startSeconds: Ftime,
+						startSeconds: the_song.start,
 					});
+
+					setVolume(slider.value)
 					updateHUDInfo(the_song);
 					break;
 
@@ -1347,9 +1396,7 @@
 							source = ctx.createBufferSource();
 							source.buffer = songFile;
 							source.connect(gain);
-							//console.log("playing Song");
 							source.start(0, Ftime);
-							//$(source).on("ended", (e) => nextSong());
 
 							duration = source.buffer.duration;
 							if (elapseInterval == null)
@@ -1364,8 +1411,10 @@
 
 					break;
 
-				
 			}
+
+			duration = the_song.end - the_song.start;//event.target.getDuration();
+			$("#length").html(secsToTime(duration));
 
 			//await delay(50);
 			//setVolume(slider.value);
@@ -1418,8 +1467,8 @@
 
 			$(".songInfoName").html(
 				thesong.name.length > 25 ?
-				`${thesong.name.substring(0, 25)}...` :
-				thesong.name
+					`${thesong.name.substring(0, 25)}...` :
+					thesong.name
 			);
 			$("#songName").html(thesong.name);
 
@@ -1430,7 +1479,7 @@
 			$('.nm-name').html(thesong.name)
 
 			document.title = thesong.name;
-			var temp = $(".resize");
+			let temp = $(".resize");
 			if (thesong.favorited) {
 				$(temp).attr("class", "bi-star-fill resize");
 			} else {
@@ -1500,141 +1549,105 @@
 		}
 
 		function buttonAddSong() {
-			var form = $(".add-song-form");
-			var formContent = `<div class="col" id="forma">
-			<div>Name</div>
-			<input class="form-option" id="name" />
+			$(".add-song-form").toggleClass("active");
 
-			<row>
-				<column style="width: 70%">
-					<div>Link</div>
-					<input class="form-option" id="link" />
-				</column>
+			$('#form_buttons').html(`<button class="form-option" style="width: 50%" onclick="submitNewSong()">
+						Add Song
+					</button>
+					<button class="form-option" style="width: 50%" onclick="closeSongForm()">
+						Cancel
+					</button>`)
 
-				<column style="width: 30%">
-					<div>Type</div>
-					<input class="form-option" style="background-color: #d3d3d3" id="type"/>
-
-
-				</column>
-			</row>
-
-			<row>
-				<column>
-					<div>Start Time</div>
-					<input class="form-option" id="startTime" />
-				</column>
-				<column>
-					<div>End Time</div>
-					<input class="form-option" id="endTime" />
-				</column>
-			</row>
-
-			<row>
-				<button
-					class="form-option"
-					style="width: 50%"
-					onclick="submitNewSong()"
-				>
-					Add Song
-				</button>
-				<button
-					class="form-option"
-					style="width: 50%"
-					onclick="closeSongForm()"
-				>
-					Cancel
-				</button>
-			</row>
-		</div>`;
-
-			//formContent = $("#forma");
-			form.html(formContent);
-
-			form.toggleClass("active");
+			$("#name").val('')
+			$("#link").val('')
+			$('#type').val('YOUTUBE')
+			$("#startTime").val('0')
+			$("#endTime").val('')
 			$(".form-blur").addClass("active");
 		}
 
-		function submitNewSong() {
-			var n = $("#name").val();
-			var l = $("#link").val();
-			var t = $("#type").val();
+		async function submitNewSong() {
+			closeSongForm();
 
-			if (!l || !n) {
-				console.log("invalid");
+			let n = $("#name").val();
+			let l = linkParser($("#link").val());
+			let t = $("#type").val();
+			let start = +$("#startTime").val();
+			let end = +$("#endTime").val();
+
+			if (!l) {
+				console.log("invaalid");
 				closeSongForm();
 				return;
 			}
 
-			var links = l.split("|");
+			info_player.loadVideoByUrl(l)
+
+			if (!n || !end) {
+				let time = 0;
+				let now = Date.now()
+				while (info_player.getPlayerState() != 2) {
+					console.log(time)
+					time = Date.now() - now;
+					if (time > 4000) {
+						console.log('failed to get song')
+						return;
+					}
+					await delay(250)
+				}
+
+			}
+
+			if (!n)
+				n = info_player.videoTitle;
+
+			if (!start)
+				start = 0;
+
+			if (!end)
+				end = info_player['playerInfo']['duration'];
+
+			let links = l.split("|");
 			console.log(links);
 
-			//   for (let i = 0; i < links.length; i++) {
+			let sng = {
+				name: n,
+				link: l,
+				id: '',
+				playlists: [],
+				favorited: false,
+				type: t,
+				start: start,
+				end: end,
+				end_raw: secsToTime(end - start)
+			};
+
 			if (t == 'FILE') {
-				var sng = {
-					name: n,
-					link: l,
-					id: "offline",
-					playlists: [],
-					favorited: false,
-					type: t,
-				};
-				songs.push(sng);
-				queue.push(songs.length - 1);
-				$("#form").html("");
-
-				$("#tt").append(
-					songBuilder(songs.length - 1, songs[songs.length - 1].id, n, 0)
-				);
-			} else if (t == 'YOUTUBE') {
-				var sng = {
-					name: n,
-					link: linkParser(l),
-					id: idParser(linkParser(l)),
-					playlists: [],
-					favorited: false,
-					type: t,
-				};
-				songs.push(sng);
-				queue.push(songs.length - 1);
-				$("#form").html("");
-
-				$("#tt").append(
-					songBuilder(songs.length - 1, songs[songs.length - 1].id, n, 1)
-				);
+				sng.id = crypto.randomUUID();
 			}
-			// var check = linkParser(links[i]);
-			// if (check !== "") {
-			//   var sng = {
-			//     name: n,
-			//     link: check,
-			//     id: idParser(check),
-			//     playlists: [],
-			//     favorited: false,
-			//     type: 0,
-			//   };
-			//   songs.push(sng);
-			//   queue.push(songs.length - 1);
-			//   $("#form").html("");
 
-			//   $("#tt")[0].innerHTML += songBuilder(
-			//     songs.length - 1,
-			//     songs[songs.length - 1].id,
-			//     n,
-			// 		0
-			//   );
-			// }
-			// }
+			if (t == 'YOUTUBE') {
+				sng.id = idParser(linkParser(l));
+			}
+
+			console.log(sng)
+
+			songs.push(sng);
+			queue.push(songs.length - 1);
+			$("#form").html("");
+			$("#tt").append(
+				songBuilder(songs.length - 1, songs[songs.length - 1].id, n, t)
+			);
 
 			closeSongForm();
 		}
 
 		YT_SEARCH = (s) => {
-			axios.post(url + '/search', s).then(res => {
+			axios.post(url + '/YTsearch', { search: s }).then(res => {
 				vids = res.data;
 				console.log(vids)
 				var str = "";
-				vids.forEach(el => str += `<div class="song" data-type="ytSearch" data-name="${el.title}" data-link="${el.url}">
+				vids.forEach(el => str += `<div class="song" data-type="ytSearch" data-json="${JSON.stringify(el)}">
 							<div class="row no-click">
 								<img src="http://img.youtube.com/vi/${el.id.videoId}/0.jpg"
 								class="crop"
@@ -1653,6 +1666,25 @@
 			console.log('asd')
 			let el = $('.yt-abs')
 			el.toggle()
+		}
+
+		async function yt_auto_fill() {
+			info_player.loadVideoByUrl(linkParser($('#link').val()))
+			let time = 0;
+			let now = Date.now()
+			while (info_player.getPlayerState() != 2) {
+				console.log(time)
+				time = Date.now() - now;
+				if (time > 4000) {
+					console.log('failed to get song')
+					return;
+				}
+				await delay(250)
+			}
+
+			$('#name').val(info_player.videoTitle)
+			$('#type').val('YOUTUBE')
+			$('#endTime').val(info_player['playerInfo']['duration'])
 		}
 
 		function buttonAddPlaylist() {
@@ -1681,12 +1713,11 @@
 			selectp = [];
 			$(".playlist-form").html("");
 
-			$("#playlists").append(`<div class="playlist" id="playlist${
-				playlists.length
-			}"
+			$("#playlists").append(`<div class="playlist" id="playlist${playlists.length
+				}"
 							 onclick=openPl(${playlists.length - 1})>${eval(
-				playlists.length
-			)}: ${n}</div>`);
+					playlists.length
+				)}: ${n}</div>`);
 		}
 
 		function submitSelect(e) {
@@ -1711,7 +1742,7 @@
 					break;
 
 				case 'YOUTUBE':
-					if (screen.width < 500) {
+					if (screen.width < mobileScreen) {
 
 						slider.value = 100
 						player.setVolume(100);
@@ -1723,7 +1754,7 @@
 			volume = v;
 		}
 
-		GetTitleAndUurl = (fi) => {
+		function GetTitleAndUurl(fi) {
 			return new Promise((resolve, reject) => {
 				jsmediatags.read(fi, {
 					onSuccess: (tag) => {
@@ -1749,102 +1780,49 @@
 			});
 		};
 
-		DragSong = async (ffs) => {
-			var getArr = [];
+		function editSong(id) {
+			$(".add-song-form").addClass("active");
+			let buts = `	
+			<button class="form-option" onclick="submitEditedSong(${id})">Edit Song</button>
+				<button class="form-option" onclick="closeSongForm()">Cancel</button>
+				`
 
-			var title, uurl;
+			$('#form_buttons').html(buts)
+			$(".form-blur").addClass("active");
 
-			for (let i = 0; i < ffs.length; i++) {
-				var fdata = ffs[i];
+			$("#name").val(songs[id].name)
+			$("#link").val(songs[id].link)
+			$('#type').val(songs[id].type)
+			$("#startTime").val(songs[id].start)
+			$("#endTime").val(songs[id].end)
+		}
 
-				jsmediatags.read(fdata, {
-					onSuccess: (tag) => {
-						var pdata = tag.tags.picture.data;
-						var format = tag.tags.picture.format;
-						let base64String = "";
+		function submitEditedSong(id) {
 
-						for (let i = 0; i < pdata.length; i++)
-							base64String += String.fromCharCode(pdata[i]);
-
-						uurl = `data:${format};base64,${window.btoa(base64String)}`;
-						title = tag.tags.title;
-					},
-					onError: (err) => {
-						console.log(err);
-					},
-				});
-
-				var myFile = new FormData();
-				myFile.append("file", fdata);
-
-				await fetch("/upload", {
-						method: "POST",
-						body: myFile,
-					})
-					.then((res) => res.text())
-					.then((path) => {
-						sng = {
-							filename: ffs[i].name,
-							name: title,
-							link: path,
-							id: "",
-							playlists: [],
-							favorited: false,
-							type: 0,
-							path_found: false,
-						};
-
-						getArr.push({
-							location: songs.length,
-							target: fdata.name,
-							deleteTemp: path,
-						});
-
-						songs.push(sng);
-						console.log(sng);
-						$("#tt").append(songBuilder(songs.length - 1, uurl, title, 0));
-
-						delete myFile;
-					});
-			}
-
-			console.log(getArr);
-
-			await axios
-				.post("/dragevent", getArr)
-				.then((res) => res.data.result)
-				.then((json_paths) => {
-					console.log(json_paths);
-					json_paths.forEach((el) => {
-						songs[el.loc].link = el.newpath;
-					});
-				});
-
-			// await fetch('/dragevent', {method: 'post', body: JSON.stringify(getArr), headers: {'Content-Type': 'application/json'}})
-			// .then(res => res.json().result)
-			// .then(json_paths => {
-			// 	console.log(typeof json_paths)
-			// 	json_paths.forEach((el) => {
-			//      songs[el.loc].link = el.newpath;
-			//    });
-			// })
-		};
-
-		UpdateElapsed = () => {
-			if (!seek_ready) return;
-
-			if (Ftime > duration - 1) {
-				Ftime = 0;
-				nextSong();
+			if (!$("#name").val()) {
+				console.log('invalid');
 				return;
 			}
 
-			$("#elapsed").html(() => {
-				var temp = ++Ftime % 60;
-				return `${Math.floor(Ftime / 60)}:${temp < 10 ? `0${temp}` : temp}`;
-			});
-			progress.style.width = `${(Ftime / duration) * 100}%`;
-		};
+			songs[id].name = $("#name").val();
+			songs[id].link = linkParser($("#link").val());
+			songs[id].type = $('#type').val()
+			songs[id].start = +$("#startTime").val();
+			songs[id].end = +$('#endTime').val()
+			songs[id].end_raw = secsToTime(+$('#endTime').val() - +$("#startTime").val())
+			songs[id].id = idParser(linkParser($("#link").val()));
+
+			$(`#song${id}`)[0].outerHTML = songBuilder(
+				id,
+				songs[id].id,
+				songs[id].name,
+				songs[id].type
+			);
+
+			updateHUDInfo(songs[id]);
+			closeSongForm();
+		}
+
 		//#endregion
 
 		//#region misc
@@ -1932,8 +1910,8 @@
 		function shuffle(ink) {
 			queue.sort(() => Math.random() - 0.5);
 
-			var temp = queue.indexOf(ink);
-			var temp2 = queue[0];
+			let temp = queue.indexOf(ink);
+			let temp2 = queue[0];
 			queue[0] = ink;
 			queue[temp] = temp2;
 			songIndex = 0;
@@ -1946,7 +1924,7 @@
 		}
 
 		function reverseQueue() {
-			var temp = queue[songIndex];
+			let temp = queue[songIndex];
 			queue.reverse();
 			songIndex = queue.indexOf(temp);
 		}
@@ -1964,7 +1942,7 @@
 			t = clamp((clickX / width) * duration, 0, duration);
 
 			$("#elapsed").html(() => {
-				var temp = Math.floor(t % 60);
+				let temp = Math.floor(t % 60);
 				return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp}`;
 			});
 		}
@@ -1985,76 +1963,13 @@
 
 				case 'YOUTUBE':
 					player.seekTo(
-						clamp((clickX / width) * duration, 0, duration),
+						clamp(((clickX / width) * duration) + the_song.start, the_song.start, the_song.end),
 						true
 					);
 					break;
 			}
-			Ftime = Math.floor(clamp((clickX / width) * duration, 0, duration));
-		}
-
-		SeekByNum = (v) => {
-			v = clamp(v, 0, duration);
-			$("#elapsed").html(() => {
-				var temp = v % 60;
-				return `${Math.floor(v / 60)}:${temp < 10 ? `0${temp}` : temp}`;
-			});
-			progress.style.width = `${(v / duration) * 100}%`;
-			console.log(currentType);
-
-			switch (currentType) {
-				case 'FILE':
-					source.stop();
-					source = ctx.createBufferSource();
-					source.buffer = songFile;
-					source.connect(gain);
-					source.start(0, clamp(v, 0, duration));
-
-					break;
-
-				case 'YOUTUBE':
-					player.seekTo(v);
-					break;
-			}
-		};
-
-		function editSong(id) {
-			var form = $(".add-song-form");
-			var formContent = `Name
-								<input class="form-option" id="name" value="${songs[id].name}">
-								Link
-								<input class="form-option" id="link" value="${songs[id].link}">
-								Start Time
-								<input class="form-option" id="startTime">
-								End Time
-								<input class="form-option" id="endTime">
-
-								<button class="form-option" onclick="submitEditedSong(${id})">Edit Song</button>
-								<button class="form-option" onclick="closeSongForm()">Cancel</button>`;
-
-			form.html(formContent);
-			form.addClass("active");
-			$(".form-blur").addClass("active");
-		}
-
-		function edit() {
-			editSong(queue[songIndex]);
-		}
-
-		function submitEditedSong(id) {
-			songs[id].name = $("#name").val();
-			songs[id].link = $("#link").val();
-			songs[id].id = idParser(linkParser($("#link").val()));
-
-			$(`#song${id}`)[0].outerHTML = songBuilder(
-				id,
-				songs[id].id,
-				songs[id].name,
-				songs[id].type
-			);
-
-			updateHUDInfo(songs[id]);
-			closeSongForm();
+			Etime = Math.floor(clamp((clickX / width) * duration, 0, duration));
+			console.log(clamp(((clickX / width) * duration) + the_song.start, the_song.start, the_song.end))
 		}
 
 		function closeSongForm() {
@@ -2095,13 +2010,52 @@
 			}
 		}
 
-		function delay(secs) {
+		async function delay(secs) {
 			return new Promise((resolve) => {
 				setTimeout(() => resolve(""), secs);
 			});
 		}
 
-		LoadDuration = (v) => {
+		async function timeUpdate() {
+
+			while (playing) {
+				Etime = Math.floor(player.playerInfo.currentTime - the_song.start)
+				//	console.log(Etime)
+				updateElapsed()
+				await delay(750)
+			}
+
+			// while (playing) {
+			// 	for (let time_partition = time_update_save; time_partition < 10 && playing; time_partition++) {
+			// 		time_update_save = time_partition;
+			// 		await delay(90);
+			// 	}
+			// 	if (time_update_save > 8) {
+			// 		time_update_save = 0;
+			// 		//Etime++;
+			// 		Etime = parseInt(player.playerInfo.currentTime)
+			// 		updateElapsed()
+			// 	}
+			// }
+		}
+
+		function updateElapsed() {
+			if (!seek_ready) return;
+
+			if (Etime > duration - 1) {
+				Etime = 1;
+				nextSong();
+				return;
+			}
+
+			$("#elapsed").html(() => {
+				let temp = Etime % 60;
+				return `${Math.floor(Etime / 60)}:${temp < 10 ? `0${temp}` : temp}`;
+			});
+			progress.style.width = `${(Etime / duration) * 100}%`;
+		}
+
+		function LoadDuration(v) {
 			$("#length").html(function () {
 				return `${Math.floor(
 					duration / 60
@@ -2109,7 +2063,7 @@
 			});
 		};
 
-		updateProgress = (e) => {
+		function updateProgress(e) {
 			const {
 				duration,
 				currentTime
@@ -2117,6 +2071,22 @@
 			var progressPercent = (currentTime / duration) * 100;
 			progress.style.width = `${progressPercent}%`;
 		};
+
+		function secsToTime(secs) {
+			return new Date(secs * 1000).toISOString().substring(14, 19).replace(/^0+/, '').substring().replace(/^:+/, '0:');
+		}
+
+		function hmsToSecs(str) {
+			var p = str.split(':'),
+				s = 0, m = 1;
+
+			while (p.length > 0) {
+				s += m * parseInt(p.pop(), 10);
+				m *= 60;
+			}
+
+			return s;
+		}
 
 		function openContextMenu(e) {
 			var content;
@@ -2140,17 +2110,15 @@
 							<div title="queue-next" class="dd-option">Play Next</div>
 							<div title="queue" class="dd-option">Queue</div>
 							<hr />
-							<div title="favorite" class="dd-option">${
-								songs[hoverSongId].favorited ? "Unfavorite" : "Favorite"
-							}</div>
+							<div title="favorite" class="dd-option">${songs[hoverSongId].favorited ? "Unfavorite" : "Favorite"
+						}</div>
 							<div title="add-to-playlist" class="dd-option">Add to playlist</div>
-							${
-								type == "inplaylist"
-									? `<div title="remove-from-playlist" class="dd-option">
+							${type == "inplaylist"
+							? `<div title="remove-from-playlist" class="dd-option">
 								Remove From Playlist
 							</div>`
-									: ""
-							}
+							: ""
+						}
 							<hr />
 							<div title="select" class="dd-option">Select</div>
 							<div title="edit" class="dd-option">Edit</div>
@@ -2163,9 +2131,8 @@
 
 			contextMenu.addClass("active");
 
-			if (screen.width < 501)
+			if (screen.width < mobileScreen)
 				return
-
 
 			let middlehalf = window.innerHeight / 2;
 			if (e.clientY > middlehalf) {
@@ -2215,37 +2182,49 @@
 		//#region ---------------------API-------------------------
 
 		function onYouTubeIframeAPIReady() {
+
+
 			player = new YT.Player("sng", {
+				playerVars: { 'autoplay': 1, 'controls': 1 },
 				events: {
-					onReady: onPlayerReady,
 					onStateChange: onPlayerStateChange,
 					onError: err,
 				},
 			});
 
-			//var iframeWindow = player.getIframe().contentWindow;
+			info_player = new YT.Player("info_player", {
+				width: 200,
+				height: 200,
+				playerVars: { 'autoplay': 0, 'controls': 1 },
+				events: {
+					onReady: onPlayerReady,
+					onStateChange: e => { if (e.data == 1) info_player.pauseVideo();}
+				},
+			});
+
+			//let iframeWindow = player.getIframe().contentWindow;
 			//
-			//var lastTimeUpdate = 0;
+			//let lastTimeUpdate = 0;
 
 			// window.addEventListener("message", function (event) {
 			//   if (event.source === iframeWindow) {
-			//     var data = JSON.parse(event.data);
+			//     let data = JSON.parse(event.data);
 
 			//     if (
 			//       data.event === "infoDelivery" &&
 			//       data.info &&
 			//       data.info.currentTime
 			//     ) {
-			//       time = Math.floor(data.info.currentTime);
+			//       Ytime = Math.floor(data.info.currentTime);
 
-			//       if (time !== lastTimeUpdate && seek_ready) {
+			//       if (Ytime !== lastTimeUpdate && seek_ready) {
 			//         $("#elapsed").html(() => {
-			//           var temp = time % 60;
-			//           return `${Math.floor(time / 60)}:${
+			//           let temp = Ytime % 60;
+			//           return `${Math.floor(Ytime / 60)}:${
 			//             temp < 10 ? `0${temp}` : temp
 			//           }`;
 			//         });
-			//         progress.style.width = `${(time / duration) * 100}%`;
+			//         progress.style.width = `${(Ytime / duration) * 100}%`;
 			//       }
 			//     }
 			//   }
@@ -2253,6 +2232,15 @@
 		}
 
 		function onPlayerReady(event) {
+			info_player.loadVideoById(`wjOj_6cMGEY`)
+			info_player.setVolume(0)
+			info_player.mute()
+
+			//audio.src = 
+
+			//player.unMute()
+			//player.cuePlaylist(['dTlGDH2bY48','KLwg1Uj3sXM'])
+			//info_player.pauseVideo()
 			//event.target.pauseVideo();
 			// clickedSong(songIndex);
 		}
@@ -2261,31 +2249,16 @@
 			if (currentType != 'YOUTUBE') return;
 			switch (event.data) {
 				case YT.PlayerState.PLAYING: {
-					playing = true;
-					duration = event.target.getDuration();
-					console.log(duration)
-					songs[queue[songIndex]].end = duration
-					if (elapseInterval == null)
-						elapseInterval = setInterval(UpdateElapsed, 1000);
-					$("#length").html(function () {
-						return `${Math.floor(
-							duration / 60
-						)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
-					});
 					$("[play-pause-button]").attr("class", "bi-pause");
-
 					break;
 				}
 				case YT.PlayerState.ENDED: {
-					playing = false;
-					Ftime = 0;
 					progress.style.width = "0%";
 					elapsed.html("0:00");
 					nextSong();
 					break;
 				}
 				case YT.PlayerState.PAUSED: {
-					playing = false;
 					$("[play-pause-button]").attr("class", "bi-play");
 					clearInterval(elapseInterval);
 					elapseInterval = null;
@@ -2301,6 +2274,8 @@
 					break;
 				}
 			}
+			playing = event.data == YT.PlayerState.PLAYING
+			timeUpdate()
 		}
 
 		function stopVideo() {
@@ -2319,7 +2294,6 @@
 
 		function nextSong() {
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
-			Ftime = 0;
 
 			songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
 			playSong(songIndex);
@@ -2327,15 +2301,12 @@
 
 		function prevSong() {
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
-			Ftime = 0;
 
 			songIndex = songIndex ? songIndex - 1 : queue.length - 1;
 			playSong(songIndex);
 		}
 
 		function pauseSong() {
-			clearInterval(elapseInterval);
-			elapseInterval = null;
 			switch (currentType) {
 				case 'FILE':
 					ctx.suspend();
@@ -2361,9 +2332,6 @@
 					break;
 			}
 			playing = true;
-
-			if (elapseInterval == null)
-				elapseInterval = setInterval(UpdateElapsed, 1000);
 		}
 
 		function showVideo() {
@@ -2450,7 +2418,7 @@
 		});
 
 		$(".progress-container").on("pointerenter", (e) => {
-			var el = $(".float-duration");
+			let el = $(".float-duration");
 			el.addClass("active");
 
 			$(".progress-container").on("pointermove", (e) => {
@@ -2461,10 +2429,9 @@
 
 					t = clamp((clickX / width) * duration, 0, duration);
 
-					var temp = Math.floor(t % 60);
-					return `${Math.floor(t / 60)}:${
-						temp < 10 ? `0${temp}` : temp
-					} / ${$("#length").html()}`;
+					let temp = Math.floor(t % 60);
+					return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp
+						} / ${$("#length").html()}`;
 				});
 				el.css("top", `${e.pageY - 35}px`);
 				el.css("left", `${e.pageX - 27}px`);
@@ -2507,7 +2474,7 @@
 			if (tog_shuffle) {
 				shuffle(queue[songIndex]);
 			} else {
-				var temp = queue[songIndex];
+				let temp = queue[songIndex];
 				queue = GetSongsInView();
 				songIndex = queue.indexOf(temp);
 				updateQueueHUD();
@@ -2731,7 +2698,7 @@
 								}
 								if (playlists[playlistId] != null)
 									playlists[playlistId].size =
-									playlists[playlistId].songs.length;
+										playlists[playlistId].songs.length;
 							}
 						}
 						songs[sel_num] = null;
@@ -2757,7 +2724,7 @@
 
 		$(document).on("mousedown", ".song", (e) => {
 			if (e.which != 1) return;
-			var id = parseInt(e.target.dataset.songId);
+			let id = parseInt(e.target.dataset.songId);
 
 			if (shift) {
 				selecting = true;
@@ -2766,17 +2733,17 @@
 
 			if (selecting) {
 				if (shift2 && last_clicked != null) {
-					var tar = e.target.dataset.songId;
+					let tar = e.target.dataset.songId;
 					if ($("#tt").is(":visible")) {
-						var elms = [...document.querySelector("#tt").children];
+						let elms = [...document.querySelector("#tt").children];
 						//	console.log(typeof elms)
-						var first = elms.findIndex((el) => el.dataset.songId == tar);
-						var second = elms.findIndex(
+						let first = elms.findIndex((el) => el.dataset.songId == tar);
+						let second = elms.findIndex(
 							(el) => el.dataset.songId == last_clicked
 						);
 
 						if (second < first) {
-							var temp = first;
+							let temp = first;
 							first = second;
 							second = temp;
 						}
@@ -2821,13 +2788,17 @@
 				return;
 			} else if (e.target.dataset.type == "ytSearch") {
 				console.log('lookdge')
+				let song_data = JSON.parse(e.target.dataset.json)
 				let sng = {
-					name: e.target.dataset.name,
-					link: e.target.dataset.link,
-					id: idParser(e.target.dataset.link),
+					name: song_data['title'],
+					link: song_data['url'],
+					id: song_data['id']['videoId'],
 					playlists: [],
 					favorited: false,
 					type: 'YOUTUBE',
+					start: 0,
+					end: hmsToSecs(song_data['duration_raw']),
+					end_raw: song_data['duration_raw'],
 				};
 				songs.push(sng);
 				queue.push(songs.length - 1);
@@ -2905,13 +2876,19 @@
 				case 37: {
 					if (shift) {
 						prevSong();
-					} else player.seekTo(time - 5);
+					} else {
+						Etime -= 5
+						player.seekTo(Etime);
+					}
 					break;
 				}
 				case 39: {
 					if (shift) {
 						nextSong();
-					} else player.seekTo(time + 5);
+					} else {
+						Etime += 5
+						player.seekTo(Etime);
+					}
 					break;
 				}
 				case 38: {
@@ -2939,8 +2916,17 @@
 					shift2 = true;
 					break;
 				}
+				// case 176: 
+				// 	nextSong()
+				// 	break;
+				// case 179:
+				// 	PlayPauseFlip()
+				// 	break;
+				// case 177:
+				// 	prevSong();
+				// 	break;
 			}
-			//console.log(e.keyCode)
+		//	console.log(e.keyCode)
 		});
 
 		$(document).on("keyup", (e) => {
@@ -2970,10 +2956,12 @@
 		// 	DragSong(event.dataTransfer.files);
 		// });
 
-		audio.addEventListener("ended", nextSong);
-		audio.addEventListener("timeupdate", updateProgress);
+		//audio.addEventListener("ended", nextSong);
+		//audio.addEventListener("timeupdate", updateProgress);
 
-		window.addEventListener(
+//audio.play()
+
+window.addEventListener(
 			"beforeunload",
 			function (e) {
 				//AutoSave();
@@ -2990,8 +2978,8 @@
 					for (let i = 0; i < songs.length; i++) {
 						if (
 							songs[i].name
-							.toLowerCase()
-							.includes(e.target.value.toLowerCase())
+								.toLowerCase()
+								.includes(e.target.value.toLowerCase())
 						)
 							list.push(i);
 					}
