@@ -829,9 +829,7 @@
 						<button onclick="AutoSave()">Save</button>
 						<button onclick="showVideo()">Show Video</button>
 						<button id="fix" onclick="fix()">fix</button>
-						<input type="text" id="portfield" />
-						<button onclick="getData()">New port</button>
-						<button onclick="but()">print window</button>
+						<button onclick="save()" >Download</button>
 						<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake
 							server</button>
 						<i class="bi bi-arrow-bar-left"></i>
@@ -997,7 +995,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		var url = 'http://localhost:8080' //window.location.origin;//'https://lo-player.onrender.com	'
+		var url =  'https://lo-player.onrender.com	' //'http://localhost:8080' //window.location.origin;//
 
 		//const p = (s) => console.log(s);
 
