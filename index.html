@@ -2426,7 +2426,6 @@
 				$("#floatDurationElapsed").html(() => {
 					const width = e.target.clientWidth;
 					const clickX = e.offsetX;
-					//const duration = player.getDuration();
 
 					t = clamp((clickX / width) * duration, 0, duration);
 
@@ -2961,6 +2960,19 @@
 		//audio.addEventListener("timeupdate", updateProgress);
 
 //audio.play()
+// navigator.mediaSession.playbackState = 'playing'
+// navigator.mediaSession.setActionHandler('play', function() {
+// 	console.log('asd')
+//   alert("F9 pressed");
+// });
+// navigator.mediaSession.setActionHandler('nexttrack', function() {
+// 	console.log('asd')
+//   alert("F9 pressed");
+// });
+// navigator.mediaSession.setActionHandler('previoustrack', function() {
+// 	console.log('asd')
+//   alert("F9 pressed");
+// });
 
 window.addEventListener(
 			"beforeunload",
