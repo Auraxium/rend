@@ -121,16 +121,15 @@
 			border-width: 2px;
 		}
 
-		.displaay {
-			height: 100%;
+		.song-scope {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.display {
 			display: flex;
 			flex-direction: column;
 			overflow: scroll;
-		}
-
-		#tt {
-			display: flex;
-			flex-direction: column;
 		}
 
 		.accept-menu {
@@ -249,6 +248,11 @@
 
 		.tools {
 			min-width: 40%;
+		}
+
+		.tools2 {
+			display: flex;
+			align-items: center;
 		}
 
 		.queue-lable {
@@ -378,7 +382,7 @@
 		}
 
 		.bi {
-			font-size: 30px;
+			/* font-size: 30px; */
 		}
 
 		.float-duration {
@@ -672,9 +676,9 @@
 				justify-content: space-between;
 			}
 
-			/* .container {
+			.container {
 				overflow: scroll;
-			} */
+			}
 
 			.foot {
 				flex: none;
@@ -686,10 +690,10 @@
 				bottom: 0px;
 			}
 
-			.foot-mobile-padding {
+			/* .foot-mobile-padding {
 				display: flex;
 				padding-top: 12.8vh;
-			}
+			} */
 
 			.footmid {
 				width: 100%;
@@ -789,7 +793,9 @@
 				<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
 				<div class="yt-vids"></div>
 			</div>
-			
+
+			<div class="songElements" style="display: none;"></div>
+
 		</div>
 
 		<div class="nav-mobile">
@@ -817,7 +823,7 @@
 					<hr />
 				</div>
 				<div class="playlist-form"></div>
-				<button onclick="buttonAddPlaylist()" id="pbut">add playlist</button>
+				<button onclick="this.outerHTML = ''" id="pbut">add playlist</button>
 			</div>
 
 			<div class="container">
@@ -829,7 +835,7 @@
 						<button onclick="AutoSave()">Save</button>
 						<button onclick="showVideo()">Show Video</button>
 						<button id="fix" onclick="fix()">fix</button>
-						<button onclick="save()" >Download</button>
+						<button onclick="save()">Download</button>
 						<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake
 							server</button>
 						<i class="bi bi-arrow-bar-left"></i>
@@ -845,24 +851,23 @@
 				</div>
 
 				<div class="tools2">
-					<i class="bi bi-three-dots"></i>
-					<i class="bi bi-arrow-bar-up bim"></i>
+					<i class="bi bi-search"></i>
 					<input type="text" id="search" />
-					<i class="bi bi-plus-circle-dotted" onclick=""></i>
-					<button onclick="submitSelect()">get it</button>
+					<i class="bi bi-x" style="font-size: 25px;" onclick="$('#search').val('')"></i>
+					<i class="bi bi-arrow-bar-up bim"></i>
 				</div>
 
-				<div class="displaay">
-					<div id="tt"></div>
-					<div id="st"></div>
+				<div class="display">
+					<div class="song-scope" id="song_scope"></div>
 				</div>
+				
 
 				<div class="accept-menu">
 					<div id="selected">0 songs selected</div>
 					<i class="bi bi-three-dots-vertical" data-type="sel"></i>
 				</div>
 
-				<div class="foot-mobile-padding">a</div>
+				<!-- <div class="foot-mobile-padding">a</div> -->
 			</div>
 
 			<div class="right">
@@ -920,9 +925,13 @@
 	<script>
 		//#region ------------------Initializers-(vars)-----------------
 
-	
+
+
 		var input = document.querySelector("#JData");
+
 		var songs = [];
+		var songScope = [];
+
 		var selects = [];
 		var selectp = [];
 		var data;
@@ -941,7 +950,7 @@
 		var currentId = -1;
 		var Ftime = -1;
 		var Etime = -1;
-		var Ytime = -1
+		var Ytime = -1;
 		var time_update_save = 0;
 
 		let info_player;
@@ -995,7 +1004,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		var url =  'https://lo-player.onrender.com	' //'http://localhost:8080' //window.location.origin;//
+		var url = 'https://lo-player.onrender.com	' //'http://localhost:8080' //window.location.origin;//
 
 		//const p = (s) => console.log(s);
 
@@ -1009,7 +1018,6 @@
 			console.log(window.location.origin)
 		};
 
-		//$(document).ready($(".accept-menu").hide());
 		$(document).ready(async () => {
 			await fetch(url + "/load")
 				.then((res) => res.json())
@@ -1029,10 +1037,7 @@
 					tog_shuffle = data.config.shuffle;
 					column_sort = data.config.column;
 
-					if (column_sort) {
-						$("#tt").css("flex-direction", "column-reverse");
-						$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-					}
+					
 
 					loadPl();
 					loadSongs();
@@ -1052,8 +1057,10 @@
 			// for (let i = 0; i < songs.length; i++) {
 			// 	songs[i].start = 0
 			// }
-			// console.log(songs)\
+			// console.log(songs)
 
+			$('.song-scope')[0].scrollTop = 0
+			$('.display')[0].scrollTop = 0
 		}
 
 		input.addEventListener("change", () => {
@@ -1109,7 +1116,6 @@
 		}
 
 		function loadSongs() {
-			$("#tt").html("");
 			let str = "";
 			for (i = 0; i < songs.length; i++) {
 				for (let j = 0; j < songs[i].playlists.length; j++) {
@@ -1121,23 +1127,20 @@
 					}
 					playlists[index].songs[songs[i].playlists[j].position] = i;
 				}
-
 				if (songs[i].favorited) favorites.push(i);
-
 				str += songBuilder(i, songs[i].id, songs[i].name, songs[i].type);
-
-				//if (songs[i].type == 0) ReqCoverArt(i, songs[i].link);
 			}
-			$("#tt").html(str);
+			$('.songElements').html(str)
 			queue = Array.apply(null, Array(songs.length)).map(function (x, i) {
 				return i;
 			});
+			songScope = [...queue];
+			updateScope()
 
 			if (tog_shuffle) {
 				$(".shuffle-button").css("opacity", "1");
 			}
 
-			// clickedSong(songIndex);
 			updateQueueHUD();
 		}
 
@@ -1287,32 +1290,17 @@
 			}
 		}
 
-		ReqCoverArt = async (id, sng) => {
-			var ll = sng.replace(/\\/g, "☹☸☼☺☿☾☻").replace(/\//g, "☹☸☼☺☿☾☻");
-			fetch(url + "/art/" + ll, {
-				method: "post"
-			})
-				.then((res) => res.text())
-				.then((txt) => {
-					// $(`[data-song-id="${id}"]`).find('pic').css("background-image",
-					// `url(data:image/jpeg;base64,${window.btoa(txt)})`);
-
-					$(`[data-song-id="${id}"]`)
-						.find("img")
-						.attr("src", `data:image/jpeg;base64,${window.btoa(txt)}`);
-				})
-				.catch((err) =>
-					console.log("<ReqCoverArt()> failed to get song cover: " + err)
-				);
-		};
-
 		function precleanUp() {
-			$("#st").hide();
 			$('.yt-abs').css({
 				'top': `${$('[tysbut]').offset().top + 20}px`,
 				'left': `${$('[tysbut]').offset().left - 30}px`
 			})
 			$('.yt-abs').hide()
+
+			if (column_sort) {
+						$(".song-scope").css("flex-direction", "column-reverse");
+						$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+					}
 		}
 		//#endregion
 
@@ -1344,12 +1332,11 @@
 
 				case 'YOUTUBE':
 
-					console.log(screen.width < mobileScreen)
-					if (screen.width < mobileScreen) {
-						player.loadPlaylist([the_song.id,'cdwal5Kw3Fc'])
-						updateHUDInfo(the_song);
-						break;
-					}
+					// if (screen.width < mobileScreen) {
+					// 	player.loadPlaylist([the_song.id, 'cdwal5Kw3Fc'])
+					// 	updateHUDInfo(the_song);
+					// 	break;
+					// }
 
 					player.loadVideoById({
 						videoId: the_song.id,
@@ -1826,21 +1813,8 @@
 
 		//#region misc
 
-		function GetSongsInView() {
-			var nums = [];
-			console.log($("#st").is(":visible"));
-			if ($("#st").is(":visible")) {
-				var el = $("#st").children();
-				for (let i = 0; i < el.length; i++)
-					nums.push(parseInt(el[i].dataset.songId));
-
-				return [...nums];
-			} else {
-				nums = Array.apply(null, Array(songs.length)).map(function (x, i) {
-					return i;
-				});
-				return [...nums];
-			}
+		function updateScope() {
+			$('.song-scope').html(songScope.map(el => $(`#song${el}`).clone()))
 		}
 
 		ChangeType = (i, j) => {
@@ -1968,7 +1942,6 @@
 					break;
 			}
 			Etime = Math.floor(clamp((clickX / width) * duration, 0, duration));
-			console.log(clamp(((clickX / width) * duration) + the_song.start, the_song.start, the_song.end))
 		}
 
 		function closeSongForm() {
@@ -1977,21 +1950,18 @@
 		}
 
 		function showAllSongs() {
-			$("#tt").show();
-			$("#st").hide();
+			songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
+				return i;
+			});
+			updateScope()
 
-			var cont = $(".displaay");
-			cont.scrollTop(
-				cont.find(`[data-song-id="${queue[songIndex]}"`).offset().top -
-				cont.offset().top +
-				cont.scrollTop() -
-				125
-			);
-		}
-
-		function altSongView() {
-			$("#tt").hide();
-			$("#st").show();
+			// var cont = $(".displaay");
+			// cont.scrollTop(
+			// 	cont.find(`[data-song-id="${queue[songIndex]}"`).offset().top -
+			// 	cont.offset().top +
+			// 	cont.scrollTop() -
+			// 	125
+			// );
 		}
 
 		function flipSort() {
@@ -2054,13 +2024,6 @@
 			progress.style.width = `${(Etime / duration) * 100}%`;
 		}
 
-		function LoadDuration(v) {
-			$("#length").html(function () {
-				return `${Math.floor(
-					duration / 60
-				)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
-			});
-		};
 
 		function updateProgress(e) {
 			const {
@@ -2234,14 +2197,6 @@
 			info_player.loadVideoById(`wjOj_6cMGEY`)
 			info_player.setVolume(0)
 			info_player.mute()
-
-			//audio.src = 
-
-			//player.unMute()
-			//player.cuePlaylist(['dTlGDH2bY48','KLwg1Uj3sXM'])
-			//info_player.pauseVideo()
-			//event.target.pauseVideo();
-			// clickedSong(songIndex);
 		}
 
 		function onPlayerStateChange(event) {
@@ -2286,8 +2241,6 @@
 			if (!data) return;
 			if (currentType != 'YOUTUBE') return;
 
-			//songs[queue[songIndex]].isBroken = true;
-			//$(`#song${songIndex}`).css("background-color", "orange");
 			nextSong();
 		}
 
@@ -2924,7 +2877,7 @@
 				// 	prevSong();
 				// 	break;
 			}
-		//	console.log(e.keyCode)
+			//	console.log(e.keyCode)
 		});
 
 		$(document).on("keyup", (e) => {
@@ -2954,25 +2907,8 @@
 		// 	DragSong(event.dataTransfer.files);
 		// });
 
-		//audio.addEventListener("ended", nextSong);
-		//audio.addEventListener("timeupdate", updateProgress);
 
-//audio.play()
-// navigator.mediaSession.playbackState = 'playing'
-// navigator.mediaSession.setActionHandler('play', function() {
-// 	console.log('asd')
-//   alert("F9 pressed");
-// });
-// navigator.mediaSession.setActionHandler('nexttrack', function() {
-// 	console.log('asd')
-//   alert("F9 pressed");
-// });
-// navigator.mediaSession.setActionHandler('previoustrack', function() {
-// 	console.log('asd')
-//   alert("F9 pressed");
-// });
-
-window.addEventListener(
+		window.addEventListener(
 			"beforeunload",
 			function (e) {
 				//AutoSave();
@@ -2980,27 +2916,21 @@ window.addEventListener(
 			false
 		);
 
-		search.on("input", (e) => {
-			if (!(e.target.value === "")) {
-				$("#tt").hide();
-				$("#st").show();
-				$("#st").html(() => {
-					var list = [];
-					for (let i = 0; i < songs.length; i++) {
-						if (
-							songs[i].name
-								.toLowerCase()
-								.includes(e.target.value.toLowerCase())
-						)
-							list.push(i);
-					}
-					return list.map((j) => $(`#song${j}`).clone());
-				});
+		$('#search').on('input', (e) => {
+			let temp = [];
+			if(e.target.value) {
+
+				songs.forEach((el, i) => {
+					if(el.name.toLowerCase().includes(e.target.value.toLowerCase()))
+						temp.push(i)
+				})
+				songScope = [...temp]
 			} else {
-				$("#tt").show();
-				$("#st").hide();
+				showAllSongs()
 			}
-		});
+		//console.log(songScope)
+		updateScope()
+		})
 
 		slider.oninput = function () {
 			setVolume(this.value);
