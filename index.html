@@ -143,22 +143,12 @@
 			display: none;
 		}
 
-		#st {
-			display: flex;
-			flex-direction: column;
-		}
-
 		.queue-list-container {
 			height: 100%;
 			display: flex;
 			flex-direction: column;
 			overflow: scroll;
 			border-radius: 2px;
-		}
-
-		#songsList {
-			display: flex;
-			flex-direction: column;
 		}
 
 		.selected {
@@ -168,6 +158,18 @@
 		#choose {
 			display: inline-block;
 			width: 200px;
+		}
+
+		.playlist {
+			background-color: rgb(33, 33, 33);
+			padding: 5px;
+			height: 30px;
+			display: flex;
+			align-items: center;
+		}
+
+		.playlist:hover {
+			background-color: rgb(58, 58, 58);
 		}
 
 		.song {
@@ -203,20 +205,6 @@
 			background-color: rgb(14, 129, 12);
 		}
 
-		.playlist {
-			background-color: rgb(33, 33, 33);
-			padding: 5px;
-
-			display: flex;
-			flex-wrap: nowrap;
-			flex-direction: row;
-			align-items: center;
-			justify-content: space-between;
-		}
-
-		.playlist:hover {
-			background-color: rgb(58, 58, 58);
-		}
 
 		#choose {
 			overflow-y: scroll;
@@ -354,14 +342,6 @@
 			padding: 4px;
 		}
 
-		.playlist-form {
-			display: flex;
-			flex-direction: column;
-			background-color: rgb(44, 44, 44);
-			font-size: 15px;
-			margin: 3px;
-			z-index: 2;
-		}
 
 		.form-blur {
 			position: absolute;
@@ -816,14 +796,10 @@
 
 		<div class="main-container">
 			<div class="left">
-				<label class="plabel">playlists:</label>
-				<div id="playlists">
-					<div class="playlist" onclick="showAllSongs()">All Songs</div>
-					<div class="playlist" onclick="openFavs()">Favorites</div>
-					<hr />
-				</div>
-				<div class="playlist-form"></div>
-				<button onclick="this.outerHTML = ''" id="pbut">add playlist</button>
+				<div class="" style="text-align: center;">playlists</div>
+				<div class="playlist" onclick="openPlaylist()">All Songs</div>
+				<div class="playlist" onclick="openPlaylist('favorites')">Favorites</div>
+				<hr/>
 			</div>
 
 			<div class="container">
@@ -860,7 +836,7 @@
 				<div class="display">
 					<div class="song-scope" id="song_scope"></div>
 				</div>
-				
+
 
 				<div class="accept-menu">
 					<div id="selected">0 songs selected</div>
@@ -935,10 +911,15 @@
 		var selects = [];
 		var selectp = [];
 		var data;
-		var playlists = [];
+		var playlists = {
+			favorites: {
+				songs: []
+			}
+		};
+
 		var favorites = [];
 		var songIndex = 0;
-		var playlistIndex = 0;
+		var currentScope = '';
 		var lastPlayed = 0;
 		var hoverSongId = -1;
 		var hoverSongElement;
@@ -952,6 +933,7 @@
 		var Etime = -1;
 		var Ytime = -1;
 		var time_update_save = 0;
+
 
 		let info_player;
 		let the_song
@@ -980,6 +962,7 @@
 		var suffleBut = $(".shuffle-button");
 		var contextMenu = $("[dropdown_menu]");
 
+
 		var shift = false;
 		var shift2 = false;
 		var last_clicked;
@@ -995,7 +978,7 @@
 		};
 
 		var jsmediatags = window.jsmediatags;
-		//var axios = window.axios;
+		var axios = window.axios;
 		// = ctx.createBufferSource();
 
 		var duration;
@@ -1006,17 +989,13 @@
 
 		var url = 'https://lo-player.onrender.com	' //'http://localhost:8080' //window.location.origin;//
 
-		//const p = (s) => console.log(s);
+		const p = (s) => console.log(s);
 
 		var tag = document.createElement("script");
 
 		tag.src = "https://www.youtube.com/iframe_api";
 		var firstScriptTag = document.getElementsByTagName("script")[0];
 		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-		function but() {
-			console.log(window.location.origin)
-		};
 
 		$(document).ready(async () => {
 			await fetch(url + "/load")
@@ -1027,19 +1006,13 @@
 
 					songs = data.songs.filter(e => e.type != 'FILE');
 
-					playlists = data.playlists;
-
-					console.log("the width of the screen is " + screen.width)
-
 					$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
 					songIndex = data.config.songIndex;
 					Ftime = data.config.time;
 					tog_shuffle = data.config.shuffle;
 					column_sort = data.config.column;
 
-					
-
-					loadPl();
+					//loadPl();
 					loadSongs();
 
 					precleanUp();
@@ -1055,12 +1028,9 @@
 
 		async function fix() {
 			// for (let i = 0; i < songs.length; i++) {
-			// 	songs[i].start = 0
+			// 	songs[i].playlists = []
 			// }
 			// console.log(songs)
-
-			$('.song-scope')[0].scrollTop = 0
-			$('.display')[0].scrollTop = 0
 		}
 
 		input.addEventListener("change", () => {
@@ -1103,31 +1073,13 @@
 		});
 
 		function loadPl() {
-			var str = "";
 
-			for (let j = 0; j < playlists.length; j++) {
-				playlists[j].songs = Array(playlists[j].size);
-				str += `<div class="playlist" id="playlist${j}" onclick=openPl(${j})>${eval(
-					j + 1
-				)}: ${playlists[j].name}</div>`;
-			}
-
-			$("#playlists").append(str);
 		}
 
 		function loadSongs() {
 			let str = "";
 			for (i = 0; i < songs.length; i++) {
-				for (let j = 0; j < songs[i].playlists.length; j++) {
-					let index = FindPlaylistIndexByName(songs[i].playlists[j].name);
-					if (index == -1) {
-						songs[i].playlists.splice(j, 1);
-						j--;
-						continue;
-					}
-					playlists[index].songs[songs[i].playlists[j].position] = i;
-				}
-				if (songs[i].favorited) favorites.push(i);
+				if (songs[i].favorited) playlists['favorites']['songs'].push(i);
 				str += songBuilder(i, songs[i].id, songs[i].name, songs[i].type);
 			}
 			$('.songElements').html(str)
@@ -1136,6 +1088,8 @@
 			});
 			songScope = [...queue];
 			updateScope()
+
+			console.log(playlists);
 
 			if (tog_shuffle) {
 				$(".shuffle-button").css("opacity", "1");
@@ -1298,9 +1252,9 @@
 			$('.yt-abs').hide()
 
 			if (column_sort) {
-						$(".song-scope").css("flex-direction", "column-reverse");
-						$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-					}
+				$(".song-scope").css("flex-direction", "column-reverse");
+				$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+			}
 		}
 		//#endregion
 
@@ -1507,18 +1461,29 @@
 		//#endregion
 
 		//#region UI (Button Logic)
-		function openPl(i) {
-			playlistIndex = i;
-			var str = "";
-			$("#st").html("");
-			altSongView();
-			for (j = 0; j < playlists[i].songs.length; j++) {
-				str += $(`#song${playlists[i].songs[j]}`)
-					.clone()
-					.attr("data-type", "inplaylist")
-					.prop("outerHTML");
-			}
-			$("#st").html(str);
+		function openPlaylist(s) {
+			if (s) {
+				songScope = playlists[s]['songs']
+
+			} else
+				songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
+					return i;
+				});
+
+			updateScope()
+			currentScope = s;
+			// playlistIndex = i;
+			// var str = "";
+			// $("#st").html("");
+			// altSongView();
+			// for (j = 0; j < playlists[i].songs.length; j++) {
+			// 	str += $(`#song${playlists[i].songs[j]}`)
+			// 		.clone()
+			// 		.attr("data-type", "inplaylist")
+			// 		.prop("outerHTML");
+			// }
+			// $("#st").html(str);
+
 		}
 
 		function openFavs() {
@@ -2160,7 +2125,7 @@
 				playerVars: { 'autoplay': 0, 'controls': 1 },
 				events: {
 					onReady: onPlayerReady,
-					onStateChange: e => { if (e.data == 1) info_player.pauseVideo();}
+					onStateChange: e => { if (e.data == 1) info_player.pauseVideo(); }
 				},
 			});
 
@@ -2918,18 +2883,18 @@
 
 		$('#search').on('input', (e) => {
 			let temp = [];
-			if(e.target.value) {
+			if (e.target.value) {
 
 				songs.forEach((el, i) => {
-					if(el.name.toLowerCase().includes(e.target.value.toLowerCase()))
+					if (el.name.toLowerCase().includes(e.target.value.toLowerCase()))
 						temp.push(i)
 				})
 				songScope = [...temp]
 			} else {
 				showAllSongs()
 			}
-		//console.log(songScope)
-		updateScope()
+			//console.log(songScope)
+			updateScope()
 		})
 
 		slider.oninput = function () {
