@@ -119,6 +119,7 @@
 			height: 100%;
 			border-style: solid;
 			border-width: 2px;
+			overflow: hidden;
 		}
 
 		.song-scope {
@@ -148,7 +149,11 @@
 			display: flex;
 			flex-direction: column;
 			overflow: scroll;
-			border-radius: 2px;
+		}
+
+		.queue-list {
+			display: flex;
+			flex-direction: column;
 		}
 
 		.selected {
@@ -170,6 +175,16 @@
 
 		.playlist:hover {
 			background-color: rgb(58, 58, 58);
+		}
+
+		.playlist-form {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.playlist-list {
+			display: flex;
+			flex-direction: column-reverse;
 		}
 
 		.song {
@@ -241,6 +256,12 @@
 		.tools2 {
 			display: flex;
 			align-items: center;
+		}
+
+		.accept-menu {
+			display: flex;
+			justify-content: space-between;
+			text-align: center;
 		}
 
 		.queue-lable {
@@ -797,9 +818,17 @@
 		<div class="main-container">
 			<div class="left">
 				<div class="" style="text-align: center;">playlists</div>
-				<div class="playlist" onclick="openPlaylist()">All Songs</div>
-				<div class="playlist" onclick="openPlaylist('favorites')">Favorites</div>
-				<hr/>
+				<div class="playlist" onclick="openPlaylist(); $('.playlist-tools').hide()">All Songs</div>
+				<div class="playlist" onclick="openPlaylist('favorites'); $('.playlist-tools').hide()">Favorites</div>
+				<button style="width: 100%; margin-top: 5px;" onclick="$('.playlist-form').show()">Create Playlist</button>
+				<hr />
+				<div class="playlist-form" style="display: none;">
+					<input id="playlist_name" />
+					<button style="margin-top: 5px;" onclick="addPlaylist()">Create</button>
+				</div>
+				<div class="playlist-list">
+
+				</div>
 			</div>
 
 			<div class="container">
@@ -831,6 +860,9 @@
 					<input type="text" id="search" />
 					<i class="bi bi-x" style="font-size: 25px;" onclick="$('#search').val('')"></i>
 					<i class="bi bi-arrow-bar-up bim"></i>
+					<div class="playlist-tools" style="display: none;">
+						<button onclick="selecting = true; showAllSongs(); $('.accept-menu').show()">Add Songs</button>
+					</div>
 				</div>
 
 				<div class="display">
@@ -838,9 +870,10 @@
 				</div>
 
 
-				<div class="accept-menu">
+				<div class="accept-menu" style="display: none;">
 					<div id="selected">0 songs selected</div>
-					<i class="bi bi-three-dots-vertical" data-type="sel"></i>
+					<!-- <i class="bi bi-three-dots-vertical" data-type="sel"></i> -->
+					<button onclick="addToPlaylist()">Submit</button>
 				</div>
 
 				<!-- <div class="foot-mobile-padding">a</div> -->
@@ -852,7 +885,7 @@
 					<i class="bi bi-arrow-bar-right" data-arrow-direction="open"></i>
 				</div>
 				<div class="queue-list-container">
-					<div id="songsList"></div>
+					<div class="queue-list"></div>
 				</div>
 			</div>
 		</div>
@@ -911,11 +944,7 @@
 		var selects = [];
 		var selectp = [];
 		var data;
-		var playlists = {
-			favorites: {
-				songs: []
-			}
-		};
+		var playlists = {};
 
 		var favorites = [];
 		var songIndex = 0;
@@ -929,11 +958,9 @@
 		var time = 0;
 		var currentType = -1;
 		var currentId = -1;
-		var Ftime = -1;
 		var Etime = -1;
 		var Ytime = -1;
 		var time_update_save = 0;
-
 
 		let info_player;
 		let the_song
@@ -987,7 +1014,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		var url = 'https://lo-player.onrender.com	' //'http://localhost:8080' //window.location.origin;//
+		var url = 'https://lo-player.onrender.com' //'http://localhost:8080' //window.location.origin;//
 
 		const p = (s) => console.log(s);
 
@@ -1004,6 +1031,7 @@
 					data = res_data;
 					console.log(data);
 
+					playlists = data.playlists;
 					songs = data.songs.filter(e => e.type != 'FILE');
 
 					$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
@@ -1012,7 +1040,7 @@
 					tog_shuffle = data.config.shuffle;
 					column_sort = data.config.column;
 
-					//loadPl();
+					loadPl();
 					loadSongs();
 
 					precleanUp();
@@ -1073,12 +1101,23 @@
 		});
 
 		function loadPl() {
-
+			let str = ''
+			for (const [key, value] of Object.entries(playlists)) {
+				str += playlistBuilder(key, value['name'])
+			}
+			$('.playlist-list').html(str)
+			playlists['favorites'] = {
+				songs: []
+			}
 		}
 
 		function loadSongs() {
 			let str = "";
-			for (i = 0; i < songs.length; i++) {
+			for (let i = 0; i < songs.length; i++) {
+				for (let j = 0; j < songs[i]['playlists'].length; j++) {
+					const element = songs[i]['playlists'][j];
+					playlists[element]['songs'].push(i);
+				}
 				if (songs[i].favorited) playlists['favorites']['songs'].push(i);
 				str += songBuilder(i, songs[i].id, songs[i].name, songs[i].type);
 			}
@@ -1089,7 +1128,7 @@
 			songScope = [...queue];
 			updateScope()
 
-			console.log(playlists);
+			//console.log(playlists);
 
 			if (tog_shuffle) {
 				$(".shuffle-button").css("opacity", "1");
@@ -1195,6 +1234,12 @@
 				return;
 			}
 
+			delete playlists['favorites']
+
+			for (const [key, value] of Object.entries(playlists)) {
+				playlists[key].songs = [];
+			}
+
 			var dataS = {
 				config: config,
 				songs: songs,
@@ -1235,13 +1280,17 @@
 								<img src="http://img.youtube.com/vi/${im_link_id}/0.jpg"
 								class="crop"
 								alt="" />
-								<div>${eval(id_num + 1)}: ${name}</div>
+								<div >${eval(id_num + 1)}: ${name}</div>
 							</div>
 							<dd>
 								 <i class="bi bi-three-dots"></i>
 							</dd>
 						</div>`;
 			}
+		}
+
+		function playlistBuilder(key, value) {
+			return `<div class="playlist" onclick="openPlaylist('${key}'); $('.playlist-tools').show()">${value}</div>`
 		}
 
 		function precleanUp() {
@@ -1377,6 +1426,7 @@
 				return;
 			}
 
+			queue = [...songScope]
 			songIndex = queue.indexOf(i);
 
 			if (songIndex == -1)
@@ -1439,7 +1489,8 @@
 		}
 
 		function updateQueueHUD() {
-			var div = $("#songsList");
+			//$(".queue-list").html(queue.map(el => $(`#song${el}`).clone()))
+			var div = $(".queue-list");
 			div.html("");
 			var str = "";
 
@@ -1449,19 +1500,18 @@
 				str += el.prop("outerHTML");
 			}
 			div.html(str);
-
-			//var cont = $(".queue-list-container");
-			//cont.scrollTop(
-			//  cont.find(`[data-song-id="${queue[songIndex]}"`).offset().top -
-			//    cont.offset().top +
-			//    cont.scrollTop()
-			//);
 		}
 
+		function updateScope(scope) {
+			if (!scope)
+				scope = songScope;
+			$('.song-scope').html(scope.map(el => $(`#song${el}`).clone()))
+		}
 		//#endregion
 
 		//#region UI (Button Logic)
 		function openPlaylist(s) {
+			console.log(playlists[s])
 			if (s) {
 				songScope = playlists[s]['songs']
 
@@ -1472,31 +1522,6 @@
 
 			updateScope()
 			currentScope = s;
-			// playlistIndex = i;
-			// var str = "";
-			// $("#st").html("");
-			// altSongView();
-			// for (j = 0; j < playlists[i].songs.length; j++) {
-			// 	str += $(`#song${playlists[i].songs[j]}`)
-			// 		.clone()
-			// 		.attr("data-type", "inplaylist")
-			// 		.prop("outerHTML");
-			// }
-			// $("#st").html(str);
-
-		}
-
-		function openFavs() {
-			var str = "";
-			$("#st").html("");
-			altSongView();
-			for (j = 0; j < favorites.length; j++) {
-				str += $(`#song${favorites[j]}`)
-					.clone()
-					.attr("data-type", "inplaylist")
-					.prop("outerHTML");
-			}
-			$("#st").html(str);
 		}
 
 		function buttonAddSong() {
@@ -1586,7 +1611,7 @@
 			songs.push(sng);
 			queue.push(songs.length - 1);
 			$("#form").html("");
-			$("#tt").append(
+			$("#song_scope").append(
 				songBuilder(songs.length - 1, songs[songs.length - 1].id, n, t)
 			);
 
@@ -1638,51 +1663,21 @@
 			$('#endTime').val(info_player['playerInfo']['duration'])
 		}
 
-		function buttonAddPlaylist() {
-			var plForm = $(".playlist-form");
-			var plFormContent = `Name
-								<input id="pname">
-								<button onclick="submitPlaylist()">Create</button>`;
-
-			plForm.html(plFormContent);
-			$("#pbut").hide();
-		}
-
-		function submitPlaylist() {
-			var n = $("#pname").val();
-			$("#pbut").show();
-
-			if (!n) {
-				$(".playlist-form").html("");
+		function addPlaylist() {
+			$('.playlist-form').hide()
+			let name = $('#playlist_name').val()
+			if (!name) {
+				console.log('invalid')
 				return;
 			}
-			var pl = {
-				name: n,
-				songs: [],
-			};
-			playlists.push(pl);
-			selectp = [];
-			$(".playlist-form").html("");
-
-			$("#playlists").append(`<div class="playlist" id="playlist${playlists.length
-				}"
-							 onclick=openPl(${playlists.length - 1})>${eval(
-					playlists.length
-				)}: ${n}</div>`);
-		}
-
-		function submitSelect(e) {
-			selecting = false;
-			for (let i = selects.length - 1; i > 0; i--) {
-				songs[selects[i]].playlists.push({
-					name: playlists[playlistIndex].name,
-					position: playlists[playlistIndex].songs.length,
-				});
-				playlists[playlistIndex].songs.push(selects[i]);
+			let id = crypto.randomUUID()
+			playlists[id] = {
+				name: $('#playlist_name').val(),
+				songs: []
 			}
-			playlists[playlistIndex].size = playlists[playlistIndex].songs.length;
-			selects = [];
-			$(".selected").removeClass("selected");
+			$('.playlist-list').append(playlistBuilder(id, name))
+			$('#playlist_name').val('')
+			openPlaylist(id)
 		}
 
 		function setVolume(v) {
@@ -1704,32 +1699,6 @@
 			}
 			volume = v;
 		}
-
-		function GetTitleAndUurl(fi) {
-			return new Promise((resolve, reject) => {
-				jsmediatags.read(fi, {
-					onSuccess: (tag) => {
-						var pdata = tag.tags.picture.data;
-						var format = tag.tags.picture.format;
-						let base64String = "";
-
-						for (let i = 0; i < pdata.length; i++)
-							base64String += String.fromCharCode(pdata[i]);
-
-						var uurl = `data:${format};base64,${window.btoa(base64String)}`;
-						var title = tag.tags.title;
-						resolve({
-							title,
-							uurl
-						});
-					},
-					onError: (err) => {
-						console.log(err);
-						reject(err);
-					},
-				});
-			});
-		};
 
 		function editSong(id) {
 			$(".add-song-form").addClass("active");
@@ -1774,13 +1743,18 @@
 			closeSongForm();
 		}
 
+		function addToPlaylist() {
+			playlists[currentScope].songs.push(...selects); 
+			selects.forEach(el => songs[el]['playlists'].push(currentScope))
+			selects = []; 
+			selecting = false;
+			$('.selected').removeClass('selected')
+			$('.accept-menu').hide()
+		}
+		
 		//#endregion
 
 		//#region misc
-
-		function updateScope() {
-			$('.song-scope').html(songScope.map(el => $(`#song${el}`).clone()))
-		}
 
 		ChangeType = (i, j) => {
 			if (i == j) return;
@@ -1915,18 +1889,11 @@
 		}
 
 		function showAllSongs() {
+
 			songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
 				return i;
 			});
 			updateScope()
-
-			// var cont = $(".displaay");
-			// cont.scrollTop(
-			// 	cont.find(`[data-song-id="${queue[songIndex]}"`).offset().top -
-			// 	cont.offset().top +
-			// 	cont.scrollTop() -
-			// 	125
-			// );
 		}
 
 		function flipSort() {
@@ -1956,7 +1923,7 @@
 				Etime = Math.floor(player.playerInfo.currentTime - the_song.start)
 				//	console.log(Etime)
 				updateElapsed()
-				await delay(750)
+				await delay(950)
 			}
 
 			// while (playing) {
@@ -1988,7 +1955,6 @@
 			});
 			progress.style.width = `${(Etime / duration) * 100}%`;
 		}
-
 
 		function updateProgress(e) {
 			const {
@@ -2645,64 +2611,25 @@
 			if (shift) {
 				selecting = true;
 				$(".accept-menu").show();
+				return;
 			}
 
 			if (selecting) {
-				if (shift2 && last_clicked != null) {
-					let tar = e.target.dataset.songId;
-					if ($("#tt").is(":visible")) {
-						let elms = [...document.querySelector("#tt").children];
-						//	console.log(typeof elms)
-						let first = elms.findIndex((el) => el.dataset.songId == tar);
-						let second = elms.findIndex(
-							(el) => el.dataset.songId == last_clicked
-						);
-
-						if (second < first) {
-							let temp = first;
-							first = second;
-							second = temp;
-						}
-
-						console.log(first + " " + second);
-
-						for (let q = first; q < second + 1; q++) {
-							$("#song" + q).addClass("selected");
-							if ($("#song" + q)[0].classList.contains("selected"))
-								selects.push(q);
-							else {
-								selects.splice(selects.indexOf(id), 1);
-								if (!selects.length) {
-									selecting = false;
-									$(".accept-menu").hide();
-								}
-							}
-						}
-					}
-
-					return;
-				}
-
-				$("#song" + id).toggleClass("selected");
-				if (e.target.classList.contains("selected")) selects.push(id);
-				else {
-					selects.splice(selects.indexOf(id), 1);
-					if (!selects.length) {
-						selecting = false;
-						$(".accept-menu").hide();
-					}
-				}
-				last_clicked = e.target.dataset.songId;
+				$(e.target).toggleClass('selected')
+				$(e.target).attr('class').includes('selected') ? 
+					selects.push(e.target.dataset.songId) : 
+					selects.splice(selects.findIndex(el => el == e.target.dataset.songId), 1)
+				console.log(selects)
 				return;
 			}
 
-			if (e.target.dataset.type == "inplaylist") {
-				queue = GetSongsInView();
-			} else if (e.target.dataset.type == "inqueue") {
+			if (e.target.dataset.type == "inqueue") {
 				songIndex = queue.indexOf(id);
 				playSong();
 				return;
-			} else if (e.target.dataset.type == "ytSearch") {
+			}
+
+			if (e.target.dataset.type == "ytSearch") {
 				console.log('lookdge')
 				let song_data = JSON.parse(e.target.dataset.json)
 				let sng = {
@@ -2722,10 +2649,7 @@
 					songBuilder(songs.length - 1, songs[songs.length - 1].id, e.target.dataset.name, 'YOUTUBE')
 				);
 				return;
-			} else if (queue.length < songs.length)
-				queue = Array.apply(null, Array(songs.length)).map(function (x, i) {
-					return i;
-				});
+			}
 
 			$(".playing").removeClass("playing");
 
@@ -2733,18 +2657,18 @@
 		});
 
 		$(document).on("mousedown", (e) => {
-			if (
-				selecting &&
-				!e.target.classList.contains("song") &&
-				!e.target.classList.contains("bi-three-dots-vertical") &&
-				!e.target.classList.contains("dd-option") &&
-				!e.target.classList.contains("accept-menu")
-			) {
-				$(".selected").removeClass("selected");
-				selects = [];
-				selecting = false;
-				$(".accept-menu").hide();
-			}
+			// if (
+			// 	selecting &&
+			// 	!e.target.classList.contains("song") &&
+			// 	!e.target.classList.contains("bi-three-dots-vertical") &&
+			// 	!e.target.classList.contains("dd-option") &&
+			// 	!e.target.classList.contains("accept-menu")
+			// ) {
+			// 	$(".selected").removeClass("selected");
+			// 	selects = [];
+			// 	selecting = false;
+			// 	$(".accept-menu").hide();
+			// }
 		});
 
 		$(document).click((e) => {
@@ -2882,19 +2806,8 @@
 		);
 
 		$('#search').on('input', (e) => {
-			let temp = [];
-			if (e.target.value) {
-
-				songs.forEach((el, i) => {
-					if (el.name.toLowerCase().includes(e.target.value.toLowerCase()))
-						temp.push(i)
-				})
-				songScope = [...temp]
-			} else {
-				showAllSongs()
-			}
-			//console.log(songScope)
-			updateScope()
+			updateScope(songScope.filter((el) =>
+				songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
 		})
 
 		slider.oninput = function () {
