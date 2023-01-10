@@ -824,6 +824,12 @@
 				align-items: center;
 			}
 
+			#sv-img {
+				height: auto;
+				width: 100%;
+				object-fit: fill;
+			}
+
 		}
 	</style>
 
@@ -1060,8 +1066,10 @@
 		</div>
 
 		<div class="mobile-player-container">
-			<img id="sv-img" src="" alt="" style="object-fit: scale-down;"/>
+			<img id="sv-img" src="" alt="" />
 		</div>
+
+		<div class="sv-name"></div>
 
 		<div class="foot">
 			<div class="song-info">
@@ -1574,6 +1582,8 @@
 				`http://img.youtube.com/vi/${thesong.id}/0.jpg`
 			);
 			$('.nm-name').html(thesong.name)
+
+			$('#sv-img').attr('src', $('#nm-img').attr('src'))
 
 			document.title = thesong.name;
 			let temp = $(".resize");
