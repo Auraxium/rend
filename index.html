@@ -168,7 +168,7 @@
 		.playlist {
 			background-color: rgb(33, 33, 33);
 			padding: 5px;
-			height: 30px;
+			height: 50px;
 			display: flex;
 			align-items: center;
 		}
@@ -231,12 +231,21 @@
 			background-color: rgb(14, 129, 12);
 		}
 
-
-
-
 		#choose {
 			overflow-y: scroll;
 			height: 300px;
+		}
+
+		.ce {
+			background-color: rgb(33, 33, 33);
+			padding: 5px;
+			height: 50px;
+			display: flex;
+			align-items: center;
+		}
+
+		.ce:hover {
+			background-color: rgb(58, 58, 58);
 		}
 
 		/*#endregion */
@@ -248,6 +257,11 @@
 			/* border: 1px solid black; */
 			background-position: center;
 			background-size: cover;
+		}
+
+		.tabs>div {
+			padding: 3px 10px;
+			background-color: #d3d3d3;
 		}
 
 		.form {}
@@ -689,6 +703,10 @@
 		.mobile-player-container {
 			display: none;
 		}
+
+		.mobile-app {
+			display: none;
+		}
 	</style>
 
 
@@ -745,12 +763,6 @@
 				width: 100%;
 				display: none;
 			}
-
-			/* .foot-mobile-padding {
-
-				display: flex;
-				padding-top: 12.8vh;
-			} */
 
 			.footmid {
 				width: 100%;
@@ -996,7 +1008,27 @@
 				</div>
 
 				<div class="add-mc" mobile-container>
-					yo
+					<div class="tabs" style="display: flex; justify-content: space-evenly">
+						<div onclick="buttonAddSong()">Manual</div>
+						<div onclick="$('.add-tab').toggle()" >Youtube</div>
+					</div>
+					<div class="add-tab" style="text-align: center; padding: 10px;">
+						<input onkeydown="if (event.keyCode == 13) {
+							console.log(this.value); fetch(url + '/YTsearch', {method: 'POST', 
+							body: JSON.stringify({'search': this.value}), headers: {'Content-Type': 'application/json'
+							}}).then(res => res.json()).then(videos => 
+							$('.youtube-tab-results').html(videos.map(el => 
+							`<div class='song' data-type='ytSearch' data-json='${JSON.stringify(el)}'>
+							<div class='row no-click'>
+								<img src='http://img.youtube.com/vi/${el.id.videoId}/0.jpg'
+								class='crop'
+								alt='' />
+								<div>${el.title}</div>
+							</div>
+						</div>`)))
+						}"/>
+						<div class="youtube-tab-results" style="overflow: scroll;"></div>
+					</div>
 				</div>
 
 				<div class="search-mc" mobile-container>
@@ -1004,7 +1036,7 @@
 				</div>
 
 				<div class="misc-mc" mobile-container>
-
+					<div class="ce" onclick="AutoSave()">SAVE</div>
 				</div>
 
 				<div class="accept-menu" style="display: none; padding: 5px 0;">
@@ -1025,8 +1057,6 @@
 				</div>
 			</div>
 		</div>
-
-
 
 		<div class="dock-bar">
 			<div onclick="mobilePage('library')">
@@ -1108,6 +1138,10 @@
 				</div>
 			</div>
 		</div>
+
+	</div>
+	
+	<div class="mobile-app">
 
 	</div>
 
@@ -1751,9 +1785,6 @@
 								alt="" />
 								<div>${el.title}</div>
 							</div>
-							<dd>
-								 <i class="bi bi-three-dots"></i>
-							</dd>
 						</div>`);
 				$('.yt-vids').html(str);
 			})
@@ -1766,6 +1797,7 @@
 		}
 
 		async function yt_auto_fill() {
+			console.log(linkParser($('#link').val()))
 			info_player.loadVideoByUrl(linkParser($('#link').val()))
 			let time = 0;
 			let now = Date.now()
@@ -2079,34 +2111,16 @@
 			//https://www.youtube.com/watch?v=fgZ-Pyk7G6A&ab_channel=MoriCalliope-Topic
 			//https://youtu.be/fgZ-Pyk7G6A
 			//https://www.youtube.com/embed/fgZ-Pyk7G6A
-			var n = 0;
-			var id = "";
-			var str = "";
 
-			if (s.length < 9) return "";
-
-			if (s.includes("embed")) return s;
-
-			if (s[8] == "w") {
-				i = 32;
-				while (i < s.length) {
-					if (s[i] == "&") break;
-					id += s[i++];
-				}
-
-				return "https://www.youtube.com/embed/" + id + "?autoplay=1";
-			}
-
-			i = 17;
-			while (i < s.length) {
-				id += s[i++];
-			}
+			let id = idParser(s);
 
 			return "https://www.youtube.com/embed/" + id + "?autoplay=1";
 		}
 
-		function idParser(link) {
-			return link.match(/youtube\.com.*(\?v=|\/embed\/)(.{11})/).pop();
+		function idParser(url) {
+			const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    const match = url.match(regExp);
+    return (match&&match[7].length==11)? match[7] : false;
 		}
 
 		function shuffle(ink) {
@@ -2329,6 +2343,7 @@
 					break;
 
 				case 'add':
+					//buttonAddSong()
 					$('.add-mc').show()
 					break;
 
@@ -3060,6 +3075,7 @@
 
 			if (e.target.dataset.type == "ytSearch") {
 				console.log('lookdge')
+				console.log(e.target.dataset.json)
 				let song_data = JSON.parse(e.target.dataset.json)
 				let sng = {
 					name: song_data['title'],
@@ -3074,7 +3090,7 @@
 				};
 				songs.push(sng);
 				queue.push(songs.length - 1);
-				$("#tt").append(
+				$(".display").append(
 					songBuilder(songs.length - 1, songs[songs.length - 1].id, e.target.dataset.name, 'YOUTUBE')
 				);
 				return;
