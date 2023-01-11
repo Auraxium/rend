@@ -1088,7 +1088,7 @@
 				<i class="bi-play" onclick="PlayPauseFlip()" style="font-size: 40px" play-pause-button></i>
 			</div>
 			<div id="sb2" style="display: none;">
-				<i class="bi bi-arrow-left" onclick="songBarClose()"></i>
+				<i class="bi bi-arrow-left" onclick="songBarClose()" style="font-size: 30px;"></i>
 				<div class="nm_info"></div>
 				<i class="bi bi-three-dots"></i>
 			</div>
@@ -1099,7 +1099,7 @@
 			<img id="sv-img" src="" alt="" />
 		</div>
 
-		<div class="sv-name"></div>
+		<div class="sv-name" style="text-align: center; display: none;"></div>
 
 		<div class="foot">
 			<div class="song-info">
@@ -1115,7 +1115,7 @@
 					<i class="bi-arrow-repeat togglable"></i>
 					<i class="bi-chevron-double-left" onclick="prevSong()"></i>
 					<i class="bi-play" onclick="PlayPauseFlip()" play-pause-button></i>
-					<i class="bi-chevron-double-right" onclick="nextSong()"></i>
+					<i class="bi-chevron-double-right" onclick="nextSong(true)"></i>
 					<i class="bi-shuffle togglable shuffle-button"></i>
 				</div>
 
@@ -1138,10 +1138,6 @@
 				</div>
 			</div>
 		</div>
-
-	</div>
-	
-	<div class="mobile-app">
 
 	</div>
 
@@ -1192,6 +1188,7 @@
 		var boob = false;
 		var fetching = false;
 		let loading = false;
+		let songSkipDirection = true
 
 		var fetchQueue;
 		var mobileScreen = 601
@@ -1618,6 +1615,7 @@
 			$('.nm-name').html(thesong.name)
 
 			$('#sv-img').attr('src', $('#nm-img').attr('src'))
+			$('.sv-name').html(thesong.name)
 
 			document.title = thesong.name;
 			let temp = $(".resize");
@@ -2374,11 +2372,14 @@
 			$('.nav-mobile').hide()
 			$('.main-container').hide()
 			$('.dock-bar').hide()
-			$('#sb1').hide()
 			$('#sb2').show()
+			$('#sb1').hide()
 			$('.mobile-player-container').show()
 			$('.foot').show()
-			$('#sv-img').attr('src', $('#nm-img').attr('src'))
+			//$('#sv-img').attr('src', $('#nm-img').attr('src'))
+			$('.sv-name').show()
+
+
 		}
 
 		function songBarClose() {
@@ -2388,6 +2389,7 @@
 			$('#sb1').show()
 			$('#sb2').hide()
 			$('.mobile-player-container').hide()
+			$('.sv-name').hide()
 			$('.foot').hide()
 		}
 
@@ -2562,7 +2564,7 @@
 				case YT.PlayerState.ENDED: {
 					progress.style.width = "0%";
 					elapsed.html("0:00");
-					nextSong();
+					nextSong(true);
 					break;
 				}
 				case YT.PlayerState.PAUSED: {
@@ -2603,11 +2605,16 @@
 			nextSong();
 		}
 
-		function nextSong() {
+		function nextSong(bool = songSkipDirection) {
+			if(!bool) {
+				prevSong();
+				return;
+			}
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
 
 			songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
 			playSong(songIndex);
+			songSkipDirection = true;
 		}
 
 		function prevSong() {
@@ -2615,6 +2622,7 @@
 
 			songIndex = songIndex ? songIndex - 1 : queue.length - 1;
 			playSong(songIndex);
+			songSkipDirection = false;
 		}
 
 		function pauseSong() {
@@ -2785,7 +2793,6 @@
 				shuffle(queue[songIndex]);
 			} else {
 				let temp = queue[songIndex];
-				queue = GetSongsInView();
 				songIndex = queue.indexOf(temp);
 				updateQueueHUD();
 			}
