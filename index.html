@@ -925,7 +925,7 @@
 		<div class="nav-mobile">
 			<i class="bi bi-list"></i>
 			<div class="nm_info"></div>
-			<div>a</div>
+			<i class="bi bi-search" onclick="$('#m-search').toggle()"></i>
 		</div>
 
 		<div class="nav">
@@ -999,6 +999,8 @@
 					</div>
 				</div>
 
+				<input type="text" id="m-search" style="display: none;"/>
+
 				<div class="display" mobile-container>
 					<div class="song-scope" id="song_scope"></div>
 				</div>
@@ -1032,7 +1034,7 @@
 				</div>
 
 				<div class="search-mc" mobile-container>
-
+					<input type="text" id="m-search" />
 				</div>
 
 				<div class="misc-mc" mobile-container>
@@ -3243,6 +3245,11 @@
 		})
 
 		$('#search').on('input', (e) => {
+			updateScope(songScope.filter((el) =>
+				songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
+		})
+
+		$('#m-search').on('input', (e) => {
 			updateScope(songScope.filter((el) =>
 				songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
 		})
