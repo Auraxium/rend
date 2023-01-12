@@ -830,7 +830,8 @@
 				/* border: dashed 1px */
 			}
 
-			#sb1, #sb2 {
+			#sb1,
+			#sb2 {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
@@ -999,7 +1000,7 @@
 					</div>
 				</div>
 
-				<input type="text" id="m-search" style="display: none;"/>
+				<input type="text" id="m-search" style="display: none;" />
 
 				<div class="display" mobile-container>
 					<div class="song-scope" id="song_scope"></div>
@@ -1012,7 +1013,7 @@
 				<div class="add-mc" mobile-container>
 					<div class="tabs" style="display: flex; justify-content: space-evenly">
 						<div onclick="buttonAddSong()">Manual</div>
-						<div onclick="$('.add-tab').toggle()" >Youtube</div>
+						<div onclick="$('.add-tab').toggle()">Youtube</div>
 					</div>
 					<div class="add-tab" style="text-align: center; padding: 10px;">
 						<input onkeydown="if (event.keyCode == 13) {
@@ -1028,7 +1029,7 @@
 								<div>${el.title}</div>
 							</div>
 						</div>`)))
-						}"/>
+						}" />
 						<div class="youtube-tab-results" style="overflow: scroll;"></div>
 					</div>
 				</div>
@@ -2119,8 +2120,8 @@
 
 		function idParser(url) {
 			const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
-    const match = url.match(regExp);
-    return (match&&match[7].length==11)? match[7] : false;
+			const match = url.match(regExp);
+			return (match && match[7].length == 11) ? match[7] : false;
 		}
 
 		function shuffle(ink) {
@@ -2334,6 +2335,23 @@
 					break;
 
 				case 'playlists':
+					content += `<button onclick="$('.mobile-submit-playlist').toggle()">create</button>
+					<div class="mobile-submit-playlist" style="display: none">
+						<input id="mobile_create_playlist"/>
+						<button onclick="
+							$('.mobile-submit-playlist').toggle();
+							let name = $('#mobile_create_playlist').val();
+							if (!name) {
+								console.log('invalid')
+								return;
+							}
+							let id = crypto.randomUUID();
+							playlists[id] = {
+								name: $('#mobile_create_playlist').val(),
+								songs: []
+							};
+						">submit</button>
+					</div>`;
 					for (const [key, value] of Object.entries(playlists)) {
 						content += `<div class="playlist" onclick="mobilePlaylist('${key}')">${value['name']}</div>`
 					}
@@ -2380,7 +2398,6 @@
 			$('.foot').show()
 			//$('#sv-img').attr('src', $('#nm-img').attr('src'))
 			$('.sv-name').show()
-
 
 		}
 
@@ -2477,7 +2494,10 @@
 							continue
 						content += `<div class="playlist" onclick="selectPlaylist(event, '${key}')" data-key="${key}" >${value['name']}</div>`
 					}
-					content += '<button onclick="selAddToPlaylist(); closeSongForm()">Add</button>'
+					content += `<div style="display: flex; justify-content: space-between">
+						<button onclick="selAddToPlaylist(); closeSongForm()">Add</button>
+						<button onclick="selAddToPlaylist(); closeSongForm()">Add</button>
+					</div> `
 					$('.misc-form').html(content)
 					break;
 
@@ -2608,7 +2628,7 @@
 		}
 
 		function nextSong(bool = songSkipDirection) {
-			if(!bool) {
+			if (!bool) {
 				prevSong();
 				return;
 			}
@@ -3238,10 +3258,10 @@
 
 		window.addEventListener('resize', e => {
 			console.log(screen.width)
-			if(screen.width > mobileScreen)
+			if (screen.width > mobileScreen)
 				$('.main-container').show()
 
-			
+
 		})
 
 		$('#search').on('input', (e) => {
