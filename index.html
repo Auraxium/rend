@@ -1231,7 +1231,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		var url = 'http://localhost:8080' //window.location.origin;//'https://lo-player.onrender.com'
+		var url = 'https://lo-player.onrender.com' //'http://localhost:8080' //window.location.origin;//
 
 		const p = (s) => console.log(s);
 
@@ -1371,6 +1371,26 @@
 			}
 		}
 
+		function save() {
+			var config = {
+				volume: parseInt($("#myRange").val()),
+				songIndex: queue[songIndex],
+				time: Ftime,
+				shuffle: tog_shuffle,
+				column: column_sort,
+			};
+
+			if (songs == null || config == null || data == null) return;
+
+			var dataS = {
+				config: config,
+				songs: songs,
+				playlists: playlists,
+			};
+			str = JSON.stringify(dataS);
+			download("test.json", str);
+		}
+		
 		AutoSave = () => {
 			var config = {
 				volume: parseInt($("#myRange").val()),
