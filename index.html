@@ -928,7 +928,7 @@
 		<div class="nav-mobile">
 			<i class="bi bi-list"></i>
 			<div class="nm_info"></div>
-			<i class="bi bi-search" onclick="$('#m-search').toggle()"></i>
+			<i class="bi bi-search" onclick="$('#m-search').val(''); $('#m-search').toggle()"></i>
 		</div>
 
 		<div class="nav">
@@ -993,7 +993,6 @@
 						<input type="text" id="search" />
 						<i class="bi bi-x" style="font-size: 25px;" onclick="$('#search').val(''); updateScope()"></i>
 						<i class="bi bi-arrow-bar-up bim" onclick="$(this).toggleClass('bi-arrow-bar-up bi-arrow-bar-down')"></i>
-
 					</div>
 
 					<div class="playlist-tools" style="display: none;">
@@ -1110,7 +1109,15 @@
 			<div class="song-info">
 				<div class="row">
 					<img id="songInfoImage" class="crop" src="" alt="" />
-					<i class="bi-star resize" onclick=""></i>
+					<i class="bi-star resize" onclick="
+						$(this).toggleClass('bi-star bi-star-fill'); 
+						if($(this).hasClass('bi-star-fill')) {
+							songs[currentId].favorited = true;
+						} else {
+							songs[currentId].favorited = false;
+						}
+							">
+					</i>
 					<div class="songInfoName"></div>
 				</div>
 			</div>
@@ -2327,6 +2334,8 @@
 		};
 
 		function secsToTime(secs) {
+			if(!secs)
+				return '-:--'
 			return new Date(secs * 1000).toISOString().substring(14, 19).replace(/^0+/, '').substring().replace(/^:+/, '0:');
 		}
 
@@ -2811,8 +2820,10 @@
 				$(".progress-container").off("pointermove", setProgress);
 				seek_ready = true;
 			});
+			
 		});
 
+		
 		$(".progress-container").on("pointerenter", (e) => {
 			let el = $(".float-duration");
 			el.addClass("active");
@@ -2908,7 +2919,7 @@
 		});
 
 		$(document).on("pointerenter", "[data-hover-menu]", e => {
-			id(screen.size < mobileScreen)
+			if(screen.size < mobileScreen)
 			return
 
 			let dis = e.target.getBoundingClientRect();
