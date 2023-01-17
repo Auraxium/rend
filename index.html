@@ -1008,7 +1008,28 @@
 				</div>
 
 				<div class="playlist-mc" mobile-container>
+					<button onclick="$('.mobile-submit-playlist').toggle()">create</button>
+					<div class="mobile-submit-playlist" style="display: none">
+						<input id="mobile_create_playlist"/>
+						<button onclick="
+							$('.mobile-submit-playlist').toggle();
+							let name = $('#mobile_create_playlist').val();
+							if (!name) {
+								console.log('invalid')
+								return;
+							}
+							let id = crypto.randomUUID();
+							playlists[id] = {
+								name: $('#mobile_create_playlist').val(),
+								songs: []
+							};
 
+							$('#mobile_playlist_diplay').append(`<div class='playlist' onclick='mobilePlaylist(\`${id}\`)'>${name}</div>`)
+						">submit</button>
+					</div>
+					<div id="mobile_playlist_diplay" style="display: flex; flex-direction: column-reverse;">
+
+					</div>
 				</div>
 
 				<div class="add-mc" mobile-container>
@@ -2400,28 +2421,12 @@
 					break;
 
 				case 'playlists':
-					content += `<button onclick="$('.mobile-submit-playlist').toggle()">create</button>
-					<div class="mobile-submit-playlist" style="display: none">
-						<input id="mobile_create_playlist"/>
-						<button onclick="
-							$('.mobile-submit-playlist').toggle();
-							let name = $('#mobile_create_playlist').val();
-							if (!name) {
-								console.log('invalid')
-								return;
-							}
-							let id = crypto.randomUUID();
-							playlists[id] = {
-								name: $('#mobile_create_playlist').val(),
-								songs: []
-							};
-						">submit</button>
-					</div>`;
+					
 					for (const [key, value] of Object.entries(playlists)) {
 						content += `<div class="playlist" onclick="mobilePlaylist('${key}')">${value['name']}</div>`
 					}
 					$('.nm_info').html('Playlists')
-					$('.playlist-mc').html(content)
+					$('#mobile_playlist_diplay').html(content)
 					$('.playlist-mc').show()
 					break;
 
