@@ -1032,7 +1032,7 @@
 					</div>
 				</div>
 
-				<div class="add-mc" mobile-container>
+				<div class="add-mc" style="overflow: scroll;" mobile-container>
 					<div class="tabs" style="display: flex; justify-content: space-evenly">
 						<div onclick="buttonAddSong()">Manual</div>
 						<div onclick="$('.add-tab').toggle()">Youtube</div>
@@ -1052,7 +1052,9 @@
 							</div>
 						</div>`)))
 						}" />
-						<div class="youtube-tab-results" style="overflow: scroll;"></div>
+
+						<div style="overflow: scroll;">
+						<div class="youtube-tab-results" ></div></div>
 					</div>
 				</div>
 
@@ -1145,7 +1147,7 @@
 
 			<div class="footmid">
 				<div id="controls">
-					<i class="bi-arrow-repeat togglable"></i>
+					<i class="bi-arrow-repeat togglable" onclick="repeat = !repeat" ></i>
 					<i class="bi-chevron-double-left" onclick="prevSong()"></i>
 					<i class="bi-play" onclick="PlayPauseFlip()" play-pause-button></i>
 					<i class="bi-chevron-double-right" onclick="nextSong(true)"></i>
@@ -1222,6 +1224,7 @@
 		var fetching = false;
 		let loading = false;
 		let songSkipDirection = true
+		var repeat = false;
 
 		var fetchQueue;
 		var mobileScreen = 601
@@ -2505,7 +2508,7 @@
 						<hr/>
 						<div onclick="songs[${el.songId}].favorited = !songs[${el.songId}].favorited">${(song.favorited) ? 'Unfavorite' : 'Favorite'}</div>
 						${(currentScope) ? `<div onclick="let arr = playlists[currentScope]['songs']; arr.splice(arr.findIndex(el => el==${el.songId}) ,1); updateScope()">Remove from Playlist</div>` : ""}
-						<div data-hover-menu="addPlaylist" onclick="event.stopPropagation(); contextMenuMobileButtonLogic('addToPlaylist')" style="display: flex; justify-content: space-between; align-items: center;">
+						<div  onclick="event.stopPropagation(); contextMenuMobileButtonLogic('addToPlaylist')" style="display: flex; justify-content: space-between; align-items: center;">
 							<div>${(currentScope) ? 'Add to Another Playlist' : 'Add to Playlist'}</div>
 							<i class="bi bi-caret-right-fill"></i>
 						</div>
@@ -2525,13 +2528,20 @@
 						white-space: nowrap;">${selects.length} select(s)</p> 
 					<hr/>
 					<div class="dd-options">
+
 						<div onclick="clickedSong(${'el.songId'})">Play</div>
+
 						<div onclick="shift = true;	clickedSong(${'el.songId'});	shift = false;">Play Next</div>
+
 						<div onclick="queue.push(${'el.songId'}); updateQueueHUD()">Queue</div>
+
 						<hr/>
+
 						<div onclick="songs[${'el.songId'}].favorited = !songs[${'el.songId'}].favorited">${('song.favorited') ? 'Unfavorite' : 'Favorite'}</div>
+
 						${(currentScope) ? `<div onclick="let arr = playlists[currentScope]['songs']; arr.splice(arr.findIndex(el => el==${'el.songId'}) ,1); updateScope()">Remove from Playlist</div>` : ""}
-						<div data-hover-menu="addPlaylist" onclick="event.stopPropagation(); contextMenuMobileButtonLogic('addToPlaylist')" style="display: flex; justify-content: space-between; align-items: center;">
+
+						<div onclick="event.stopPropagation(); contextMenuMobileButtonLogic('addToPlaylist')" style="display: flex; justify-content: space-between; align-items: center;">
 							<div>${(currentScope) ? 'Add to Another Playlist' : 'Add to Playlist'}</div>
 							<i class="bi bi-caret-right-fill"></i>
 						</div>
@@ -2565,7 +2575,6 @@
 						content += `<div class="playlist" onclick="selectPlaylist(event, '${key}')" data-key="${key}" >${value['name']}</div>`
 					}
 					content += `<div style="display: flex; justify-content: space-between">
-						<button onclick="selAddToPlaylist(); closeSongForm()">Add</button>
 						<button onclick="selAddToPlaylist(); closeSongForm()">Add</button>
 					</div> `
 					$('.misc-form').html(content)
@@ -2656,6 +2665,10 @@
 				case YT.PlayerState.ENDED: {
 					progress.style.width = "0%";
 					elapsed.html("0:00");
+					if(repeat) {
+						playSong()
+						return;
+					}
 					nextSong(true);
 					break;
 				}
