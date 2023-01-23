@@ -1010,7 +1010,7 @@
 				<div class="playlist-mc" mobile-container>
 					<button onclick="$('.mobile-submit-playlist').toggle()">create</button>
 					<div class="mobile-submit-playlist" style="display: none">
-						<input id="mobile_create_playlist"/>
+						<input id="mobile_create_playlist" />
 						<button onclick="
 							$('.mobile-submit-playlist').toggle();
 							let name = $('#mobile_create_playlist').val();
@@ -1054,7 +1054,8 @@
 						}" />
 
 						<div style="overflow: scroll;">
-						<div class="youtube-tab-results" ></div></div>
+							<div class="youtube-tab-results"></div>
+						</div>
 					</div>
 				</div>
 
@@ -1147,7 +1148,7 @@
 
 			<div class="footmid">
 				<div id="controls">
-					<i class="bi-arrow-repeat togglable" onclick="repeat = !repeat" ></i>
+					<i class="bi-arrow-repeat togglable" onclick="repeat = !repeat"></i>
 					<i class="bi-chevron-double-left" onclick="prevSong()"></i>
 					<i class="bi-play" onclick="PlayPauseFlip()" play-pause-button></i>
 					<i class="bi-chevron-double-right" onclick="nextSong(true)"></i>
@@ -1421,7 +1422,7 @@
 			str = JSON.stringify(dataS);
 			download("test.json", str);
 		}
-		
+
 		AutoSave = () => {
 			var config = {
 				volume: parseInt($("#myRange").val()),
@@ -1853,9 +1854,9 @@
 				res.data.forEach(async el => {
 					await axios.post(url + '/YTsearch', { search: el.name + ' ' + el.artist }).then(vids => {
 						let song_data = vids.data.filter(ee => nearEnough(+hmsToSecs(ee['duration_raw']), +hmsToSecs(el['length']), 3))[0]
-						if(!song_data)
+						if (!song_data)
 							song_data = vids.data[0]
-						console.log(song_data )
+						console.log(song_data)
 						let sng = {
 							name: song_data['title'],
 							link: song_data['url'],
@@ -2358,7 +2359,7 @@
 		};
 
 		function secsToTime(secs) {
-			if(!secs)
+			if (!secs)
 				return '-:--'
 			return new Date(secs * 1000).toISOString().substring(14, 19).replace(/^0+/, '').substring().replace(/^:+/, '0:');
 		}
@@ -2424,7 +2425,7 @@
 					break;
 
 				case 'playlists':
-					
+
 					for (const [key, value] of Object.entries(playlists)) {
 						content += `<div class="playlist" onclick="mobilePlaylist('${key}')">${value['name']}</div>`
 					}
@@ -2665,7 +2666,7 @@
 				case YT.PlayerState.ENDED: {
 					progress.style.width = "0%";
 					elapsed.html("0:00");
-					if(repeat) {
+					if (repeat) {
 						playSong()
 						return;
 					}
@@ -2838,10 +2839,10 @@
 				$(".progress-container").off("pointermove", setProgress);
 				seek_ready = true;
 			});
-			
+
 		});
 
-		
+
 		$(".progress-container").on("pointerenter", (e) => {
 			let el = $(".float-duration");
 			el.addClass("active");
@@ -2937,8 +2938,8 @@
 		});
 
 		$(document).on("pointerenter", "[data-hover-menu]", e => {
-			if(screen.size < mobileScreen)
-			return
+			if (screen.size < mobileScreen)
+				return
 
 			let dis = e.target.getBoundingClientRect();
 			let content = ''
