@@ -1309,7 +1309,7 @@
 			// for (let i = 0; i < songs.length; i++) {
 			// 	songs[i].playlists = []
 			// }
-			// console.log(songs)
+			 console.log(repeat)
 		}
 
 		input.addEventListener("change", () => {
@@ -1554,7 +1554,6 @@
 
 					player.loadVideoById({
 						videoId: the_song.id,
-						startSeconds: the_song.start,
 					});
 					player.seekTo(the_song.start)
 
@@ -2340,7 +2339,7 @@
 
 			if (Etime > duration - 1) {
 				Etime = 1;
-				nextSong();
+				nextSong(true);
 				return;
 			}
 
@@ -2361,8 +2360,8 @@
 		};
 
 		function secsToTime(secs) {
-			if (!secs)
-				return '-:--'
+			if(!secs  && secs !== 0)
+				return '-:--';
 			return new Date(secs * 1000).toISOString().substring(14, 19).replace(/^0+/, '').substring().replace(/^:+/, '0:');
 		}
 
@@ -2668,10 +2667,6 @@
 				case YT.PlayerState.ENDED: {
 					progress.style.width = "0%";
 					elapsed.html("0:00");
-					if (repeat) {
-						player.seekTo(currentSong.start)
-						return;
-					}
 					nextSong(true);
 					break;
 				}
@@ -2717,6 +2712,12 @@
 				prevSong();
 				return;
 			}
+
+			if(repeat) {
+				player.seekTo(0)
+				return
+			}
+
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
 
 			songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
