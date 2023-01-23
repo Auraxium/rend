@@ -992,7 +992,9 @@
 						<i class="bi bi-search"></i>
 						<input type="text" id="search" />
 						<i class="bi bi-x" style="font-size: 25px;" onclick="$('#search').val(''); updateScope()"></i>
-						<i class="bi bi-arrow-bar-up bim" onclick="$(this).toggleClass('bi-arrow-bar-up bi-arrow-bar-down')"></i>
+						<i class="bi bi-arrow-bar-up bim" onclick="$(this).toggleClass('bi-arrow-bar-up bi-arrow-bar-down'); 
+							$(this).hasClass('bi-arrow-bar-up') ? $('.song-scope').css('flex-direction', 'column'): $('.song-scope').css('flex-direction', 'column-reverse')
+						"></i>
 					</div>
 
 					<div class="playlist-tools" style="display: none;">
