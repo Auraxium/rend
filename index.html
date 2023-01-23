@@ -2667,7 +2667,7 @@
 					progress.style.width = "0%";
 					elapsed.html("0:00");
 					if (repeat) {
-						playSong()
+						player.seekTo(currentSong.start)
 						return;
 					}
 					nextSong(true);
