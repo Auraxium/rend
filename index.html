@@ -1003,7 +1003,10 @@
 					</div>
 				</div>
 
-				<input type="text" id="m-search" style="display: none;" />
+				<input type="text" id="m-search" style="display: none;" onkeydown="if(event.keyCode == 13) {
+						updateScope(songScope.filter((el) =>
+		 		songs[el].name.toLowerCase().includes(this.value.toLowerCase())))
+				}" />
 
 				<div class="display" mobile-container>
 					<div class="song-scope" id="song_scope"></div>
@@ -1153,7 +1156,7 @@
 					<i class="bi-arrow-repeat togglable" onclick="repeat = !repeat"></i>
 					<i class="bi-chevron-double-left" onclick="prevSong()"></i>
 					<i class="bi-play" onclick="PlayPauseFlip()" play-pause-button></i>
-					<i class="bi-chevron-double-right" onclick="nextSong(true)"></i>
+					<i class="bi-chevron-double-right" onclick="nextSong(true, true)"></i>
 					<i class="bi-shuffle togglable shuffle-button"></i>
 				</div>
 
@@ -1309,7 +1312,7 @@
 			// for (let i = 0; i < songs.length; i++) {
 			// 	songs[i].playlists = []
 			// }
-			 console.log(repeat)
+			console.log(repeat)
 		}
 
 		input.addEventListener("change", () => {
@@ -1552,9 +1555,21 @@
 					//	console.log(the_song.start)
 					loading = true
 
+					player.setVolume(0)
+
+					do {
+						await delay(100)
+					} while (player.getVolume())
+
+					//await delay(100)
+
+					//while()
+
+
 					player.loadVideoById({
 						videoId: the_song.id,
 					});
+
 					player.seekTo(the_song.start)
 
 					setVolume(slider.value)
@@ -2209,6 +2224,7 @@
 		}
 
 		function shuffle(ink) {
+			//queue.length = 100
 			queue.sort(() => Math.random() - 0.5);
 
 			let temp = queue.indexOf(ink);
@@ -2360,7 +2376,7 @@
 		};
 
 		function secsToTime(secs) {
-			if(!secs  && secs !== 0)
+			if (!secs && secs !== 0)
 				return '-:--';
 			return new Date(secs * 1000).toISOString().substring(14, 19).replace(/^0+/, '').substring().replace(/^:+/, '0:');
 		}
@@ -2707,18 +2723,23 @@
 			nextSong();
 		}
 
-		function nextSong(bool = songSkipDirection) {
-			if (!bool) {
+		function nextSong(bool = songSkipDirection, force) {
+			if(!force) {
+				if (!bool) {
 				prevSong();
 				return;
 			}
 
-			if(repeat) {
+			if (repeat && bool!=false) {
 				player.seekTo(0)
 				return
 			}
+			}
+			
 
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
+
+			console.log(queue.length)
 
 			songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
 			playSong(songIndex);
@@ -3168,6 +3189,7 @@
 
 		$(document).on("mousedown", ".song", (e) => {
 			if (e.which != 1) return;
+			if(!player) return;
 			let id = parseInt(e.target.dataset.songId);
 
 			if (shift) {
@@ -3357,10 +3379,10 @@
 				songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
 		})
 
-		$('#m-search').on('input', (e) => {
-			updateScope(songScope.filter((el) =>
-				songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
-		})
+		// $('#m-search').on('input', (e) => {
+		// 	updateScope(songScope.filter((el) =>
+		// 		songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
+		// })
 
 		slider.oninput = function () {
 			setVolume(this.value);
