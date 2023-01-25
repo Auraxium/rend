@@ -2483,13 +2483,11 @@
 			$('.nav-mobile').hide()
 			$('.main-container').hide()
 			$('.dock-bar').hide()
-			$('#sb2').show()
 			$('#sb1').hide()
 			$('.mobile-player-container').show()
+			$('#sb2').show()
 			$('.foot').show()
-			//$('#sv-img').attr('src', $('#nm-img').attr('src'))
 			$('.sv-name').show()
-
 		}
 
 		function songBarClose() {
@@ -3384,6 +3382,11 @@
 		// 		songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
 		// })
 
+		$('.mobile-player-container').on('pointerdown', e => {
+			$('.mobile-player-container')[0].setPointerCapture(e.pointerId);
+			
+		})
+		
 		slider.oninput = function () {
 			setVolume(this.value);
 		};
