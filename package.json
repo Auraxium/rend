@@ -28,6 +28,7 @@
     "fs": "^0.0.1-security",
     "jsmediatags": "^3.9.7",
     "mongoose": "^6.6.5",
+    "nodemon": "^2.0.20",
     "path": "^0.12.7",
     "puppeteer": "^19.5.2",
     "usetube": "^2.2.2",

@@ -81,7 +81,7 @@ app.post("/YTsearch", (req, res) => {
 app.post("/SpotifyPlaylist", async (req, res) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.goto(req.body.search);
+  await page.goto(req.body.search, {timeout: 90000});
 
   await new Promise((res, rej) => setTimeout(() => res(""), 4000));
 
