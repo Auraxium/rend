@@ -81,18 +81,18 @@ app.post("/YTsearch", (req, res) => {
 app.post("/SpotifyPlaylist", async (req, res) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.goto(req.body.search, {timeout: 0});
+  await page.goto(req.body.search, {timeout: 90000});
 
   await new Promise((res, rej) => setTimeout(() => res(""), 4000));
 
-  const num = await page.$$eval(`span[data-encore-id="type"]`, {timeout: 0}, (e) =>
+  const num = await page.$$eval(`span[data-encore-id="type"]`, (e) =>
     e.map((el) => el.innerText)
   );
   let length = num[13].match(/^\d+/)[0];
   let songs = [];
 
   for (let i = 2; i < +length + 2; i++) {
-    let song = await page.$$eval(`[aria-rowindex="${i}"]`, {timeout: 0}, (e) =>
+    let song = await page.$$eval(`[aria-rowindex="${i}"]`, (e) =>
       e.map((el) => ({
         name: el.querySelector('div [aria-colindex="2"] div a div').innerText,
         artist: el.querySelector('div [aria-colindex="2"] div span a')
@@ -101,9 +101,9 @@ app.post("/SpotifyPlaylist", async (req, res) => {
       }))
     );
 
-    let scroll = await page.$(`[aria-rowindex="${i}"]`, {timeout: 0});
+    let scroll = await page.$(`[aria-rowindex="${i}"]`);
     if (!scroll) break;
-    await scroll.evaluate((element) => element.scrollIntoView(), {timeout: 0});
+    await scroll.evaluate((element) => element.scrollIntoView());
     await new Promise((res, rej) => setTimeout(() => res(""), 100));
 
     songs.push(song[0]);

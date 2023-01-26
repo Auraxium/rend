@@ -3387,11 +3387,11 @@
 		$('.mobile-player-container').on('pointerdown', e => {
 			$('.mobile-player-container')[0].setPointerCapture(e.pointerId);
 
-			$('.mobile-player-container').on('pointermove', function move_enough(e2) {
-			$('.sv-name').html(e.offsetX)
+			$('.mobile-player-container').on('pointermove', function move_enough() {
+			//$('.sv-name').html(e.offsetX)
 				console.log(e.offsetX)
 			});
-			$('.mobile-player-container').on('pointerup', function exit(e3) {
+			$('.mobile-player-container').on('pointerup', function exit() {
 				$('.mobile-player-container').off('pointermove', move_enough)
 				$('.mobile-player-container').off('pointerup', exit)
 			})
