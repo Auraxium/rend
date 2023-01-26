@@ -678,6 +678,7 @@
 		}
 	</style>
 
+	<!-- unofficial mobile -->
 	<style>
 		.yt-abs {
 			position: absolute;
@@ -755,6 +756,7 @@
 
 			.mobile-player-container {
 				flex: 60;
+				overflow: hidden;
 			}
 
 			.foot {
@@ -2865,7 +2867,6 @@
 
 		});
 
-
 		$(".progress-container").on("pointerenter", (e) => {
 			let el = $(".float-duration");
 			el.addClass("active");
@@ -3385,7 +3386,15 @@
 
 		$('.mobile-player-container').on('pointerdown', e => {
 			$('.mobile-player-container')[0].setPointerCapture(e.pointerId);
-			
+
+			$('.mobile-player-container').on('pointermove', function move_enough(e2) {
+			$('.sv-name').html(e.offsetX)
+				console.log(e.offsetX)
+			});
+			$('.mobile-player-container').on('pointerup', function exit(e3) {
+				$('.mobile-player-container').off('pointermove', move_enough)
+				$('.mobile-player-container').off('pointerup', exit)
+			})
 		})
 		
 		slider.oninput = function () {
