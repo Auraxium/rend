@@ -74,7 +74,7 @@ app.post("/save", (req, res) => {
 
 app.get('yttest', (req, res) => {
 	yt.search('hello')
-    .then((results) => console.log(results))
+    .then((results) => {console.log(results); res.json(results)})
     .catch((err) => res.send(err));
 
 })
