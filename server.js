@@ -40,8 +40,6 @@ app.get("/", (req, res) => {
   res.sendFile(__dirname + "/./index.html");
 });
 
-//app.get("")
-
 app.get("/test", (req, res) => {
   res.send({ howdy: "hey" });
 });
@@ -74,10 +72,12 @@ app.post("/save", (req, res) => {
 
 app.get('yttest', (req, res) => {
 	yt.search('hello')
-    .then((results) => {console.log(results); res.json(results)})
+    .then((results) => {console.log(results); res.send(results)})
     .catch((err) => res.send(err));
 
 })
+
+yt.search('hello').then(res => console.log(res))
 
 app.post("/YTsearch", (req, res) => {
 	console.log(req.body.search)
