@@ -2358,7 +2358,9 @@
 
 			if (Etime > duration - 1) {
 				Etime = 1;
-				//nextSong(true);
+					progress.style.width = "0%";
+					elapsed.html("0:00");
+					nextSong(true);
 				return;
 			}
 
