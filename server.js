@@ -74,7 +74,7 @@ app.post("/save", (req, res) => {
 
 app.post("/YTsearch", (req, res) => {
   yt.search(req.body.search)
-    .then((results) => res.send(results))
+    .then((results) => {console.log(results); res.send(results)})
     .catch((err) => res.send(err));
 });
 
