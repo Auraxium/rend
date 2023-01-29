@@ -94,7 +94,7 @@ app.post("/YTsearch", (req, res) => {
 			return res.send(err)
 		}
 	
-		console.log(res)
+		//console.log(results)
 		return res.json(results)
 	})
 });

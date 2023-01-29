@@ -1192,7 +1192,7 @@
 
 		var input = document.querySelector("#JData");
 
-		var url = 'https://lo-player.onrender.com'//'http://localhost:8080'//  window.location.origin;//
+		var url = window.location.origin == 'http://localhost:8080' ? 'http://localhost:8080' : 'https://lo-player.onrender.com' //  window.location.origin;//
 
 		var songs = [];
 		var songScope = [];
