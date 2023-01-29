@@ -2,12 +2,15 @@
 const express = require("express");
 const app = express();
 var cors = require("cors");
-var yt = require("youtube-search-without-api-key");
+// var yt = require("youtube-search-without-api-key");
+var yt = require('youtube-search');
 const puppeteer = require("puppeteer");
 const mongoose = require("mongoose");
 var dataModel = mongoose.model("Data", new mongoose.Schema({ data: {} }));
 const URI =
   "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
+
+const YT_API_KEY = 'AIzaSyCa-ozYT_nemTy1dYHDBKBUX1qdwUlZSx0'
 
 p = (s) => console.log(s);
 
@@ -70,20 +73,30 @@ app.post("/save", (req, res) => {
   });
 });
 
-app.get('yttest', (req, res) => {
+app.get('/yttest', (req, res) => {
 	yt.search('hello')
-    .then((results) => {console.log(results); res.send(results)})
-    .catch((err) => res.send(err));
+    .then((results) => console.log(results))
 
 })
 
-yt.search('hello').then(res => console.log(res))
+//yt.search('hello').then(res => console.log(res))
+
 
 app.post("/YTsearch", (req, res) => {
 	console.log(req.body.search)
-  yt.search(req.body.search)
-    .then((results) => {console.log(results); res.send(results)})
-    .catch((err) => res.send(err));
+  // yt.search(req.body.search)
+  //   .then((results) => {console.log(results); res.send(results)})
+  //   .catch((err) => res.send(err));
+
+	yt(req.body.search, {maxResults: 10, key: YT_API_KEY}, (err, results) => {
+		if(err) {
+			console.log(err)
+			return res.send(err)
+		}
+	
+		console.log(res)
+		return res.json(results)
+	})
 });
 
 app.post("/SpotifyPlaylist", async (req, res) => {
