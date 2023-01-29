@@ -72,6 +72,13 @@ app.post("/save", (req, res) => {
   });
 });
 
+app.get('yttest', (req, res) => {
+	yt.search('hello')
+    .then((results) => console.log(results))
+    .catch((err) => res.send(err));
+
+})
+
 app.post("/YTsearch", (req, res) => {
 	console.log(req.body.search)
   yt.search(req.body.search)
