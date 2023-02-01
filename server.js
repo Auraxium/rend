@@ -2,15 +2,15 @@
 const express = require("express");
 const app = express();
 var cors = require("cors");
-// var yt = require("youtube-search-without-api-key");
-var yt = require('youtube-search');
+const yt = require('usetube') // require("youtube-search-without-api-key"); // require('youtube-search'); // 
+
 const puppeteer = require("puppeteer");
 const mongoose = require("mongoose");
 var dataModel = mongoose.model("Data", new mongoose.Schema({ data: {} }));
 const URI =
   "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
 
-const YT_API_KEY = 'AIzaSyCa-ozYT_nemTy1dYHDBKBUX1qdwUlZSx0'
+const YT_API_KEY = "AIzaSyCa-ozYT_nemTy1dYHDBKBUX1qdwUlZSx0";
 
 p = (s) => console.log(s);
 
@@ -73,36 +73,40 @@ app.post("/save", (req, res) => {
   });
 });
 
-app.get('/yttest', (req, res) => {
-	yt.search('hello')
-    .then((results) => console.log(results))
-
-})
+app.get("/yttest", (req, res) => {
+  yt.search("hello").then((results) => console.log(results));
+});
 
 //yt.search('hello').then(res => console.log(res))
 
+app.post("/YTsearch", async (req, res) => {
+   console.log(req.body.search);
+//   yt.search(req.body.search)
+//     .then((results) => {
+//       console.log(results);
+//       res.send(results);
+//     })
+//     .catch((err) => res.send(err));
 
-app.post("/YTsearch", (req, res) => {
-	console.log(req.body.search)
-  // yt.search(req.body.search)
-  //   .then((results) => {console.log(results); res.send(results)})
-  //   .catch((err) => res.send(err));
+  // yt(req.body.search, {maxResults: 10, key: YT_API_KEY}, (err, results) => {
+  // 	if(err) {
+  // 		console.log(err)
+  // 		return res.send(err)
+  // 	}
 
-	yt(req.body.search, {maxResults: 10, key: YT_API_KEY}, (err, results) => {
-		if(err) {
-			console.log(err)
-			return res.send(err)
-		}
-	
-		//console.log(results)
-		return res.json(results)
-	})
+  // 	return res.json(results)
+  // })
+
+	// let vv = await yt.searchVideo(req.body.search)
+	// console.log(vv)
+	// res.json(vv)
+
 });
 
 app.post("/SpotifyPlaylist", async (req, res) => {
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
-  await page.goto(req.body.search, {timeout: 90000});
+  await page.goto(req.body.search, { timeout: 90000 });
 
   await new Promise((res, rej) => setTimeout(() => res(""), 4000));
 

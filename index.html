@@ -1851,7 +1851,7 @@
 				vids = res.data;
 				console.log(vids)
 				var str = "";
-				vids.forEach(el => str += `<div class="song" data-type="ytSearch" data-json="${JSON.stringify(el)}">
+				vids.forEach(el => str += `<div class="song" data-type="ytSearch" data-json="${JSON.stringify(el)}" onclick="ytAdd(event)">
 							<div class="row no-click">
 								<img src="http://img.youtube.com/vi/${el.id}/0.jpg"
 								class="crop"
@@ -1865,6 +1865,29 @@
 
 		ytMenu = () => {
 			$('.yt-abs').toggle()
+		}
+
+		function ytAdd(e) {
+			$(e.target).addClass("selected");
+			console.log('lookdge')
+			console.log(e.target.dataset.json)
+			let song_data = JSON.parse(e.target.dataset.json)
+			let sng = {
+				name: song_data['title'],
+				link: song_data['link'],
+				id: song_data['id'],
+				playlists: [],
+				favorited: false,
+				type: 'YOUTUBE',
+				start: 0,
+				end: hmsToSecs(song_data['duration_raw']),
+				end_raw: song_data['duration_raw'],
+			};
+			songs.push(sng);
+			queue.push(songs.length - 1);
+			$(".display").append(
+				songBuilder(songs.length - 1, songs[songs.length - 1].id, sng.name, 'YOUTUBE')
+			);
 		}
 
 		async function SpotifySearch(s) {
