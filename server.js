@@ -2,8 +2,8 @@
 const express = require("express");
 const app = express();
 var cors = require("cors");
-const yt = require('usetube') // require("youtube-search-without-api-key"); // require('youtube-search'); // 
-
+const scraper = require('scraper-edge').default; // require('usetube') // require("youtube-search-without-api-key"); // require('youtube-search'); //
+const yt = new scraper()
 const puppeteer = require("puppeteer");
 const mongoose = require("mongoose");
 var dataModel = mongoose.model("Data", new mongoose.Schema({ data: {} }));
@@ -81,12 +81,12 @@ app.get("/yttest", (req, res) => {
 
 app.post("/YTsearch", async (req, res) => {
    console.log(req.body.search);
-//   yt.search(req.body.search)
-//     .then((results) => {
-//       console.log(results);
-//       res.send(results);
-//     })
-//     .catch((err) => res.send(err));
+  yt.search(req.body.search)
+    .then((results) => {
+      console.log(results);
+      res.send(results);
+    })
+    .catch((err) => res.send(err));
 
   // yt(req.body.search, {maxResults: 10, key: YT_API_KEY}, (err, results) => {
   // 	if(err) {

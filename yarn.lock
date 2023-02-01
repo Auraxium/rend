@@ -2064,6 +2064,11 @@
   "resolved" "https://registry.npmjs.org/sax/-/sax-0.5.8.tgz"
   "version" "0.5.8"
 
+"scraper-edge@^1.0.0":
+  "integrity" "sha512-K3YdzKpL987owu4hH1O5h4wzTYFu3w9LYTdv2JrLhe24GjVoswMKRDH1FwDAP/F7/fhOaFAyGJTIGDSrX82F/w=="
+  "resolved" "https://registry.npmjs.org/scraper-edge/-/scraper-edge-1.0.0.tgz"
+  "version" "1.0.0"
+
 "semver@^5.7.1":
   "integrity" "sha512-sauaDf/PZdVgrLTNYHRtpXa1iRiKcaebiKQ1BJdpQlWH2lCvexQdX55snPFyK7QzpudqbCI0qXFfOasHdyNDGQ=="
   "resolved" "https://registry.npmjs.org/semver/-/semver-5.7.1.tgz"

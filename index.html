@@ -1192,7 +1192,7 @@
 
 		var input = document.querySelector("#JData");
 
-		var url = window.location.origin == 'http://localhost:8080' ? 'http://localhost:8080' : 'https://lo-player.onrender.com' //  window.location.origin;//
+		var url = (window.location.origin == 'http://localhost:8080' || window.location.origin == 'http://127.0.0.1:5500') ? 'http://localhost:8080' : 'https://lo-player.onrender.com' //  window.location.origin;//
 
 		var songs = [];
 		var songScope = [];
@@ -1846,12 +1846,14 @@
 			closeSongForm();
 		}
 
-		YT_SEARCH = (s) => {
+		//webdrive
+		function YT_SEARCH(s) {
 			axios.post(url + '/YTsearch', { search: s }).then(res => {
-				vids = res.data;
-				console.log(vids)
-				var str = "";
-				vids.forEach(el => str += `<div class="song" data-type="ytSearch" data-json="${JSON.stringify(el)}" onclick="ytAdd(event)">
+				console.log(res.data)
+				$('.display').html(res.data.videos[0])
+				vids = res.data.videos;
+				let str = "";
+				vids.forEach((el, i) => str += `<div class="song" data-type="ytSearch" data-json="\`${JSON.stringify(el)}\`" onclick="ytAdd(event)">
 							<div class="row no-click">
 								<img src="http://img.youtube.com/vi/${el.id}/0.jpg"
 								class="crop"
@@ -1863,15 +1865,18 @@
 			})
 		}
 
-		ytMenu = () => {
+		function ytMenu() {
 			$('.yt-abs').toggle()
 		}
 
 		function ytAdd(e) {
 			$(e.target).addClass("selected");
-			console.log('lookdge')
 			console.log(e.target.dataset.json)
-			let song_data = JSON.parse(e.target.dataset.json)
+		//	let song_data = e.target.dataset.json;
+		//	console.log(song_data);
+
+			return;
+
 			let sng = {
 				name: song_data['title'],
 				link: song_data['link'],
