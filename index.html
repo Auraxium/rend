@@ -1487,7 +1487,7 @@
 					</div>`;
 
 				case 'YOUTUBE':
-					return `<div class="song" id="song${id_num}" data-song-id="${id_num}" data-context="song">
+					return `<div class="song" id="song${id_num}" data-type="song" data-song-id="${id_num}" data-context="song">
 							<div class="row no-click">
 								<img src="http://img.youtube.com/vi/${im_link_id}/0.jpg"
 								class="crop"
@@ -1853,7 +1853,7 @@
 				var str = "";
 				vids.forEach(el => str += `<div class="song" data-type="ytSearch" data-json="${JSON.stringify(el)}">
 							<div class="row no-click">
-								<img src="http://img.youtube.com/vi/${el.id.videoId}/0.jpg"
+								<img src="http://img.youtube.com/vi/${el.id}/0.jpg"
 								class="crop"
 								alt="" />
 								<div>${el.title}</div>
@@ -1864,8 +1864,7 @@
 		}
 
 		ytMenu = () => {
-			let el = $('.yt-abs')
-			el.toggle()
+			$('.yt-abs').toggle()
 		}
 
 		async function SpotifySearch(s) {
@@ -2358,9 +2357,9 @@
 
 			if (Etime > duration - 1) {
 				Etime = 1;
-					progress.style.width = "0%";
-					elapsed.html("0:00");
-					nextSong(true);
+				progress.style.width = "0%";
+				elapsed.html("0:00");
+				nextSong(true);
 				return;
 			}
 
@@ -2727,18 +2726,18 @@
 		}
 
 		function nextSong(bool = songSkipDirection, force) {
-			if(!force) {
+			if (!force) {
 				if (!bool) {
-				prevSong();
-				return;
+					prevSong();
+					return;
+				}
+
+				if (repeat && bool != false) {
+					player.seekTo(0)
+					return
+				}
 			}
 
-			if (repeat && bool!=false) {
-				player.seekTo(0)
-				return
-			}
-			}
-			
 
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
 
@@ -3189,9 +3188,9 @@
 			hoverSongElement.classList.remove("highlight");
 		});
 
-		$(document).on("mousedown", ".song", (e) => {
+		$(document).on("mousedown", "[data-type=\"song\"]", (e) => {
 			if (e.which != 1) return;
-			if(!player) return;
+			if (!player) return;
 			let id = parseInt(e.target.dataset.songId);
 
 			if (shift) {
@@ -3390,7 +3389,7 @@
 			$('.mobile-player-container')[0].setPointerCapture(e.pointerId);
 
 			$('.mobile-player-container').on('pointermove', function move_enough() {
-			//$('.sv-name').html(e.offsetX)
+				//$('.sv-name').html(e.offsetX)
 				console.log(e.offsetX)
 			});
 			$('.mobile-player-container').on('pointerup', function exit() {
@@ -3398,7 +3397,7 @@
 				$('.mobile-player-container').off('pointerup', exit)
 			})
 		})
-		
+
 		slider.oninput = function () {
 			setVolume(this.value);
 		};
