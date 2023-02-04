@@ -483,6 +483,16 @@
 			/* background-size: cover; */
 		}
 
+		.yt-abs {
+			position: absolute;
+			background-color: #0d0d0d;
+			width: 300px;
+			min-height: 500px;
+			max-height: 500px;
+
+			display: none;
+		}
+
 		/*#endregion */
 	</style>
 
@@ -678,55 +688,26 @@
 		}
 	</style>
 
-	<!-- unofficial mobile -->
+	<!-- official mobile -->
 	<style>
-		.yt-abs {
-			position: absolute;
-			padding: 5px;
-			height: calc(100% - 200px);
-			width: 300px;
-			background-color: black;
-			display: none;
-			overflow: scroll;
-		}
-
-		.yt-vids {}
-
-		.dock-bar {
-			display: none;
-		}
-
-		.song-bar {
-			display: none;
-		}
-
-		[mobile-container],
-		.mobile-player-container {
-			display: none;
-		}
-
-		.mobile-app {
+		.app-mobile {
 			display: none;
 		}
 	</style>
-
 
 	<!-- media queries -->
 	<style>
 		@media (max-width: 600px) {
 
-			body {
-				/* overflow: hidden; */
+			.app {
+				display: none;
 			}
 
-			.nav,
-			.left,
-			.right,
-			.tools,
-			.tools2,
-			.song-info,
-			.misc {
-				display: none;
+			.app-mobile {
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				flex-direction: column;
 			}
 
 			.nav-mobile {
@@ -737,40 +718,9 @@
 				justify-content: space-between;
 			}
 
-			.song-bar {
-				flex: 7;
-				background-color: #04aa6d;
-				display: block;
-			}
-
-			.container-mobile {
-				display: flex;
-				flex-direction: column;
-				flex-wrap: nowrap;
-				flex: auto;
-			}
-
-			.playlist-mc {
-				overflow: scroll;
-			}
-
-			.mobile-player-container {
-				flex: 60;
+			.mainM {
+				flex: 79;
 				overflow: hidden;
-			}
-
-			.foot {
-				flex: 27;
-				background-color: rgb(15, 37, 15);
-				width: 100%;
-				display: none;
-			}
-
-			.footmid {
-				width: 100%;
-				height: 100%;
-				flex-direction: column-reverse;
-				justify-content: space-evenly;
 			}
 
 			.dock-bar {
@@ -786,6 +736,7 @@
 				flex-direction: column;
 				justify-content: flex-end;
 				align-items: center;
+				justify-content: center;
 				padding-top: 2px;
 				text-align: center;
 				opacity: .5;
@@ -797,8 +748,14 @@
 				/* border: 1px solid; */
 			}
 
-			[onclick]>p {
-				font-size: 3vw;
+			.dock-bar>div>i {
+				font-size: 7vw;
+			}
+
+			.song-bar {
+				flex: 7;
+				background-color: #04aa6d;
+				display: block;
 			}
 
 			.nm-img {
@@ -812,28 +769,7 @@
 				transform: translate(-50%, -50%);
 			}
 
-
-			.progress-container {
-				background: rgb(117, 117, 117);
-				border-radius: 5px;
-				cursor: pointer;
-				margin: 10px 0;
-				height: 12px;
-				width: 75%;
-				padding: 10px 0;
-			}
-
-			.progress {
-				padding: 10px 0;
-				margin-top: -10px;
-			}
-
-			#controls>* {
-				/* border: dashed 1px */
-			}
-
-			#sb1,
-			#sb2 {
+			#sb1 {
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
@@ -848,8 +784,14 @@
 		}
 	</style>
 
-	<!-- HTML-->
+	<!-- HTML -->
 	<div class="app">
+
+		<!-- <div class="test">
+			<div class="yes">yes</div>
+			<div class="hi">hi</div>
+			<div class="hello">hello</div>
+		</div> -->
 
 		<div absolutes>
 			<div class="add-song-form">
@@ -915,22 +857,15 @@
 
 			<div class="form-blur" form-blur></div>
 
-			<div class="yt-abs">
-				<input class="yt-search" onkeydown="if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
+			<div class="yt-abs" style="overflow: scroll;">
+				<input class="yt-search" onkeydown=" if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
 				<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
 				<input class="yt-search" onkeydown="if (event.keyCode == 13) SpotifySearch(this.value)"></input>
 				<button onclick="YT_SEARCH($('.yt-search').val())">Spotify</button>
-				<div class="yt-vids"></div>
+				<div class="yt-vids" style="overflow: scroll;"></div>
 			</div>
 
-			<div class="songElements" style="display: none;"></div>
 
-		</div>
-
-		<div class="nav-mobile">
-			<i class="bi bi-list"></i>
-			<div class="nm_info"></div>
-			<i class="bi bi-search" onclick="$('#m-search').val(''); $('#m-search').toggle()"></i>
 		</div>
 
 		<div class="nav">
@@ -1005,73 +940,10 @@
 					</div>
 				</div>
 
-				<input type="text" id="m-search" style="display: none;" onkeydown="if(event.keyCode == 13) {
-						updateScope(songScope.filter((el) =>
-		 		songs[el].name.toLowerCase().includes(this.value.toLowerCase())))
-				}" />
+				<div class="display">
+					<!-- <div class="song-scope" id="song_scope"></div> -->
+					<div class="songElements"></div>
 
-				<div class="display" mobile-container>
-					<div class="song-scope" id="song_scope"></div>
-				</div>
-
-				<div class="playlist-mc" mobile-container>
-					<button onclick="$('.mobile-submit-playlist').toggle()">create</button>
-					<div class="mobile-submit-playlist" style="display: none">
-						<input id="mobile_create_playlist" />
-						<button onclick="
-							$('.mobile-submit-playlist').toggle();
-							let name = $('#mobile_create_playlist').val();
-							if (!name) {
-								console.log('invalid')
-								return;
-							}
-							let id = crypto.randomUUID();
-							playlists[id] = {
-								name: $('#mobile_create_playlist').val(),
-								songs: []
-							};
-
-							$('#mobile_playlist_diplay').append(`<div class='playlist' onclick='mobilePlaylist(\`${id}\`)'>${name}</div>`)
-						">submit</button>
-					</div>
-					<div id="mobile_playlist_diplay" style="display: flex; flex-direction: column-reverse;">
-
-					</div>
-				</div>
-
-				<div class="add-mc" style="overflow: scroll;" mobile-container>
-					<div class="tabs" style="display: flex; justify-content: space-evenly">
-						<div onclick="buttonAddSong()">Manual</div>
-						<div onclick="$('.add-tab').toggle()">Youtube</div>
-					</div>
-					<div class="add-tab" style="text-align: center; padding: 10px;">
-						<input onkeydown="if (event.keyCode == 13) {
-							console.log(this.value); fetch(url + '/YTsearch', {method: 'POST', 
-							body: JSON.stringify({'search': this.value}), headers: {'Content-Type': 'application/json'
-							}}).then(res => res.json()).then(videos => 
-							$('.youtube-tab-results').html(videos.map(el => 
-							`<div class='song' data-type='ytSearch' data-json='${JSON.stringify(el)}'>
-							<div class='row no-click'>
-								<img src='http://img.youtube.com/vi/${el.id.videoId}/0.jpg'
-								class='crop'
-								alt='' />
-								<div>${el.title}</div>
-							</div>
-						</div>`)))
-						}" />
-
-						<div style="overflow: scroll;">
-							<div class="youtube-tab-results"></div>
-						</div>
-					</div>
-				</div>
-
-				<div class="search-mc" mobile-container>
-					<input type="text" id="m-search" />
-				</div>
-
-				<div class="misc-mc" mobile-container>
-					<div class="ce" onclick="AutoSave()">SAVE</div>
 				</div>
 
 				<div class="accept-menu" style="display: none; padding: 5px 0;">
@@ -1092,49 +964,6 @@
 				</div>
 			</div>
 		</div>
-
-		<div class="dock-bar">
-			<div onclick="mobilePage('library')">
-				<i class="bi bi-music-note-beamed dock-icon"></i>
-				<p>Library</p>
-			</div>
-			<div onclick="mobilePage('playlists')">
-				<i class="bi bi-music-note-list dock-icon"></i>
-				<p>Playlists</p>
-			</div>
-			<div onclick="mobilePage('add')">
-				<i class="bi bi-file-plus dock-icon"></i>
-				<p>Add</p>
-			</div>
-			<div onclick="mobilePage('search')">
-				<i class="bi bi-search dock-icon"></i>
-				<p>Search</p>
-			</div>
-			<div onclick="mobilePage('misc')">
-				<i class="bi bi-gear dock-icon"></i>
-				<p>Misc</p>
-			</div>
-		</div>
-
-		<div class="song-bar" onclick="songBarClick()">
-			<div id="sb1">
-				<img id="nm-img" class="crop" src="" alt="" />
-				<div class="nm-name"></div>
-				<i class="bi-play" onclick="PlayPauseFlip()" style="font-size: 40px" play-pause-button></i>
-			</div>
-			<div id="sb2" style="display: none;">
-				<i class="bi bi-arrow-left" onclick="songBarClose()" style="font-size: 30px;"></i>
-				<div class="nm_info"></div>
-				<i class="bi bi-three-dots"></i>
-			</div>
-
-		</div>
-
-		<div class="mobile-player-container">
-			<img id="sv-img" src="" alt="" />
-		</div>
-
-		<div class="sv-name" style="text-align: center; display: none;"></div>
 
 		<div class="foot">
 			<div class="song-info">
@@ -1184,11 +1013,130 @@
 
 	</div>
 
+	<!-- HTML MOBILE -->
+	<div class="app-mobile" style="overflow: hidden;">
+
+		<!-- <div absolutes>
+		</div> -->
+
+		<div class="nav-mobile">
+			<i class="bi bi-list"></i>
+			<div class="nm_info"></div>
+			<i class="bi bi-search" onclick="$('#m-search').val(''); $('#m-search').toggle()"></i>
+
+			<input type="text" id="m-search" style="display: none;" onkeydown="if(event.keyCode == 13) {
+				updateScope(songScope.filter((el) =>
+		 songs[el].name.toLowerCase().includes(this.value.toLowerCase())))
+		}" />
+		</div>
+
+		<div class="mainM" style="overflow: scroll;">
+
+			<div class="song-scope" mobile-container></div>
+
+			<div class="playlist-mc" mobile-container>
+				<button onclick="$('.mobile-submit-playlist').toggle()">create</button>
+				<div class="mobile-submit-playlist" style="display: none">
+					<input id="mobile_create_playlist" />
+					<button onclick="
+						$('.mobile-submit-playlist').toggle();
+						let name = $('#mobile_create_playlist').val();
+						if (!name) {
+							console.log('invalid')
+							return;
+						}
+						let id = crypto.randomUUID();
+						playlists[id] = {
+							name: $('#mobile_create_playlist').val(),
+							songs: []
+						};
+
+						$('#mobile_playlist_diplay').append(`<div class='playlist' onclick='mobilePlaylist(\`${id}\`)'>${name}</div>`)
+					">submit</button>
+				</div>
+				<div id="mobile_playlist_diplay" style="display: flex; flex-direction: column-reverse;">
+
+				</div>
+			</div>
+
+			<div class="add-mc" style="overflow: scroll;" mobile-container>
+				<div class="tabs" style="display: flex; justify-content: space-evenly">
+					<div onclick="buttonAddSong()">Manual</div>
+					<div onclick="$('.add-tab').toggle()">Youtube</div>
+				</div>
+				<div class="add-tab" style="text-align: center; padding: 10px;">
+					<input onkeydown="if (event.keyCode == 13) {
+						console.log(this.value); fetch(url + '/YTsearch', {method: 'POST', 
+						body: JSON.stringify({'search': this.value}), headers: {'Content-Type': 'application/json'
+						}}).then(res => res.json()).then(videos => 
+						$('.youtube-tab-results').html(videos.map(el => 
+						`<div class='song' data-type='ytSearch' data-json='${JSON.stringify(el)}'>
+						<div class='row no-click'>
+							<img src='http://img.youtube.com/vi/${el.id.videoId}/0.jpg'
+							class='crop'
+							alt='' />
+							<div>${el.title}</div>
+						</div>
+					</div>`)))
+					}" />
+
+					<div style="overflow: scroll;">
+						<div class="youtube-tab-results"></div>
+					</div>
+				</div>
+			</div>
+
+			<div class="search-mc" mobile-container>
+				<input type="text" id="m-search" />
+			</div>
+
+			<div class="misc-mc" mobile-container>
+				<div class="ce" onclick="AutoSave()">SAVE</div>
+			</div>
+		</div>
+
+		<div class="dock-bar" style="overflow: scroll;">
+			<div onclick="mobilePage('library')">
+				<i class="bi bi-music-note-beamed dock-icon"></i>
+				<!-- <p>Library</p> -->
+			</div>
+			<div onclick="mobilePage('playlists')">
+				<i class="bi bi-music-note-list dock-icon"></i>
+				<!-- <p>Playlists</p> -->
+			</div>
+			<div onclick="mobilePage('add')">
+				<i class="bi bi-file-plus dock-icon"></i>
+				<!-- <p>Add</p> -->
+			</div>
+			<div onclick="mobilePage('search')">
+				<i class="bi bi-star-fill dock-icon"></i>
+				<!-- <p>Search</p> -->
+			</div>
+			<div onclick="mobilePage('misc')">
+				<i class="bi bi-gear dock-icon"></i>
+				<!-- <p>Misc</p> -->
+			</div>
+		</div>
+
+		<div class="song-bar" onclick="songBarClickk()" style="overflow: hidden;">
+			<div id="sb1">
+				<img id="nm-img" class="crop" src="" alt="" />
+				<div class="nm-name"></div>
+				<i class="bi-play" onclick="PlayPauseFlip()" style="font-size: 40px" play-pause-button></i>
+			</div>
+		</div>
+
+		<!-- <div class="mobile-player-container">
+			<img id="sv-img" src="" alt="" />
+		</div>
+
+		<div class="sv-name" style="text-align: center; display: none;"></div> -->
+
+	</div>
+
 	<!--JS-->
 	<script>
 		//#region ------------------Initializers-(vars)-----------------
-
-
 
 		var input = document.querySelector("#JData");
 
@@ -1272,7 +1220,6 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-
 		const p = (s) => console.log(s);
 
 		var tag = document.createElement("script");
@@ -1290,6 +1237,7 @@
 
 					playlists = data.playlists;
 					songs = data.songs.filter(e => e.type != 'FILE');
+					//songs.length = 50;
 
 					$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
 					songIndex = data.config.songIndex;
@@ -1506,13 +1454,9 @@
 		}
 
 		function precleanUp() {
-			$('.yt-abs').css({
-				'top': `${$('[tysbut]').offset().top + 20}px`,
-				'left': `${$('[tysbut]').offset().left - 30}px`
-			})
-			$('.yt-abs').hide()
 
-			mobilePage('library')
+
+		//	mobilePage('library')
 
 			if (column_sort) {
 				$(".song-scope").css("flex-direction", "column-reverse");
@@ -1663,7 +1607,7 @@
 			// updateQueueHUD();
 			if (tog_shuffle) {
 				shuffle(i);
-			} else updateQueueHUD();
+			} //else updateQueueHUD();
 
 			if (i != currentId) playSong();
 		}
@@ -1734,19 +1678,29 @@
 		//#region UI (Button Logic)
 		function openPlaylist(s) {
 			//console.log(playlists[s])
-			if (s) {
-				songScope = playlists[s]['songs']
+			// if (s) {
+			// 	songScope = playlists[s]['songs']
 
-			} else
-				songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
-					return i;
-				});
+			if(!s)
+				return showAllSongs()
 
-			updateScope()
-			currentScope = s;
+			let arr = playlists[s]['songs'];
 
-			if (s)
-				$('#playlist_title').html(playlists[s]['name'])
+
+			$('.songElements>*:visible').hide()
+			arr.forEach(el => $(`#song${el}`).show())
+
+
+			// } else
+			// 	songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
+			// 		return i;
+			// 	});
+
+			// updateScope()
+			// currentScope = s;
+
+			// if (s)
+			// 	$('#playlist_title').html(playlists[s]['name'])
 		}
 
 		function buttonAddSong() {
@@ -1846,7 +1800,6 @@
 			closeSongForm();
 		}
 
-		//webdrive
 		function YT_SEARCH(s) {
 			axios.post(url + '/YTsearch', { search: s }).then(res => {
 				console.log(res.data);
@@ -1865,6 +1818,10 @@
 		}
 
 		function ytMenu() {
+			$('.yt-abs').css({
+				'top': `${$('[tysbut]').offset().top + 20}px`,
+				'left': `${$('[tysbut]').offset().left - 30}px`
+			})
 			$('.yt-abs').toggle()
 		}
 
@@ -1872,8 +1829,6 @@
 			$(e.target).addClass("selected");
 			let song_data = JSON.parse(e.target.dataset.json);
 			console.log(song_data);
-
-		//	return;
 
 			let sng = {
 				name: song_data['title'],
@@ -1891,9 +1846,8 @@
 			let str = songBuilder(songs.length - 1, sng.id, sng.name, 'YOUTUBE')
 			$(".songElements").append(str);
 
-			if(!currentScope)
+			if (!currentScope)
 				$(".song-scope").append(str);
-		//updateScope()
 		}
 
 		async function SpotifySearch(s) {
@@ -1925,7 +1879,6 @@
 				});
 			})
 		}
-
 
 		async function yt_auto_fill() {
 			console.log(linkParser($('#link').val()))
@@ -2264,7 +2217,7 @@
 			queue[temp] = temp2;
 			songIndex = 0;
 
-			updateQueueHUD();
+			//	updateQueueHUD();
 		}
 
 		function togQueue() {
@@ -2327,14 +2280,17 @@
 		}
 
 		function showAllSongs() {
-			//currentScope = ''
-			if (!songScope)
-				return;
 
-			songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
-				return i;
-			});
-			updateScope()
+			$('.songElements>*:hidden').show()
+
+			//currentScope = ''
+			// if (!songScope)
+			// 	return;
+
+			// songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
+			// 	return i;
+			// });
+			// updateScope()
 		}
 
 		function flipSort() {
@@ -2469,7 +2425,7 @@
 			let content = ''
 			switch (s) {
 				case 'library':
-					$('.display').show()
+					$('.song-scope').show()
 					showAllSongs()
 					$('.nm_info').html('Library')
 					break;
@@ -2992,11 +2948,12 @@
 		});
 
 		$(document).on("pointerenter", "[data-hover-menu]", e => {
-			if (screen.size < mobileScreen)
+			if (screen.width < mobileScreen)
 				return
 
 			let dis = e.target.getBoundingClientRect();
 			let content = ''
+			console.log(dis)
 
 			for (const [key, value] of Object.entries(playlists)) {
 				if (key == 'favorites')
@@ -3005,8 +2962,20 @@
 			}
 
 			$('#hover-form-playlists').html(content)
-			$('#hover-menu').css({ "left": `${dis.right}px`, "top": `${dis.bottom - $('#hover-menu').height()}px` })
+
 			$('#hover-menu').show()
+
+			let comparer = $('#hover-menu')[0].getBoundingClientRect();
+
+
+			if (dis.right >= (screen.width / 2))
+				$('#hover-menu').css({ "left": `${dis.right - (comparer.width + dis.width)}px`, "top": `${dis.bottom - $('#hover-menu').height()}px` })
+			else
+				$('#hover-menu').css({ "left": `${dis.right}px`, "top": `${dis.bottom - $('#hover-menu').height()}px` })
+
+
+			console.log(comparer.width);
+
 
 			$(".dd-options>div").on("pointerenter", e => {
 				console.log('offed')
@@ -3242,29 +3211,6 @@
 				return;
 			}
 
-			if (e.target.dataset.type == "ytSearch") {
-				console.log('lookdge')
-				console.log(e.target.dataset.json)
-				let song_data = JSON.parse(e.target.dataset.json)
-				let sng = {
-					name: song_data['title'],
-					link: song_data['url'],
-					id: song_data['id']['videoId'],
-					playlists: [],
-					favorited: false,
-					type: 'YOUTUBE',
-					start: 0,
-					end: hmsToSecs(song_data['duration_raw']),
-					end_raw: song_data['duration_raw'],
-				};
-				songs.push(sng);
-				queue.push(songs.length - 1);
-				$(".display").append(
-					songBuilder(songs.length - 1, songs[songs.length - 1].id, sng.name, 'YOUTUBE')
-				);
-				return;
-			}
-
 			$(".playing").removeClass("playing");
 
 			clickedSong(id);
@@ -3396,13 +3342,13 @@
 			false
 		);
 
-		window.addEventListener('resize', e => {
-			console.log(screen.width)
-			if (screen.width > mobileScreen)
-				$('.main-container').show()
+		// window.addEventListener('resize', e => {
+		// 	console.log(screen.width)
+		// 	if (screen.width > mobileScreen)
+		// 		$('.main-container').show()
 
 
-		})
+		// })
 
 		$('#search').on('input', (e) => {
 			updateScope(songScope.filter((el) =>
