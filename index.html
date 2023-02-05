@@ -493,6 +493,11 @@
 			display: none;
 		}
 
+		[mobile-container] {
+			display: none;
+		}
+
+
 		/*#endregion */
 	</style>
 
@@ -785,6 +790,81 @@
 	</style>
 
 	<!-- HTML -->
+
+	<div absolutes>
+		<div class="add-song-form">
+			<div>Name</div>
+			<input class="form-option" id="name" />
+
+			<div>Link</div>
+			<row>
+				<input class="form-option" id="link" style="width: 70%;" />
+				<button class="" onclick="yt_auto_fill()" style="width: 30%; height: 40px;">Auto Fill</button>
+			</row>
+
+			<row>
+				<div>Type</div>
+				<select class="form-option" style="background-color: #d3d3d3" id="type">
+					<option value="YOUTUBE">Youtube</option>
+					<option value="FILE">File</option>
+				</select>
+			</row>
+
+			<div>
+				<div>
+					<div>Start Time</div>
+					<input class="form-option" value="0" id="startTime" />
+				</div>
+				<div>
+					<div>End Time</div>
+					<input class="form-option" id="endTime" />
+				</div>
+			</div>
+
+			<div id="form_buttons">
+
+			</div>
+		</div>
+
+		<div class="misc-form"></div>
+
+		<div class="test-player" id="info_player">
+
+		</div>
+
+		<div class="float-duration">
+			<div id="floatDurationElapsed"></div>
+		</div>
+
+		<div class="float-volume">
+			<div id="floatVolume"></div>
+		</div>
+
+		<div class="dropdown-menu" id="context-menu" dropdown_menu>
+		</div>
+
+		<div class="dropdown-menu" id="hover-menu">
+			<input />
+			<div>Create Playlist</div>
+			<hr />
+			<div class="" id="hover-form-playlists">
+
+			</div>
+			<button onclick="selAddToPlaylist(); ">Add</button>
+		</div>
+
+		<div class="form-blur" form-blur></div>
+
+		<div class="yt-abs" style="overflow: scroll;">
+			<input class="yt-search" onkeydown=" if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
+			<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
+			<input class="yt-search" onkeydown="if (event.keyCode == 13) SpotifySearch(this.value)"></input>
+			<button onclick="YT_SEARCH($('.yt-search').val())">Spotify</button>
+			<div class="yt-vids" style="overflow: scroll;"></div>
+		</div>
+
+	</div>
+
 	<div class="app">
 
 		<!-- <div class="test">
@@ -793,80 +873,7 @@
 			<div class="hello">hello</div>
 		</div> -->
 
-		<div absolutes>
-			<div class="add-song-form">
-				<div>Name</div>
-				<input class="form-option" id="name" />
-
-				<div>Link</div>
-				<row>
-					<input class="form-option" id="link" style="width: 70%;" />
-					<button class="" onclick="yt_auto_fill()" style="width: 30%; height: 40px;">Auto Fill</button>
-				</row>
-
-				<row>
-					<div>Type</div>
-					<select class="form-option" style="background-color: #d3d3d3" id="type">
-						<option value="YOUTUBE">Youtube</option>
-						<option value="FILE">File</option>
-					</select>
-				</row>
-
-				<div>
-					<div>
-						<div>Start Time</div>
-						<input class="form-option" value="0" id="startTime" />
-					</div>
-					<div>
-						<div>End Time</div>
-						<input class="form-option" id="endTime" />
-					</div>
-				</div>
-
-				<div id="form_buttons">
-
-				</div>
-			</div>
-
-			<div class="misc-form"></div>
-
-			<div class="test-player" id="info_player">
-
-			</div>
-
-			<div class="float-duration">
-				<div id="floatDurationElapsed"></div>
-			</div>
-
-			<div class="float-volume">
-				<div id="floatVolume"></div>
-			</div>
-
-			<div class="dropdown-menu" id="context-menu" dropdown_menu>
-			</div>
-
-			<div class="dropdown-menu" id="hover-menu">
-				<input />
-				<div>Create Playlist</div>
-				<hr />
-				<div class="" id="hover-form-playlists">
-
-				</div>
-				<button onclick="selAddToPlaylist(); ">Add</button>
-			</div>
-
-			<div class="form-blur" form-blur></div>
-
-			<div class="yt-abs" style="overflow: scroll;">
-				<input class="yt-search" onkeydown=" if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
-				<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
-				<input class="yt-search" onkeydown="if (event.keyCode == 13) SpotifySearch(this.value)"></input>
-				<button onclick="YT_SEARCH($('.yt-search').val())">Spotify</button>
-				<div class="yt-vids" style="overflow: scroll;"></div>
-			</div>
-
-
-		</div>
+		
 
 		<div class="nav">
 			<div>hi</div>
@@ -990,7 +997,11 @@
 					<i class="bi-chevron-double-left" onclick="prevSong()"></i>
 					<i class="bi-play" onclick="PlayPauseFlip()" play-pause-button></i>
 					<i class="bi-chevron-double-right" onclick="nextSong(true, true)"></i>
-					<i class="bi-shuffle togglable shuffle-button"></i>
+					<i class="bi-shuffle" onclick="
+						tog_shuffle = !tog_shuffle;
+						$(this).css('opacity', tog_shuffle ? '1' : '.3');
+						clickedSong(queue[songIndex]);
+					"></i>
 				</div>
 
 				<div class="duration">
@@ -1027,14 +1038,15 @@
 			<i class="bi bi-search" onclick="$('#m-search').val(''); $('#m-search').toggle()"></i>
 
 			<input type="text" id="m-search" style="display: none;" onkeydown="if(event.keyCode == 13) {
-				updateScope(songScope.filter((el) =>
-		 songs[el].name.toLowerCase().includes(this.value.toLowerCase())))
+				doit(this.value)
 		}" />
 		</div>
 
 		<div class="mainM" style="overflow: scroll;">
 
-			<div class="song-scope" mobile-container></div>
+			<div class="displayM" mobile-container>
+
+			</div>
 
 			<div class="playlist-mc" mobile-container>
 				<button onclick="$('.mobile-submit-playlist').toggle()">create</button>
@@ -1098,23 +1110,23 @@
 		</div>
 
 		<div class="dock-bar" style="overflow: scroll;">
-			<div onclick="mobilePage('library')">
+			<div onclick="mobilePage('library', this)" library>
 				<i class="bi bi-music-note-beamed dock-icon"></i>
 				<!-- <p>Library</p> -->
 			</div>
-			<div onclick="mobilePage('playlists')">
+			<div onclick="mobilePage('playlists', this)">
 				<i class="bi bi-music-note-list dock-icon"></i>
 				<!-- <p>Playlists</p> -->
 			</div>
-			<div onclick="mobilePage('add')">
+			<div onclick="mobilePage('add', this)">
 				<i class="bi bi-file-plus dock-icon"></i>
 				<!-- <p>Add</p> -->
 			</div>
-			<div onclick="mobilePage('search')">
+			<div onclick="mobilePage('search', this)">
 				<i class="bi bi-star-fill dock-icon"></i>
 				<!-- <p>Search</p> -->
 			</div>
-			<div onclick="mobilePage('misc')">
+			<div onclick="mobilePage('misc', this)">
 				<i class="bi bi-gear dock-icon"></i>
 				<!-- <p>Misc</p> -->
 			</div>
@@ -1258,7 +1270,7 @@
 					loadPl();
 					loadSongs();
 
-					precleanUp();
+					mobileSetup();
 				})
 				.catch((err) => {
 					console.log("(865 <Initializers>) failed to get songs data: " + err);
@@ -1461,12 +1473,17 @@
 			return `<div class="playlist" onclick="openPlaylist('${key}'); $('.playlist-tools').show()">${value}</div>`
 		}
 
-		function precleanUp() {
-
-
-			//	mobilePage('library')
-
-
+		function mobileSetup() {
+			if (screen.width <= mobileScreen) {
+				$('.songElements').detach().appendTo('.displayM')
+				mobilePage('library', $('[library]')[0])
+			}
+			let content;
+			for (const [key, value] of Object.entries(playlists)) {
+				content += `<div class="playlist" onclick="mobilePlaylist('${key}')">${value['name']}</div>`
+			}
+			//$('.nm_info').html('Playlists')
+			$('#mobile_playlist_diplay').html(content)
 		}
 		//#endregion
 
@@ -1610,8 +1627,7 @@
 			if (currentScope) {
 				queue = [...playlists[currentScope]['songs']]
 				toSplice = queue.indexOf(i)
-			}
-			else {
+			} else {
 				queue = [...Array.apply(null, Array(songs.length)).map(function (x, j) {
 					return j;
 				})];
@@ -1627,8 +1643,10 @@
 				queue.unshift(i)
 
 				songIndex = 0;
-			} else
+			} else 
 				songIndex = queue.indexOf(i);
+
+			//console.log(queue)
 
 			if (i != currentId)
 				return playSong();
@@ -2300,17 +2318,7 @@
 		}
 
 		function showAllSongs() {
-
 			$('.songElements>*:hidden').show()
-
-			//currentScope = ''
-			// if (!songScope)
-			// 	return;
-
-			//songScope = [...Array.apply(null, Array(songs.length)).map(function (x, i) {
-			//	return i;
-			//})];
-			// updateScope()
 		}
 
 		function flipSort() {
@@ -2438,25 +2446,31 @@
 		}
 		//#endregion
 
-		//#region MOBILE
 
-		function mobilePage(s) {
+		//#endregion
+
+
+		//#region ---------------------MOBILE-------------------------
+
+		function mobilePage(s, el) {
 			$('[mobile-container]').hide();
+			$('.dock-bar>div.active').removeClass('active');
+			$(el).toggleClass('active')
 			let content = ''
 			switch (s) {
 				case 'library':
-					$('.song-scope').show()
+					$('.displayM').show()
 					showAllSongs()
 					$('.nm_info').html('Library')
 					break;
 
 				case 'playlists':
 
-					for (const [key, value] of Object.entries(playlists)) {
-						content += `<div class="playlist" onclick="mobilePlaylist('${key}')">${value['name']}</div>`
-					}
+					//for (const [key, value] of Object.entries(playlists)) {
+					//	content += `<div class="playlist" onclick="mobilePlaylist('${key}')">${value['name']}</div>`
+					//}
 					$('.nm_info').html('Playlists')
-					$('#mobile_playlist_diplay').html(content)
+					//	$('#mobile_playlist_diplay').html(content)
 					$('.playlist-mc').show()
 					break;
 
@@ -2481,9 +2495,8 @@
 
 		function mobilePlaylist(s) {
 			$('.playlist-mc').hide()
-			$('.display').show()
-			songScope = playlists[s]['songs']
-			updateScope()
+			$('.displayM').show()
+			openPlaylist(s)
 			$('#nm_info').html(playlists[s]['name'])
 
 		}
@@ -2618,8 +2631,6 @@
 		//#endregion
 
 
-		//#endregion
-
 		//#region ---------------------API-------------------------
 
 		function onYouTubeIframeAPIReady() {
@@ -2743,9 +2754,6 @@
 			}
 
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
-
-			console.log(queue.length)
-
 
 			if (!displayReverse)
 				songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
@@ -3240,17 +3248,6 @@
 			clickedSong(id);
 		});
 
-		//$(document).
-
-		// $('.song-bar').click(e => {
-
-		// })
-
-		$('.dock-bar>div').on('pointerdown', function (e) {
-			$('.dock-bar>div.active').removeClass('active');
-			$(this).toggleClass('active')
-		})
-
 		$(document).on('click', '.misc-form>.dd-options', function (e) {
 			console.log('aaa')
 			closeSongForm()
@@ -3366,13 +3363,17 @@
 			false
 		);
 
-		// window.addEventListener('resize', e => {
-		// 	console.log(screen.width)
-		// 	if (screen.width > mobileScreen)
-		// 		$('.main-container').show()
-
-
-		// })
+		window.addEventListener('resize', e => {
+			if (screen.width > mobileScreen) { //to main
+				p('to app')
+				$('.songElements').detach().appendTo('.display')
+			}
+			else { // to mobile
+				p('to mobile')
+				$('.songElements').detach().appendTo('.displayM')
+				mobilePage('library', $('[library]')[0])
+			}
+		})
 
 		var hides = [];
 
@@ -3387,7 +3388,7 @@
 			}
 		}
 
-		let doit = debounce(text => {
+		var doit = debounce(text => {
 			hides.forEach(el => $('#song' + el).show())
 			$('.songElements>*:visible').filter((i, el) => {
 				let bool = !songs[+el.dataset.songId].name.toLowerCase().includes(text.toLowerCase())
