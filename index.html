@@ -928,9 +928,12 @@
 					<div>
 						<i class="bi bi-search"></i>
 						<input type="text" id="search" />
-						<i class="bi bi-x" style="font-size: 25px;" onclick="$('#search').val(''); updateScope()"></i>
+
+						<i class="bi bi-x" style="font-size: 25px;"
+							onclick="$('#search').val(''); hides.forEach(el => $('#song' + el).show())"></i>
 						<i class="bi bi-arrow-bar-up bim" onclick="$(this).toggleClass('bi-arrow-bar-up bi-arrow-bar-down'); 
-							$(this).hasClass('bi-arrow-bar-up') ? $('.song-scope').css('flex-direction', 'column'): $('.song-scope').css('flex-direction', 'column-reverse')
+						$('.songElements').css('flex-direction', ($(this).hasClass('bi-arrow-bar-up') ? 'column':'column-reverse'));
+						displayReverse = $('.songElements').css('flex-direction') == 'column-reverse';
 						"></i>
 					</div>
 
@@ -942,8 +945,7 @@
 
 				<div class="display">
 					<!-- <div class="song-scope" id="song_scope"></div> -->
-					<div class="songElements"></div>
-
+					<div class="songElements" style="display: flex;"></div>
 				</div>
 
 				<div class="accept-menu" style="display: none; padding: 5px 0;">
@@ -1150,38 +1152,40 @@
 		var data;
 		var playlists = {};
 
-		var favorites = [];
-		var songIndex = 0;
-		var currentScope = '';
-		var lastPlayed = 0;
-		var hoverSongId = -1;
-		var hoverSongElement;
+		let favorites = [];
+		let songIndex = 0;
+		let currentScope = '';
+		let lastScope = '';
+		let lastPlayed = 0;
+		let hoverSongId = -1;
+		let hoverSongElement;
 
-		var player;
-		var queue;
-		var time = 0;
-		var currentType = -1;
-		var currentId = -1;
-		var Etime = -1;
-		var Ytime = -1;
-		var time_update_save = 0;
+		let player;
+		let queue;
+		let time = 0;
+		let currentType = -1;
+		let currentId = -1;
+		let Etime = -1;
+		let Ytime = -1;
+		let time_update_save = 0;
 
 		let info_player;
 		let the_song
 
-		var playing = false;
-		var rdy = true;
-		var column_sort = false;
-		var seek_ready = true;
-		var selecting = false;
-		var ensure_start_time = true;
-		var fade_bool = false;
-		var end_fade = false;
-		var is_typing = false;
-		var boob = false;
-		var fetching = false;
+		let playing = false;
+		let rdy = true;
+		let column_sort = false;
+		let seek_ready = true;
+		let selecting = false;
+		let ensure_start_time = true;
+		let fade_bool = false;
+		let end_fade = false;
+		let is_typing = false;
+		let boob = false;
+		let fetching = false;
 		let loading = false;
 		let songSkipDirection = true
+		let displayReverse = false;
 		var repeat = false;
 
 		var fetchQueue;
@@ -1190,11 +1194,11 @@
 		var slider = document.getElementById("myRange");
 		var output = document.getElementById("volumeNum");
 		//var audio = document.getElementById("audio");
-		var search = $("#search");
-		var progress = $(".progress")[0];
-		var elapsed = $("#elapsed");
-		var suffleBut = $(".shuffle-button");
-		var contextMenu = $("[dropdown_menu]");
+		let search = $("#search");
+		let progress = $(".progress")[0];
+		let elapsed = $("#elapsed");
+		let suffleBut = $(".shuffle-button");
+		let contextMenu = $("[dropdown_menu]");
 
 		var shift = false;
 		var shift2 = false;
@@ -1244,6 +1248,12 @@
 					Ftime = data.config.time;
 					tog_shuffle = data.config.shuffle;
 					column_sort = data.config.column;
+
+					if (column_sort) {
+						$(".songElements").css("flex-direction", "column-reverse");
+						$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+						displayReverse = $('.songElements').css('flex-direction') == 'column-reverse';
+					}
 
 					loadPl();
 					loadSongs();
@@ -1330,8 +1340,6 @@
 			queue = Array.apply(null, Array(songs.length)).map(function (x, i) {
 				return i;
 			});
-			songScope = [...queue];
-			updateScope()
 
 			//console.log(playlists);
 
@@ -1339,7 +1347,7 @@
 				$(".shuffle-button").css("opacity", "1");
 			}
 
-			updateQueueHUD();
+
 		}
 
 		function download(filename, text) {
@@ -1456,12 +1464,9 @@
 		function precleanUp() {
 
 
-		//	mobilePage('library')
+			//	mobilePage('library')
 
-			if (column_sort) {
-				$(".song-scope").css("flex-direction", "column-reverse");
-				$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-			}
+
 		}
 		//#endregion
 
@@ -1599,17 +1604,35 @@
 				return;
 			}
 
-			queue = [...songScope]
-			songIndex = queue.indexOf(i);
+			let toSplice = 0;
 
-			if (songIndex == -1)
-				console.log("ERROR: something weird happened in clickedSong()");
-			// updateQueueHUD();
+			//	if (currentScope !== lastScope) {
+			if (currentScope) {
+				queue = [...playlists[currentScope]['songs']]
+				toSplice = queue.indexOf(i)
+			}
+			else {
+				queue = [...Array.apply(null, Array(songs.length)).map(function (x, j) {
+					return j;
+				})];
+				toSplice = i;
+			}
+			//}
+
+			lastScope = currentScope;
+
 			if (tog_shuffle) {
-				shuffle(i);
-			} //else updateQueueHUD();
+				queue.splice(toSplice, 1)
+				queue = [...shuffleArray([...queue])];
+				queue.unshift(i)
 
-			if (i != currentId) playSong();
+				songIndex = 0;
+			} else
+				songIndex = queue.indexOf(i);
+
+			if (i != currentId)
+				return playSong();
+
 		}
 
 		function updateHUDInfo(thesong) {
@@ -1670,37 +1693,24 @@
 			div.html(str);
 		}
 
-		function updateScope(scope = songScope) {
-			$('.song-scope').html(scope.map(el => $(`#song${el}`).clone()))
-		}
 		//#endregion
 
 		//#region UI (Button Logic)
 		function openPlaylist(s) {
-			//console.log(playlists[s])
-			// if (s) {
-			// 	songScope = playlists[s]['songs']
+			//do that loop through vis if in target remove from target if not hide; first tuen playlist into dictionary
+			currentScope = s;
 
-			if(!s)
+			if (!s)
 				return showAllSongs()
 
-			let arr = playlists[s]['songs'];
+			let target = {};
+			playlists[s]['songs'].forEach(el => target[el] = el);
+			$('.songElements>*:visible').each((i, el) => target[el.dataset.songId] ?
+				delete target[el.dataset.songId] : $(el).hide())
 
+			for (const [key, vaule] of Object.entries(target))
+				$(`.songElements :nth-child(${+key.toString() + 1})`).show()
 
-			$('.songElements>*:visible').hide()
-			arr.forEach(el => $(`#song${el}`).show())
-
-
-			// } else
-			// 	songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
-			// 		return i;
-			// 	});
-
-			// updateScope()
-			// currentScope = s;
-
-			// if (s)
-			// 	$('#playlist_title').html(playlists[s]['name'])
 		}
 
 		function buttonAddSong() {
@@ -2209,7 +2219,9 @@
 
 		function shuffle(ink) {
 			//queue.length = 100
-			queue.sort(() => Math.random() - 0.5);
+			//queue.sort(() => Math.random() - 0.5);
+			// queue = shuffleArray(queue);
+			// queue.unshift(ink)
 
 			let temp = queue.indexOf(ink);
 			let temp2 = queue[0];
@@ -2218,6 +2230,14 @@
 			songIndex = 0;
 
 			//	updateQueueHUD();
+		}
+
+		function shuffleArray(array) {
+			for (let i = array.length - 1; i > 0; i--) {
+				let j = Math.floor(Math.random() * (i + 1));
+				[array[i], array[j]] = [array[j], array[i]];
+			}
+			return array;
 		}
 
 		function togQueue() {
@@ -2287,9 +2307,9 @@
 			// if (!songScope)
 			// 	return;
 
-			// songScope = Array.apply(null, Array(songs.length)).map(function (x, i) {
-			// 	return i;
-			// });
+			//songScope = [...Array.apply(null, Array(songs.length)).map(function (x, i) {
+			//	return i;
+			//})];
 			// updateScope()
 		}
 
@@ -2711,33 +2731,41 @@
 		}
 
 		function nextSong(bool = songSkipDirection, force) {
+
 			if (!force) {
-				if (!bool) {
-					prevSong();
-					return;
-				}
+				if (!bool)
+					return prevSong();
 
 				if (repeat && bool != false) {
-					player.seekTo(0)
+					player.seekTo(0.1)
 					return
 				}
 			}
-
 
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
 
 			console.log(queue.length)
 
-			songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
-			playSong(songIndex);
+
+			if (!displayReverse)
+				songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
+			else
+				songIndex = songIndex ? songIndex - 1 : queue.length - 1;
+
+			playSong();
 			songSkipDirection = true;
 		}
 
 		function prevSong() {
+
 			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
 
-			songIndex = songIndex ? songIndex - 1 : queue.length - 1;
-			playSong(songIndex);
+			if (!displayReverse)
+				songIndex = songIndex ? songIndex - 1 : queue.length - 1;
+			else
+				songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
+
+			playSong();
 			songSkipDirection = false;
 		}
 
@@ -2900,22 +2928,18 @@
 			el.style.opacity = el.style.opacity == 1 ? 0.3 : 1;
 		});
 
-		$("#sng").on("mouseover", (e) => {
-			e.preventDefault();
-		});
-
-		$(".shuffle-button").on("click", () => {
-			tog_shuffle = !tog_shuffle;
-			if (tog_shuffle) {
-				shuffle(queue[songIndex]);
-			} else {
-				let temp = queue[songIndex];
-				songIndex = queue.indexOf(temp);
-				updateQueueHUD();
-			}
-			//console.log(queue)
-			//console.log(songIndex)
-		});
+		// $(".shuffle-button").on("click", () => {
+		// 	tog_shuffle = !tog_shuffle;
+		// 	if (tog_shuffle) {
+		// 		shuffle(queue[songIndex]);
+		// 	} else {
+		// 		let temp = queue[songIndex];
+		// 		songIndex = queue.indexOf(temp);
+		// 		updateQueueHUD();
+		// 	}
+		// 	//console.log(queue)
+		// 	//console.log(songIndex)
+		// });
 
 		$("[form-blur]").click(closeSongForm);
 
@@ -3350,9 +3374,32 @@
 
 		// })
 
+		var hides = [];
+
+		function debounce(cb, delay = 1000) {
+			let timeout;
+
+			return (...args) => {
+				clearTimeout(timeout)
+				timeout = setTimeout(() => {
+					cb(...args)
+				}, delay)
+			}
+		}
+
+		let doit = debounce(text => {
+			hides.forEach(el => $('#song' + el).show())
+			$('.songElements>*:visible').filter((i, el) => {
+				let bool = !songs[+el.dataset.songId].name.toLowerCase().includes(text.toLowerCase())
+				if (bool)
+					hides.push(+el.dataset.songId)
+
+				return bool;
+			}).hide()
+		}, 500)
+
 		$('#search').on('input', (e) => {
-			updateScope(songScope.filter((el) =>
-				songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
+			doit(e.target.value)
 		})
 
 		// $('#m-search').on('input', (e) => {
