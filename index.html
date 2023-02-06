@@ -853,7 +853,7 @@
 			<button onclick="selAddToPlaylist(); ">Add</button>
 		</div>
 
-		<div class="form-blur" form-blur></div>
+		<div class="form-blur" onclick="closeSongForm()" form-blur></div>
 
 		<div class="yt-abs" style="overflow: scroll;">
 			<input class="yt-search" onkeydown=" if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
@@ -873,7 +873,7 @@
 			<div class="hello">hello</div>
 		</div> -->
 
-		
+
 
 		<div class="nav">
 			<div>hi</div>
@@ -1474,7 +1474,12 @@
 		}
 
 		function mobileSetup() {
-			if (screen.width <= mobileScreen) {
+			if ($('.app').is(':visible')) { //to main
+				p('to app')
+				$('.songElements').detach().appendTo('.display')
+			}
+			else { // to mobile
+				p('to mobile')
 				$('.songElements').detach().appendTo('.displayM')
 				mobilePage('library', $('[library]')[0])
 			}
@@ -1643,7 +1648,7 @@
 				queue.unshift(i)
 
 				songIndex = 0;
-			} else 
+			} else
 				songIndex = queue.indexOf(i);
 
 			//console.log(queue)
@@ -2449,7 +2454,6 @@
 
 		//#endregion
 
-
 		//#region ---------------------MOBILE-------------------------
 
 		function mobilePage(s, el) {
@@ -2629,7 +2633,6 @@
 		}
 
 		//#endregion
-
 
 		//#region ---------------------API-------------------------
 
@@ -2949,7 +2952,7 @@
 		// 	//console.log(songIndex)
 		// });
 
-		$("[form-blur]").click(closeSongForm);
+		//$("[form-blur]").click(closeSongForm);
 
 		$('.dropdown-menu').click(function (e) { if (e.target === this) e.stopPropagation() })
 
@@ -3220,7 +3223,7 @@
 
 		$(document).on("mousedown", "[data-type=\"song\"]", (e) => {
 			if (e.which != 1) return;
-			if (!player) return;
+			if (!player || !player.setVolume) return;
 			let id = parseInt(e.target.dataset.songId);
 
 			if (shift) {
@@ -3364,7 +3367,7 @@
 		);
 
 		window.addEventListener('resize', e => {
-			if (screen.width > mobileScreen) { //to main
+			if ($('.app').is(':visible')) { //to main
 				p('to app')
 				$('.songElements').detach().appendTo('.display')
 			}
@@ -3408,17 +3411,47 @@
 		// 		songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
 		// })
 
-		$('.mobile-player-container').on('pointerdown', e => {
-			$('.mobile-player-container')[0].setPointerCapture(e.pointerId);
+		let query = '.song-bar';
 
-			$('.mobile-player-container').on('pointermove', function move_enough() {
-				//$('.sv-name').html(e.offsetX)
-				console.log(e.offsetX)
-			});
-			$('.mobile-player-container').on('pointerup', function exit() {
-				$('.mobile-player-container').off('pointermove', move_enough)
-				$('.mobile-player-container').off('pointerup', exit)
-			})
+		function moveenough(e2) {
+			console.log(e2.offsetX)
+		}
+
+		$(query).on('pointerdown', e => {
+			let pointX = e.pageX;
+			let pointY = e.pageY;
+			//console.log(pointY)
+			$(query)[0].setPointerCapture(e.pointerId);
+
+			let moveEnough = (e2) => {
+				let gestureX = e2.offsetX - pointX;
+				let gestureY = e2.pageY - pointY;
+				console.log(gestureX)
+				//console.log(e2.pageY)
+				if (gestureX > 130) {
+					console.log('left swipe that')
+					nextSong(true, true)
+					exit();
+				}
+				if (gestureX < -130) {
+					console.log('right swipe that')
+					prevSong()
+					exit();
+				}
+				if (gestureY < -130) {
+					console.log('up swipe that')
+					exit();
+				}
+			}
+
+			let exit = () => {
+				p('offinf')
+				$(query).off('pointermove', moveEnough)
+				$(query).off('pointerup', exit)
+			}
+
+			$(query).on('pointermove', moveEnough);
+			$(query).on('pointerup', exit)
 		})
 
 		slider.oninput = function () {
