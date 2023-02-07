@@ -3432,12 +3432,12 @@
 				let gestureY = e2.pageY - pointY;
 				console.log(gestureX)
 				//console.log(e2.pageY)
-				if (gestureX > 130) {
+				if (gestureX > 80) {
 					console.log('left swipe that')
 					nextSong(true, true)
 					exit();
 				}
-				if (gestureX < -130) {
+				if (gestureX < -80) {
 					console.log('right swipe that')
 					prevSong()
 					exit();
