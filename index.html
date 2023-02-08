@@ -867,7 +867,7 @@
 
 	<div class="app">
 
-		<div class="test">
+		<!-- <div class="test">
 			<div class="yes">yes</div>
 			<div class="hi">hi</div>
 			<div class="hello">hello</div>
@@ -875,7 +875,7 @@
 
 		<div class="testt">
 			
-		</div>
+		</div> -->
 
 		<div class="nav">
 			<div>hi</div>
@@ -3438,12 +3438,12 @@
 				//console.log(e2.pageY)
 				if (gestureX > 70) {
 					console.log('left swipe that')
-					nextSong(true, true)
+					prevSong()
 					exit();
 				}
 				if (gestureX < -70) {
 					console.log('right swipe that')
-					prevSong()
+					nextSong(true, true)
 					exit();
 				}
 				if (gestureY < -40) {
@@ -3455,7 +3455,7 @@
 			}
 
 			let exit = () => {
-				p('offinf')
+				p('offing')
 				$(query).off('pointermove', moveEnough)
 				$(query).off('pointerup', exit)
 			}
