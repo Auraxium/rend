@@ -867,11 +867,15 @@
 
 	<div class="app">
 
-		<!-- <div class="test">
+		<div class="test">
 			<div class="yes">yes</div>
 			<div class="hi">hi</div>
 			<div class="hello">hello</div>
-		</div> -->
+		</div>
+
+		<div class="testt">
+			
+		</div>
 
 		<div class="nav">
 			<div>hi</div>
@@ -1136,7 +1140,7 @@
 				<div class="nm-name"></div>
 				<i class="bi-play" onclick="PlayPauseFlip()" style="font-size: 40px" play-pause-button></i>
 			</div>
-			<div id="sb2" style="display: none;">
+			<div id="sb2">
 				<!-- <i class="bi-chevron-double-left" onclick="prevSong()"></i> -->
 				<!-- <div class="pb-m-container"></div> -->
 				<!-- <i class="bi-chevron-double-right" onclick="nextSong(true, true)"></i> -->
@@ -3432,12 +3436,12 @@
 				let gestureY = e2.pageY - pointY;
 				console.log(gestureX)
 				//console.log(e2.pageY)
-				if (gestureX > 50) {
+				if (gestureX > 70) {
 					console.log('left swipe that')
 					nextSong(true, true)
 					exit();
 				}
-				if (gestureX < 50) {
+				if (gestureX < -70) {
 					console.log('right swipe that')
 					prevSong()
 					exit();
