@@ -713,6 +713,7 @@
 				height: 100vh;
 				display: flex;
 				flex-direction: column;
+				overflow: hidden;
 			}
 
 			.nav-mobile {
@@ -724,15 +725,21 @@
 			}
 
 			.mainM {
-				flex: 79;
+				flex: 75;
 				overflow: hidden;
 			}
 
 			.dock-bar {
-				flex: 7;
+				flex: 8;
 				display: flex;
 				justify-content: space-evenly;
 				background-color: #0d0d0d;
+			}
+
+			.song-bar {
+				flex: 10;
+				background-color: #04aa6d;
+				;
 			}
 
 			.dock-bar>div {
@@ -757,11 +764,7 @@
 				font-size: 7vw;
 			}
 
-			.song-bar {
-				flex: 7;
-				background-color: #04aa6d;
-				display: block;
-			}
+
 
 			.nm-img {
 				padding: 5px;
@@ -778,6 +781,25 @@
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
+			}
+
+			#sb2 {
+				height: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: end;
+				align-items: center;
+			}
+
+			.progress-container {
+				width: 90%;
+				height: 100%;
+
+			}
+
+			.progress {
+				width: 90%;
+				height: 100%;
 			}
 
 			#sv-img {
@@ -867,7 +889,7 @@
 
 	<div class="app">
 
-		<!-- <div class="test">
+		<div class="test">
 			<div class="yes">yes</div>
 			<div class="hi">hi</div>
 			<div class="hello">hello</div>
@@ -875,8 +897,8 @@
 
 
 		<div class="testt">
-			
-		</div> -->
+
+		</div>
 
 		<div class="nav">
 			<div>hi</div>
@@ -1135,16 +1157,13 @@
 			</div>
 		</div>
 
-		<div class="song-bar" onclick="songBarClickk()" style="overflow: hidden;">
+		<div class="song-bar" style="overflow: hidden;">
 			<div id="sb1">
 				<img id="nm-img" class="crop" src="" alt="" />
 				<div class="nm-name"></div>
 				<i class="bi-play" onclick="PlayPauseFlip()" style="font-size: 40px" play-pause-button></i>
 			</div>
 			<div id="sb2">
-				<!-- <i class="bi-chevron-double-left" onclick="prevSong()"></i> -->
-				<!-- <div class="pb-m-container"></div> -->
-				<!-- <i class="bi-chevron-double-right" onclick="nextSong(true, true)"></i> -->
 
 			</div>
 		</div>
@@ -2510,39 +2529,41 @@
 			if (onMobile && $('.app').is(':visible')) { //to main
 				p('to app')
 				$('.songElements').detach().appendTo('.display')
-				$('.progress-container').detach().appendTo('#sb2')
+				$('#elapsed').after($('.progress-container').detach())
 				onMobile = false;
 			}
-			else if(!onMobile && $('.app-mobile').is(':visible')){ // to mobile
+			else if (!onMobile && $('.app-mobile').is(':visible')) { // to mobile
 				p('to mobile')
 				$('.songElements').detach().appendTo('.displayM')
-				$('.progress-container').detach().appendTo('#sb2')
+				$('#sb1').show();
+				$('#sb2').hide();
+				$('#sb2').append($('.progress-container').detach())
 				mobilePage('library', $('[library]')[0])
 				onMobile = true;
 			}
 		}
 
-		function songBarClick() {
-			$('.nav-mobile').hide()
-			$('.main-container').hide()
-			$('.dock-bar').hide()
-			$('#sb1').hide()
-			$('.mobile-player-container').show()
-			$('#sb2').show()
-			$('.foot').show()
-			$('.sv-name').show()
-		}
+		// function songBarClick() {
+		// 	$('.nav-mobile').hide()
+		// 	$('.main-container').hide()
+		// 	$('.dock-bar').hide()
+		// 	$('#sb1').hide()
+		// 	$('.mobile-player-container').show()
+		// 	$('#sb2').show()
+		// 	$('.foot').show()
+		// 	$('.sv-name').show()
+		// }
 
-		function songBarClose() {
-			$('.nav-mobile').show()
-			$('.main-container').show()
-			$('.dock-bar').show()
-			$('#sb1').show()
-			$('#sb2').hide()
-			$('.mobile-player-container').hide()
-			$('.sv-name').hide()
-			$('.foot').hide()
-		}
+		// function songBarClose() {
+		// 	$('.nav-mobile').show()
+		// 	$('.main-container').show()
+		// 	$('.dock-bar').show()
+		// 	$('#sb1').show()
+		// 	$('#sb2').hide()
+		// 	$('.mobile-player-container').hide()
+		// 	$('.sv-name').hide()
+		// 	$('.foot').hide()
+		// }
 
 		function openMobileContextMenu(e) {
 			let content = '';
@@ -2895,42 +2916,45 @@
 			});
 		});
 
-		$(".progress-container").on("pointerdown", (e) => {
-			seek_ready = false;
-			$(".progress-container")[0].setPointerCapture(e.pointerId);
-			setProgress(e);
+		$(document).on("pointerdown", ".progress-container",
+			(e) => {
+				seek_ready = false;
+				$(".progress-container")[0].setPointerCapture(e.pointerId);
+				setProgress(e);
 
-			$(".progress-container").on("pointermove", setProgress);
-			$(".progress-container").on("pointerup", (e) => {
-				seekTo(e);
-				$(".progress-container").off("pointermove", setProgress);
-				seek_ready = true;
-			});
-
-		});
-
-		$(".progress-container").on("pointerenter", (e) => {
-			let el = $(".float-duration");
-			el.addClass("active");
-
-			$(".progress-container").on("pointermove", (e) => {
-				$("#floatDurationElapsed").html(() => {
-					const width = e.target.clientWidth;
-					const clickX = e.offsetX;
-
-					t = clamp((clickX / width) * duration, 0, duration);
-
-					let temp = Math.floor(t % 60);
-					return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp
-						} / ${$("#length").html()}`;
+				$(".progress-container").on("pointermove", setProgress);
+				$(".progress-container").on("pointerup", (e) => {
+					seekTo(e);
+					$(".progress-container").off("pointermove", setProgress);
+					seek_ready = true;
 				});
-				el.css("top", `${e.pageY - 35}px`);
-				el.css("left", `${e.pageX - 27}px`);
+
 			});
-			$(".progress-container").on("pointerleave", (e) => {
-				el.removeClass("active");
+
+
+		$(document).on("pointerenter", ".progress-container",
+			(e) => {
+				let el = $(".float-duration");
+				el.addClass("active");
+
+				$(".progress-container").on("pointermove", (e) => {
+					$("#floatDurationElapsed").html(() => {
+						const width = e.target.clientWidth;
+						const clickX = e.offsetX;
+
+						t = clamp((clickX / width) * duration, 0, duration);
+
+						let temp = Math.floor(t % 60);
+						return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp
+							} / ${$("#length").html()}`;
+					});
+					el.css("top", `${e.pageY - 35}px`);
+					el.css("left", `${e.pageX - 27}px`);
+				});
+				$(".progress-container").on("pointerleave", (e) => {
+					el.removeClass("active");
+				});
 			});
-		});
 
 		$(".slidecontainer").on("pointerenter", (e) => {
 			var el = $(".float-volume");
