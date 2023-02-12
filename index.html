@@ -54,6 +54,7 @@
 			-moz-user-select: none;
 			-ms-user-select: none;
 			user-select: none;
+
 		}
 
 		::-webkit-scrollbar {
@@ -204,6 +205,35 @@
 			justify-content: space-between;
 		}
 
+		.song>* {
+			overflow: hidden;
+			/* border: 1px solid; */
+		}
+
+		.song-num {
+			flex: 3; 
+			text-align: center;
+		}
+
+		.song-name {
+			flex: 87;
+			margin-left: 3px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.song-img {
+			flex: 5; 
+			margin-left: 3px;
+		}
+
+		.song-dots {
+			flex: 5;
+			text-align: end; 
+			font-size: 10px;
+		}
+
 		.song-text {
 			width: 200px;
 			white-space: nowrap;
@@ -252,9 +282,14 @@
 
 		/*#region PART2*/
 		.crop {
+			/* max-height: 50px;
+			max-width: 50px;
+			min-height: 50px;
+			min-width: 50px; */
 			height: 50px;
 			width: 50px;
 			/* border: 1px solid black; */
+			aspect-ratio: 1;
 			background-position: center;
 			background-size: cover;
 		}
@@ -309,10 +344,10 @@
 			flex-direction: column;
 		}
 
-		.bi-three-dots {
+		/* .bi-three-dots {
 			font-size: 30px;
 			z-index: 3;
-		}
+		} */
 
 		.bi-three-dots:hover {
 			background-color: gainsboro;
@@ -544,11 +579,20 @@
 			max-width: 300px;
 		}
 
+		#elapsed {
+			flex: 5;
+		}
+
+		#length {
+			flex: 5;
+			text-align: end;
+		}
+
 		.duration {
 			display: flex;
 			justify-content: center;
 			align-items: center;
-			width: 90%;
+			width: 100%;
 		}
 
 		.progress-container {
@@ -557,7 +601,7 @@
 			cursor: pointer;
 			margin: 10px 0;
 			height: 12px;
-			width: 75%;
+			flex: 90;
 		}
 
 		.progress {
@@ -708,11 +752,19 @@
 				display: none;
 			}
 
+			/* * {
+				overflow: hidden;
+			} */
+
 			.app-mobile {
 				width: 100vw;
 				height: 100vh;
 				display: flex;
 				flex-direction: column;
+				overflow: hidden;
+			}
+
+			.app-mobile > * {
 				overflow: hidden;
 			}
 
@@ -739,7 +791,7 @@
 			.song-bar {
 				flex: 10;
 				background-color: #04aa6d;
-				;
+				padding: 0 5px;
 			}
 
 			.dock-bar>div {
@@ -764,8 +816,6 @@
 				font-size: 7vw;
 			}
 
-
-
 			.nm-img {
 				padding: 5px;
 			}
@@ -778,6 +828,8 @@
 			}
 
 			#sb1 {
+				height: 100%;
+				width: 100%;
 				display: flex;
 				justify-content: space-between;
 				align-items: center;
@@ -785,22 +837,56 @@
 
 			#sb2 {
 				height: 100%;
+				width: 100%;
 				display: flex;
-				flex-direction: column;
-				justify-content: end;
+				justify-content: center;
 				align-items: center;
 			}
 
+			.duration {
+				height: 100%;
+			}
+
+			#elapsed {
+				flex: 10;
+			}
+
+			#length {
+				flex: 10;
+			}
+
 			.progress-container {
-				width: 90%;
-				height: 100%;
-
+				flex: 80;
+				height: 30%;
 			}
 
-			.progress {
+			.song-num {
+				flex: 10;
+			}
+
+		.song-name {
+			flex: 65;
+			margin-left: 3px;
+			white-space: nowrap;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		.song-img {
+			flex: 15; 
+			margin-left: 3px;
+		}
+
+		.song-dots {
+			flex: 10; text-align: end; font-size: 2vw;
+		}
+
+			
+
+			/* .progress {
 				width: 90%;
 				height: 100%;
-			}
+			} */
 
 			#sv-img {
 				height: auto;
@@ -889,16 +975,15 @@
 
 	<div class="app">
 
-		<div class="test">
+		<!-- <div class="test">
 			<div class="yes">yes</div>
 			<div class="hi">hi</div>
 			<div class="hello">hello</div>
 		</div>
 
-
 		<div class="testt">
 
-		</div>
+		</div> -->
 
 		<div class="nav">
 			<div>hi</div>
@@ -1161,7 +1246,7 @@
 			<div id="sb1">
 				<img id="nm-img" class="crop" src="" alt="" />
 				<div class="nm-name"></div>
-				<i class="bi-play" onclick="PlayPauseFlip()" style="font-size: 40px" play-pause-button></i>
+				<i class="bi-play" onclick="PlayPauseFlip()" style="font-size: 40px;" play-pause-button></i>
 			</div>
 			<div id="sb2">
 
@@ -1484,17 +1569,16 @@
 					</div>`;
 
 				case 'YOUTUBE':
-					return `<div class="song" id="song${id_num}" data-type="song" data-song-id="${id_num}" data-context="song">
-							<div class="row no-click">
-								<img src="http://img.youtube.com/vi/${im_link_id}/0.jpg"
-								class="crop"
-								alt="" />
-								<div style="margin-left: 5px">${eval(id_num + 1)}: ${name}</div>
-							</div>
-							<dd>
-								 <i class="bi bi-three-dots"></i>
-							</dd>
-						</div>`;
+					return `
+					<div class="song" id="song${id_num}" data-type="song" data-song-id="${id_num}" data-context="song">
+						<div class="song-num">${eval(id_num + 1)}:</div>
+						<img src="http://img.youtube.com/vi/${im_link_id}/0.jpg"
+							class="crop song-img"
+							alt=""
+						/>
+						<div class="song-name">${name}</div>	
+						<i class="bi bi-three-dots song-dots" style="font-size: 28px"></i>
+					</div>`;
 			}
 		}
 
@@ -2124,7 +2208,7 @@
 
 		//#region misc
 
-		function openContextMenu(e, ctx = e.target.dataset.context) {
+		function openContextMenu(e, ele, ctx = ele.dataset.context) {
 			if (screen.width < mobileScreen) {
 				openMobileContextMenu(e)
 				return;
@@ -2132,7 +2216,7 @@
 
 
 			let content = '';
-			let el = e.target.dataset;
+			let el = ele.dataset;
 
 			switch (ctx) {
 
@@ -2529,7 +2613,7 @@
 			if (onMobile && $('.app').is(':visible')) { //to main
 				p('to app')
 				$('.songElements').detach().appendTo('.display')
-				$('#elapsed').after($('.progress-container').detach())
+				$('#controls').after($('.duration').detach())
 				onMobile = false;
 			}
 			else if (!onMobile && $('.app-mobile').is(':visible')) { // to mobile
@@ -2537,7 +2621,7 @@
 				$('.songElements').detach().appendTo('.displayM')
 				$('#sb1').show();
 				$('#sb2').hide();
-				$('#sb2').append($('.progress-container').detach())
+				$('#sb2').append($('.duration').detach())
 				mobilePage('library', $('[library]')[0])
 				onMobile = true;
 			}
@@ -2916,8 +3000,9 @@
 			});
 		});
 
-		$(document).on("pointerdown", ".progress-container",
+		$(".progress-container").on("pointerdown",
 			(e) => {
+				p('runasdujnia')
 				seek_ready = false;
 				$(".progress-container")[0].setPointerCapture(e.pointerId);
 				setProgress(e);
@@ -2928,12 +3013,14 @@
 					$(".progress-container").off("pointermove", setProgress);
 					seek_ready = true;
 				});
-
+				e.stopPropagation()
 			});
 
+		//$('#sb2').on("pointerdown", e => e.stopPropagation())
 
 		$(document).on("pointerenter", ".progress-container",
 			(e) => {
+				e.stopPropagation()
 				let el = $(".float-duration");
 				el.addClass("active");
 
@@ -3069,16 +3156,16 @@
 		// 	openContextMenu(e);
 		// });
 
-		$(document).on("contextmenu", "[data-context]", (e) => {
+		$(document).on("contextmenu", "[data-context]", function(e)  {
 			if (shift) return;
 			e.preventDefault();
-			hoverSongId = parseInt(e.target.dataset.songId);
-			hoverSongElement = e.target;
+			hoverSongId = parseInt(this.dataset.songId);
+			hoverSongElement = this;
 
 			if (screen.width > mobileScreen)
-				openContextMenu(e);
+				openContextMenu(e, this);
 			else
-				openMobileContextMenu(e)
+				openMobileContextMenu(e, this)
 		});
 
 		$(document).on("click", ".dd-option", (e) => {
@@ -3262,10 +3349,10 @@
 			hoverSongElement.classList.remove("highlight");
 		});
 
-		$(document).on("mousedown", "[data-type=\"song\"]", (e) => {
+		$(document).on("mousedown", "[data-type=\"song\"]", function(e) {
 			if (e.which != 1) return;
 			if (!player || !player.setVolume) return;
-			let id = parseInt(e.target.dataset.songId);
+			let id = parseInt(this.dataset.songId);
 
 			if (shift) {
 				selecting = true;
@@ -3299,6 +3386,7 @@
 
 		$('[clickable]').click(e => e.stopPropagation())
 		$('[onclick]').click(e => e.stopPropagation())
+
 
 		$(document).click(e => {
 			if (e.target.dataset.context)
@@ -3408,6 +3496,7 @@
 		);
 
 		window.addEventListener('resize', e => {
+			console.log(screen.width)
 			setupSwap()
 		})
 
@@ -3444,13 +3533,11 @@
 		// 		songs[el].name.toLowerCase().includes(e.target.value.toLowerCase())))
 		// })
 
+		//$('.song-bar').click(e => e.stopPropagation())
+
 		let query = '.song-bar';
 
-		function moveenough(e2) {
-			console.log(e2.offsetX)
-		}
-
-		$(query).on('pointerdown', e => {
+		$(query).on('pointerdown', function (e) {
 			let pointX = e.pageX;
 			let pointY = e.pageY;
 			//console.log(pointY)
@@ -3459,7 +3546,7 @@
 			let moveEnough = (e2) => {
 				let gestureX = e2.offsetX - pointX;
 				let gestureY = e2.pageY - pointY;
-				console.log(gestureX)
+				//console.log(gestureX)
 				//console.log(e2.pageY)
 				if (gestureX > 70) {
 					console.log('left swipe that')
@@ -3480,13 +3567,13 @@
 			}
 
 			let exit = () => {
-				p('offing')
 				$(query).off('pointermove', moveEnough)
 				$(query).off('pointerup', exit)
 			}
 
 			$(query).on('pointermove', moveEnough);
 			$(query).on('pointerup', exit)
+			e.stopPropagation()
 		})
 
 		slider.oninput = function () {
