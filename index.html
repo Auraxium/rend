@@ -54,7 +54,6 @@
 			-moz-user-select: none;
 			-ms-user-select: none;
 			user-select: none;
-
 		}
 
 		::-webkit-scrollbar {
@@ -89,7 +88,7 @@
 		}
 
 		.main-container {
-			flex: 75;
+			flex: 70;
 			overflow: hidden;
 			display: flex;
 		}
@@ -206,12 +205,12 @@
 		}
 
 		.song>* {
-			overflow: hidden;
+			/* overflow: hidden; */
 			/* border: 1px solid; */
 		}
 
 		.song-num {
-			flex: 3; 
+			flex: 3;
 			text-align: center;
 		}
 
@@ -219,18 +218,18 @@
 			flex: 87;
 			margin-left: 3px;
 			white-space: nowrap;
-			overflow: hidden;
+			/* overflow: hidden; */
 			text-overflow: ellipsis;
 		}
 
 		.song-img {
-			flex: 5; 
+			flex: 5;
 			margin-left: 3px;
 		}
 
 		.song-dots {
 			flex: 5;
-			text-align: end; 
+			text-align: end;
 			font-size: 10px;
 		}
 
@@ -282,14 +281,15 @@
 
 		/*#region PART2*/
 		.crop {
-			/* max-height: 50px;
+			/* max-height: 50px; */
 			max-width: 50px;
 			min-height: 50px;
+			/* ;
 			min-width: 50px; */
-			height: 50px;
-			width: 50px;
+			/* height: 50px; */
+			/* width: 50px; */
 			/* border: 1px solid black; */
-			aspect-ratio: 1;
+			/* aspect-ratio: 1; */
 			background-position: center;
 			background-size: cover;
 		}
@@ -551,6 +551,7 @@
 
 		.song-info {
 			width: 25%;
+			padding: 0 5px;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;
@@ -764,13 +765,14 @@
 				overflow: hidden;
 			}
 
-			.app-mobile > * {
+			.app-mobile>* {
 				overflow: hidden;
 			}
 
 			.nav-mobile {
 				flex: 7;
 				background-color: #04aa6d;
+				padding: 0px 5px;
 				display: flex;
 				align-items: center;
 				justify-content: space-between;
@@ -864,24 +866,26 @@
 				flex: 10;
 			}
 
-		.song-name {
-			flex: 65;
-			margin-left: 3px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-		}
+			.song-name {
+				flex: 65;
+				margin-left: 3px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
 
-		.song-img {
-			flex: 15; 
-			margin-left: 3px;
-		}
+			.song-img {
+				flex: 15;
+				margin-left: 3px;
+			}
 
-		.song-dots {
-			flex: 10; text-align: end; font-size: 2vw;
-		}
+			.song-dots {
+				flex: 10;
+				text-align: end;
+				font-size: 2vw;
+			}
 
-			
+
 
 			/* .progress {
 				width: 90%;
@@ -1399,7 +1403,8 @@
 			// for (let i = 0; i < songs.length; i++) {
 			// 	songs[i].playlists = []
 			// }
-			console.log(repeat)
+			//console.log(repeat)
+			player.loadPlaylist(queue.map(el => songs[el].id), songIndex, 0)
 		}
 
 		input.addEventListener("change", () => {
@@ -1649,7 +1654,10 @@
 						videoId: the_song.id,
 					});
 
-					player.seekTo(the_song.start)
+					//player.loadPlaylist([  songs[queue[((songIndex-1) < 0) ? queue.length-1:songIndex-1]].id, the_song.id, songs[queue[((songIndex+1) > queue.length-1) ? 0:songIndex+1]].id], 1, 0)
+
+
+					//	player.seekTo(the_song.start)
 
 					setVolume(slider.value)
 					updateHUDInfo(the_song);
@@ -2214,7 +2222,6 @@
 				return;
 			}
 
-
 			let content = '';
 			let el = ele.dataset;
 
@@ -2232,7 +2239,7 @@
 					<hr/>
 					<div class="dd-options">
 						<div onclick="clickedSong(${el.songId})">Play</div>
-						<div onclick="shift = true;	clickedSong(${el.songId});	shift = false;">Play Next</div>
+						<div onclick="shift = true;	clickedSong(${el.songId}); shift = false;">Play Next</div>
 						<div onclick="queue.push(${el.songId}); updateQueueHUD()">Queue</div>
 						<hr/>
 						<div onclick="songs[${el.songId}].favorited = !songs[${el.songId}].favorited">${(song.favorited) ? 'Unfavorite' : 'Favorite'}</div>
@@ -2289,14 +2296,23 @@
 			//	return
 			//}
 
-			let middlehalf = window.innerHeight / 2;
-			if (e.clientY > middlehalf) {
-				contextMenu.css("top", `${e.pageY - 300}px`);
-				contextMenu.css("left", `${e.pageX - 10}px`);
-			} else {
-				contextMenu.css("top", `${e.pageY - 10}px`);
-				contextMenu.css("left", `${e.pageX - 10}px`);
-			}
+			let yHalf = window.innerHeight / 2;
+			let xHalf = window.innerWidth / 2;
+
+			//console.log(xHalf)
+
+			contextMenu.css("top", `${e.pageY - (e.clientY > yHalf ? 300 : 10)}px`);
+			contextMenu.css("left", `${e.pageX - (e.clientX > xHalf ? 150 : 10)}px`);
+
+			// if (e.clientY > middlehalf) {
+			// 	contextMenu.css("top", `${e.pageY - 300}px`);
+			// 	contextMenu.css("left", `${e.pageX - 10}px`);
+			// } else {
+			// 	contextMenu.css("top", `${e.pageY - 10}px`);
+			// 	contextMenu.css("left", `${e.pageX - 10}px`);
+			// }
+
+			//	$('.dropdown-menu').hide()
 
 		}
 
@@ -3002,7 +3018,6 @@
 
 		$(".progress-container").on("pointerdown",
 			(e) => {
-				p('runasdujnia')
 				seek_ready = false;
 				$(".progress-container")[0].setPointerCapture(e.pointerId);
 				setProgress(e);
@@ -3015,8 +3030,6 @@
 				});
 				e.stopPropagation()
 			});
-
-		//$('#sb2').on("pointerdown", e => e.stopPropagation())
 
 		$(document).on("pointerenter", ".progress-container",
 			(e) => {
@@ -3067,30 +3080,7 @@
 			el.style.opacity = el.style.opacity == 1 ? 0.3 : 1;
 		});
 
-		// $(".shuffle-button").on("click", () => {
-		// 	tog_shuffle = !tog_shuffle;
-		// 	if (tog_shuffle) {
-		// 		shuffle(queue[songIndex]);
-		// 	} else {
-		// 		let temp = queue[songIndex];
-		// 		songIndex = queue.indexOf(temp);
-		// 		updateQueueHUD();
-		// 	}
-		// 	//console.log(queue)
-		// 	//console.log(songIndex)
-		// });
-
-		//$("[form-blur]").click(closeSongForm);
-
 		$('.dropdown-menu').click(function (e) { if (e.target === this) e.stopPropagation() })
-
-		// $(document).on("click", ".bi-three-dots-vertical", (e) => {
-		// 	hoverSongElement = e.target;
-
-		// 	// hoverSongElement.classList.toggle("highlight");
-
-		// 	openContextMenu(e);
-		// });
 
 		$(document).on("focus", "input", (e) => {
 			is_typing = true;
@@ -3116,7 +3106,7 @@
 
 			let dis = e.target.getBoundingClientRect();
 			let content = ''
-			console.log(dis)
+			//console.log(dis)
 
 			for (const [key, value] of Object.entries(playlists)) {
 				if (key == 'favorites')
@@ -3137,26 +3127,17 @@
 				$('#hover-menu').css({ "left": `${dis.right}px`, "top": `${dis.bottom - $('#hover-menu').height()}px` })
 
 
-			console.log(comparer.width);
+			//console.log(comparer.width);
 
 
 			$(".dd-options>div").on("pointerenter", e => {
-				console.log('offed')
+		//		console.log('offed')
 				$('#hover-menu').hide()
 				$(".dd-options>div").off("pointerenter")
 			})
 		})
 
-		// $(document).on("click", ".bi-three-dots", (e) => {
-		// 	hoverSongElement = e.target.parentElement.parentElement;
-		// 	hoverSongId = parseInt(hoverSongElement.dataset.songId);
-
-		// 	hoverSongElement.classList.toggle("highlight");
-
-		// 	openContextMenu(e);
-		// });
-
-		$(document).on("contextmenu", "[data-context]", function(e)  {
+		$(document).on("contextmenu", "[data-context]", function (e) {
 			if (shift) return;
 			e.preventDefault();
 			hoverSongId = parseInt(this.dataset.songId);
@@ -3168,188 +3149,40 @@
 				openMobileContextMenu(e, this)
 		});
 
-		$(document).on("click", ".dd-option", (e) => {
-			switch (e.target.getAttribute("title")) {
-				case "edit": {
-					editSong(hoverSongId);
-					$(".form-blur").addClass("active");
-					break;
-				}
-				case "play": {
-					shift = true;
-					clickedSong(hoverSongId);
-					shift = false;
-					clickedSong(songs[queue[songIndex]]);
-					break;
-				}
-				case "queue-next": {
-					shift = true;
-					clickedSong(hoverSongId);
-					shift = false;
-					break;
-				}
-				case "favorite": {
-					var bool = songs[hoverSongId].favorited;
-					if (bool) {
-						songs[hoverSongId].favorited = false;
-						favorites.splice(favorites.indexOf(songIndex), 1);
-					} else {
-						songs[hoverSongId].favorited = true;
-						favorites.push(hoverSongId);
-					}
-					break;
-				}
-				case "remove-from-playlist": {
-					console.log(songs[hoverSongId]);
-					var the_playlist = playlists[playlistIndex];
-					//find where deleting song is in the playlist
-					var ind = the_playlist.songs.indexOf(hoverSongId);
-					if (ind == -1) return;
-
-					var icant = (() => {
-						for (let l = 0; l < songs[hoverSongId].playlists.length; l++) {
-							if (songs[hoverSongId].playlists[l].name == the_playlist.name)
-								return l;
-						}
-						return -1;
-					})();
-					songs[hoverSongId].playlists.splice(icant, 1);
-
-					//splice deleting song
-					the_playlist.songs.splice(ind, 1);
-					// move positions for songs after it down (couldve just loop through
-					// the songs array and set everysong to its new position but this is
-					// more effeciant)
-					for (let k = ind; k < the_playlist.songs.length; k++) {
-						var currentSong = songs[the_playlist.songs[k]];
-						var findIndexForRetrival = (() => {
-							for (let l = 0; l < currentSong.playlists.length; l++) {
-								if (currentSong.playlists[l].name == the_playlist.name)
-									return l;
-							}
-							return -1;
-						})();
-						currentSong.playlists[findIndexForRetrival].position--;
-					}
-					the_playlist.size = the_playlist.songs.length;
-
-					hoverSongElement.remove();
-					break;
-				}
-				case "delete": {
-					//loops through every playlists that has deleting song to remove it from that playlist.
-					for (let i = 0; i < songs[hoverSongId].playlists.length; i++) {
-						const element = songs[hoverSongId].playlists[i];
-						//find where playlist is in playlists array
-						var playlistId = FindPlaylistIndexByName(element.name);
-
-						if (playlistId == -1) return;
-						//find where deleting song is in the playlist
-						var ind = playlists[playlistId].songs.indexOf(hoverSongId);
-						if (ind == -1) return;
-
-						console.log(element);
-						//splice deleting song
-						playlists[playlistId].songs.splice(ind, 1);
-						// move positions for songs after it down (couldve just loop through
-						// the songs array and set everysong to its new position but this is
-						// more effeciant)
-						for (let k = ind; k < playlists[playlistId].songs.length; k++) {
-							var currentSong = songs[playlists[playlistId].songs[k]];
-							var findIndexForRetrival = (() => {
-								for (let l = 0; l < currentSong.playlists.length; l++) {
-									if (currentSong.playlists[l].name == element.name) return l;
-								}
-								return -1;
-							})();
-							currentSong.playlists[findIndexForRetrival].position--;
-						}
-						if (playlists[playlistId] != null)
-							playlists[playlistId].size = playlists[playlistId].songs.length;
-					}
-					songs.splice(hoverSongId, 1);
-					hoverSongElement.remove();
-					loadSongs();
-					break;
-				}
-
-				case "select": {
-					selecting = true;
-					$(".accept-menu").show();
-					hoverSongElement.classList.toggle("selected");
-					if (hoverSongElement.classList.contains("selected"))
-						selects.push(hoverSongId);
-					else {
-						selects.splice(selects.indexOf(hoverSongId), 1);
-						if (!selects.length) {
-							selecting = false;
-							$(".accept-menu").hide();
-						}
-					}
-					break;
-				}
-
-				case "sel-delete": {
-					for (let g = 0; g < selects.length; g++) {
-						var sel_num = selects[g];
-						//if(songs[sel_num] == null) continue
-						if (songs[sel_num] != null && songs[sel_num].playlists != null) {
-							for (let i = 0; i < songs[sel_num].playlists.length; i++) {
-								const element = songs[sel_num].playlists[i];
-								//find where playlist is in playlists array
-								var playlistId = FindPlaylistIndexByName(element.name);
-
-								if (playlistId == -1) break;
-								//find where deleting song is in the playlist
-								var ind = playlists[playlistId].songs.indexOf(sel_num);
-								if (ind == -1) break;
-
-								//console.log(element);
-								//splice deleting song
-								playlists[playlistId].songs.splice(ind, 1);
-								// move positions for songs after it down (couldve just loop through
-								// the songs array and set everysong to its new position but this is
-								// more effeciant)
-								console.log(playlists[playlistId].songs);
-								for (
-									let k = ind; k < playlists[playlistId].songs.length; k++
-								) {
-									//console.log(songs[playlists[playlistId].songs[k]])
-									if (playlists[playlistId].songs[k] == null) continue;
-									var currentSong = songs[playlists[playlistId].songs[k]];
-									var findIndexForRetrival = currentSong.playlists.findIndex(
-										(el) => el.name == element.name
-									);
-
-									currentSong.playlists[findIndexForRetrival].position--;
-								}
-								if (playlists[playlistId] != null)
-									playlists[playlistId].size =
-										playlists[playlistId].songs.length;
-							}
-						}
-						songs[sel_num] = null;
-						$(`[data-song-id="${sel_num}"]`).remove();
-					}
-
-					songs = songs.filter((el) => el !== null);
-					selects = [];
-					selecting = false;
-					$(".accept-menu").hide();
-					//updateQueueHUD()
-					//loadSongs();
-
-					break;
-				}
-
-				default:
-					console.log(e.target.getAttribute("title"));
-			}
-			contextMenu.removeClass("active");
-			hoverSongElement.classList.remove("highlight");
+		$(document).on("click", ".bi-three-dots", (e) => {
+			e['3-dots-prop'] = true;
 		});
 
-		$(document).on("mousedown", "[data-type=\"song\"]", function(e) {
+		$(document).on("mousedown", ".bi-three-dots", e => {
+			e.stopPropagation()
+		});
+
+		$(document).on('click', "[data-type=\"song\"]", function (e) {
+			e.stopPropagation()
+
+			if (e['3-dots-prop']) {
+				hoverSongId = +this.dataset.songId;
+				hoverSongElement = this;
+				if (screen.width > mobileScreen)
+					openContextMenu(e, this);
+				else
+					openMobileContextMenu(e, this)
+				return;
+			}
+		})
+
+		$(document).on("mousedown", "[data-type=\"song\"]", function (e) {
+			//console.log(e['propa'])
+			// if (e['propa']) {
+			// 	hoverSongId = +this.dataset.songId;
+			// 	hoverSongElement = this;
+
+			// 	if (screen.width > mobileScreen)
+			// 		openContextMenu(e, this);
+			// 	else
+			// 		openMobileContextMenu(e, this)
+			// 	return;
+			// }
 			if (e.which != 1) return;
 			if (!player || !player.setVolume) return;
 			let id = parseInt(this.dataset.songId);
@@ -3360,10 +3193,10 @@
 			}
 
 			if (selecting) {
-				$(e.target).toggleClass('selected')
-				$(e.target).attr('class').includes('selected') ?
-					selects.push(e.target.dataset.songId) :
-					selects.splice(selects.findIndex(el => el == e.target.dataset.songId), 1)
+				$(this).toggleClass('selected')
+				$(this).attr('class').includes('selected') ?
+					selects.push(this.dataset.songId) :
+					selects.splice(selects.findIndex(el => el == this.dataset.songId), 1)
 				console.log(selects)
 				$('#selected').html(selects.length + ' Selected')
 				if (!selects.length) {
@@ -3380,25 +3213,215 @@
 		});
 
 		$(document).on('click', '.misc-form>.dd-options', function (e) {
-			console.log('aaa')
 			closeSongForm()
-		})
+		});
+
+		$(document).on("mousedown", '.bi-three-dots', e => e.stopPropagation())
 
 		$('[clickable]').click(e => e.stopPropagation())
 		$('[onclick]').click(e => e.stopPropagation())
 
+		$(document).on('click', '.dropdown-menu', e => {
+			if (!e['stop-prop'])
+				e.stopPropagation()
+		})
+
+		$(document).on("click", ".dd-options", (e) => {
+			e['stop-prop'] = true;
+
+			// switch (e.target.getAttribute("title")) {
+			// 	case "edit": {
+			// 		editSong(hoverSongId);
+			// 		$(".form-blur").addClass("active");
+			// 		break;
+			// 	}
+			// 	case "play": {
+			// 		shift = true;
+			// 		clickedSong(hoverSongId);
+			// 		shift = false;
+			// 		clickedSong(songs[queue[songIndex]]);
+			// 		break;
+			// 	}
+			// 	case "queue-next": {
+			// 		shift = true;
+			// 		clickedSong(hoverSongId);
+			// 		shift = false;
+			// 		break;
+			// 	}
+			// 	case "favorite": {
+			// 		var bool = songs[hoverSongId].favorited;
+			// 		if (bool) {
+			// 			songs[hoverSongId].favorited = false;
+			// 			favorites.splice(favorites.indexOf(songIndex), 1);
+			// 		} else {
+			// 			songs[hoverSongId].favorited = true;
+			// 			favorites.push(hoverSongId);
+			// 		}
+			// 		break;
+			// 	}
+			// 	case "remove-from-playlist": {
+			// 		console.log(songs[hoverSongId]);
+			// 		var the_playlist = playlists[playlistIndex];
+			// 		//find where deleting song is in the playlist
+			// 		var ind = the_playlist.songs.indexOf(hoverSongId);
+			// 		if (ind == -1) return;
+
+			// 		var icant = (() => {
+			// 			for (let l = 0; l < songs[hoverSongId].playlists.length; l++) {
+			// 				if (songs[hoverSongId].playlists[l].name == the_playlist.name)
+			// 					return l;
+			// 			}
+			// 			return -1;
+			// 		})();
+			// 		songs[hoverSongId].playlists.splice(icant, 1);
+
+			// 		//splice deleting song
+			// 		the_playlist.songs.splice(ind, 1);
+			// 		// move positions for songs after it down (couldve just loop through
+			// 		// the songs array and set everysong to its new position but this is
+			// 		// more effeciant)
+			// 		for (let k = ind; k < the_playlist.songs.length; k++) {
+			// 			var currentSong = songs[the_playlist.songs[k]];
+			// 			var findIndexForRetrival = (() => {
+			// 				for (let l = 0; l < currentSong.playlists.length; l++) {
+			// 					if (currentSong.playlists[l].name == the_playlist.name)
+			// 						return l;
+			// 				}
+			// 				return -1;
+			// 			})();
+			// 			currentSong.playlists[findIndexForRetrival].position--;
+			// 		}
+			// 		the_playlist.size = the_playlist.songs.length;
+
+			// 		hoverSongElement.remove();
+			// 		break;
+			// 	}
+			// 	case "delete": {
+			// 		//loops through every playlists that has deleting song to remove it from that playlist.
+			// 		for (let i = 0; i < songs[hoverSongId].playlists.length; i++) {
+			// 			const element = songs[hoverSongId].playlists[i];
+			// 			//find where playlist is in playlists array
+			// 			var playlistId = FindPlaylistIndexByName(element.name);
+
+			// 			if (playlistId == -1) return;
+			// 			//find where deleting song is in the playlist
+			// 			var ind = playlists[playlistId].songs.indexOf(hoverSongId);
+			// 			if (ind == -1) return;
+
+			// 			console.log(element);
+			// 			//splice deleting song
+			// 			playlists[playlistId].songs.splice(ind, 1);
+			// 			// move positions for songs after it down (couldve just loop through
+			// 			// the songs array and set everysong to its new position but this is
+			// 			// more effeciant)
+			// 			for (let k = ind; k < playlists[playlistId].songs.length; k++) {
+			// 				var currentSong = songs[playlists[playlistId].songs[k]];
+			// 				var findIndexForRetrival = (() => {
+			// 					for (let l = 0; l < currentSong.playlists.length; l++) {
+			// 						if (currentSong.playlists[l].name == element.name) return l;
+			// 					}
+			// 					return -1;
+			// 				})();
+			// 				currentSong.playlists[findIndexForRetrival].position--;
+			// 			}
+			// 			if (playlists[playlistId] != null)
+			// 				playlists[playlistId].size = playlists[playlistId].songs.length;
+			// 		}
+			// 		songs.splice(hoverSongId, 1);
+			// 		hoverSongElement.remove();
+			// 		loadSongs();
+			// 		break;
+			// 	}
+
+			// 	case "select": {
+			// 		selecting = true;
+			// 		$(".accept-menu").show();
+			// 		hoverSongElement.classList.toggle("selected");
+			// 		if (hoverSongElement.classList.contains("selected"))
+			// 			selects.push(hoverSongId);
+			// 		else {
+			// 			selects.splice(selects.indexOf(hoverSongId), 1);
+			// 			if (!selects.length) {
+			// 				selecting = false;
+			// 				$(".accept-menu").hide();
+			// 			}
+			// 		}
+			// 		break;
+			// 	}
+
+			// 	case "sel-delete": {
+			// 		for (let g = 0; g < selects.length; g++) {
+			// 			var sel_num = selects[g];
+			// 			//if(songs[sel_num] == null) continue
+			// 			if (songs[sel_num] != null && songs[sel_num].playlists != null) {
+			// 				for (let i = 0; i < songs[sel_num].playlists.length; i++) {
+			// 					const element = songs[sel_num].playlists[i];
+			// 					//find where playlist is in playlists array
+			// 					var playlistId = FindPlaylistIndexByName(element.name);
+
+			// 					if (playlistId == -1) break;
+			// 					//find where deleting song is in the playlist
+			// 					var ind = playlists[playlistId].songs.indexOf(sel_num);
+			// 					if (ind == -1) break;
+
+			// 					//console.log(element);
+			// 					//splice deleting song
+			// 					playlists[playlistId].songs.splice(ind, 1);
+			// 					// move positions for songs after it down (couldve just loop through
+			// 					// the songs array and set everysong to its new position but this is
+			// 					// more effeciant)
+			// 					console.log(playlists[playlistId].songs);
+			// 					for (
+			// 						let k = ind; k < playlists[playlistId].songs.length; k++
+			// 					) {
+			// 						//console.log(songs[playlists[playlistId].songs[k]])
+			// 						if (playlists[playlistId].songs[k] == null) continue;
+			// 						var currentSong = songs[playlists[playlistId].songs[k]];
+			// 						var findIndexForRetrival = currentSong.playlists.findIndex(
+			// 							(el) => el.name == element.name
+			// 						);
+
+			// 						currentSong.playlists[findIndexForRetrival].position--;
+			// 					}
+			// 					if (playlists[playlistId] != null)
+			// 						playlists[playlistId].size =
+			// 							playlists[playlistId].songs.length;
+			// 				}
+			// 			}
+			// 			songs[sel_num] = null;
+			// 			$(`[data-song-id="${sel_num}"]`).remove();
+			// 		}
+
+			// 		songs = songs.filter((el) => el !== null);
+			// 		selects = [];
+			// 		selecting = false;
+			// 		$(".accept-menu").hide();
+			// 		//updateQueueHUD()
+			// 		//loadSongs();
+
+			// 		break;
+			// 	}
+
+			// 	default:
+			// 		console.log(e.target.getAttribute("title"));
+			// }
+			contextMenu.removeClass("active");
+			hoverSongElement.classList.remove("highlight");
+		});
 
 		$(document).click(e => {
-			if (e.target.dataset.context)
-				return;
+			// if (e.target.dataset.context)
+			// 	return;
+			console.log(e.target)
+			//	if(!e['3-dots-propa'])
 			$('.dropdown-menu').hide()
-			$('.highlight').removeClass('hightlight')
-			if (selecting) {
-				selecting = false;
-				selects = []
-				$('.selected').removeClass('selected')
-				$('.accept-menu').hide()
-			}
+			// $('.highlight').removeClass('hightlight')
+			// if (selecting) {
+			// 	selecting = false;
+			// 	selects = []
+			// 	$('.selected').removeClass('selected')
+			// 	$('.accept-menu').hide()
+			// }
 		});
 
 		document.addEventListener("keydown", (e) => {
