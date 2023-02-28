@@ -2515,7 +2515,8 @@
 			else if(!onMobile && $('.app-mobile').is(':visible')){ // to mobile
 				p('to mobile')
 				$('.songElements').detach().appendTo('.displayM')
-				$('.progress-container').detach().appendTo('#sb2')
+				let element = $('.progress-container').detach()
+				$('#elapsed').after(element)
 				mobilePage('library', $('[library]')[0])
 				onMobile = true;
 			}
