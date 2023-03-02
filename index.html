@@ -48,12 +48,17 @@
 			box-sizing: border-box;
 			color: white;
 
+
 			-webkit-touch-callout: none;
 			-webkit-user-select: none;
 			-khtml-user-select: none;
 			-moz-user-select: none;
 			-ms-user-select: none;
 			user-select: none;
+		}
+
+		button {
+			color: black;
 		}
 
 		::-webkit-scrollbar {
@@ -1331,7 +1336,7 @@
 		let contextMenu = $("[dropdown_menu]");
 
 		var shift = false;
-		var shift2 = false;
+		var alt = false;
 		var last_clicked;
 		var test;
 		var songFile;
@@ -1731,11 +1736,16 @@
 			if (shift) {
 				if (i == queue[songIndex] || i == queue[songIndex + 1]) return;
 				var ind = queue.indexOf(i);
-				if (ind < songIndex) songIndex--;
+				//if (ind < songIndex) songIndex--;
 				queue.splice(ind, 1);
-				queue.splice(songIndex + 1, 0, i);
+				column_sort ?
 
-				updateQueueHUD();
+					queue.splice(songIndex == 0 ? queue.length - 1 : songIndex - 1, 0, i)
+					:
+				queue.splice(songIndex == queue.length - 1 ? 0 : songIndex + 1, 0, i)
+
+
+				//updateQueueHUD();
 				return;
 			}
 
@@ -3131,7 +3141,7 @@
 
 
 			$(".dd-options>div").on("pointerenter", e => {
-		//		console.log('offed')
+				//		console.log('offed')
 				$('#hover-menu').hide()
 				$(".dd-options>div").off("pointerenter")
 			})
@@ -3187,7 +3197,7 @@
 			if (!player || !player.setVolume) return;
 			let id = parseInt(this.dataset.songId);
 
-			if (shift) {
+			if (alt) {
 				selecting = true;
 				$(".accept-menu").show();
 			}
@@ -3207,7 +3217,7 @@
 				return;
 			}
 
-			$(".playing").removeClass("playing");
+			//	$(".playing").removeClass("playing");
 
 			clickedSong(id);
 		});
@@ -3428,7 +3438,7 @@
 			if (is_typing) return;
 			switch (e.keyCode) {
 				case 37: {
-					if (shift) {
+					if (alt) {
 						prevSong();
 					} else {
 						Etime -= 5
@@ -3437,7 +3447,7 @@
 					break;
 				}
 				case 39: {
-					if (shift) {
+					if (alt) {
 						nextSong();
 					} else {
 						Etime += 5
@@ -3462,12 +3472,12 @@
 				}
 				case 17: {
 					e.preventDefault();
-					shift = true;
+					alt = true;
 					break;
 				}
 				case 16: {
 					e.preventDefault();
-					shift2 = true;
+					shift = true;
 					break;
 				}
 				// case 176: 
@@ -3487,12 +3497,12 @@
 			switch (e.keyCode) {
 				case 17: {
 					e.preventDefault();
-					shift = false;
+					alt = false;
 					break;
 				}
 				case 16: {
 					e.preventDefault();
-					shift2 = false;
+					shift = false;
 					break;
 				}
 			}
