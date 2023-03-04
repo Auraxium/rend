@@ -582,11 +582,13 @@
 
 		#elapsed {
 			flex: 5;
+			padding: 0 0 0 3px;
 		}
 
 		#length {
 			flex: 5;
 			text-align: end;
+			padding: 0 3px 0 0;
 		}
 
 		.duration {
@@ -1649,6 +1651,7 @@
 
 					//while()
 
+					player.setPlaybackQuality('hd720');
 
 					player.loadVideoById({
 						videoId: the_song.id,
@@ -1729,18 +1732,15 @@
 			}
 
 			if (shift) {
-				if (i == queue[songIndex] || i == queue[songIndex + 1]) return;
-				var ind = queue.indexOf(i);
-				if (ind < songIndex) songIndex--;
-				queue.splice(ind, 1);
-				queue.splice(songIndex + 1, 0, i);
-
-				updateQueueHUD();
+				console.log('aaa')
+				 if (i == queue[songIndex] || i == queue[songIndex + 1]) return;
+				queue.splice(queue.indexOf(i), 1);
+				queue.splice(songIndex, 0, i);
 				return;
 			}
 
 			let toSplice = 0;
-
+			
 			//	if (currentScope !== lastScope) {
 			if (currentScope) {
 				queue = [...playlists[currentScope]['songs']]
@@ -1764,11 +1764,8 @@
 			} else
 				songIndex = queue.indexOf(i);
 
-			//console.log(queue)
-
 			if (i != currentId)
 				return playSong();
-
 		}
 
 		function updateHUDInfo(thesong) {
@@ -2100,6 +2097,12 @@
 			$("#endTime").val(secsToTime(songs[id].end))
 		}
 
+		function deleteSong(id, isLast = true) {
+			//remove playlists
+			songs.splice(id, 1);
+
+		}
+
 		function submitEditedSong(id) {
 
 			if (!$("#name").val()) {
@@ -2299,18 +2302,8 @@
 			let yHalf = window.innerHeight / 2;
 			let xHalf = window.innerWidth / 2;
 
-			//console.log(xHalf)
-
 			contextMenu.css("top", `${e.pageY - (e.clientY > yHalf ? 300 : 10)}px`);
 			contextMenu.css("left", `${e.pageX - (e.clientX > xHalf ? 150 : 10)}px`);
-
-			// if (e.clientY > middlehalf) {
-			// 	contextMenu.css("top", `${e.pageY - 300}px`);
-			// 	contextMenu.css("left", `${e.pageX - 10}px`);
-			// } else {
-			// 	contextMenu.css("top", `${e.pageY - 10}px`);
-			// 	contextMenu.css("left", `${e.pageX - 10}px`);
-			// }
 
 			//	$('.dropdown-menu').hide()
 
@@ -2869,6 +2862,7 @@
 			}
 			playing = event.data == YT.PlayerState.PLAYING
 			timeUpdate()
+			player.setPlaybackQuality('hd720');
 		}
 
 		function stopVideo() {
@@ -3412,7 +3406,7 @@
 		$(document).click(e => {
 			// if (e.target.dataset.context)
 			// 	return;
-			console.log(e.target)
+			//console.log(e.target)
 			//	if(!e['3-dots-propa'])
 			$('.dropdown-menu').hide()
 			// $('.highlight').removeClass('hightlight')
@@ -3519,7 +3513,7 @@
 		);
 
 		window.addEventListener('resize', e => {
-			console.log(screen.width)
+			//console.log(screen.width)
 			setupSwap()
 		})
 
