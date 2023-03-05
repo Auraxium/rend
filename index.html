@@ -46,7 +46,9 @@
 
 		* {
 			box-sizing: border-box;
-			color: white;
+			color: rgb(255, 255, 255);
+			
+
 
 			-webkit-touch-callout: none;
 			-webkit-user-select: none;
@@ -54,6 +56,13 @@
 			-moz-user-select: none;
 			-ms-user-select: none;
 			user-select: none;
+		}
+		input, select, textarea{
+    color: #000000;
+}
+
+		button {
+			color: black;
 		}
 
 		::-webkit-scrollbar {
@@ -1333,7 +1342,7 @@
 		let contextMenu = $("[dropdown_menu]");
 
 		var shift = false;
-		var shift2 = false;
+		var alt = false;
 		var last_clicked;
 		var test;
 		var songFile;
@@ -1406,7 +1415,8 @@
 			// 	songs[i].playlists = []
 			// }
 			//console.log(repeat)
-			player.loadPlaylist(queue.map(el => songs[el].id), songIndex, 0)
+			//player.loadPlaylist(queue.map(el => songs[el].id), songIndex, 0)
+			//fetch(url + '/yttest', {method: "POST",})
 		}
 
 		input.addEventListener("change", () => {
@@ -1732,15 +1742,19 @@
 			}
 
 			if (shift) {
-				console.log('aaa')
-				 if (i == queue[songIndex] || i == queue[songIndex + 1]) return;
-				queue.splice(queue.indexOf(i), 1);
-				queue.splice(songIndex, 0, i);
+				if (i == queue[songIndex] || i == queue[songIndex + 1]) return;
+				var ind = queue.indexOf(i);
+				//if (ind < songIndex) songIndex--;
+				queue.splice(ind, 1);
+				column_sort ?
+					queue.splice(songIndex == 0 ? queue.length - 1 : songIndex - 1, 0, i)
+					:
+					queue.splice(songIndex == queue.length - 1 ? 0 : songIndex + 1, 0, i)
 				return;
 			}
 
 			let toSplice = 0;
-			
+
 			//	if (currentScope !== lastScope) {
 			if (currentScope) {
 				queue = [...playlists[currentScope]['songs']]
@@ -1936,7 +1950,7 @@
 			songs.push(sng);
 			queue.push(songs.length - 1);
 			$("#form").html("");
-			$("#song_scope").append(
+			$(".songElements").append(
 				songBuilder(songs.length - 1, songs[songs.length - 1].id, n, t)
 			);
 
@@ -1946,7 +1960,7 @@
 		function YT_SEARCH(s) {
 			axios.post(url + '/YTsearch', { search: s }).then(res => {
 				console.log(res.data);
-				vids = res.data.videos;
+				vids = res.data;
 				let str = "";
 				vids.forEach((el, i) => str += `<div class="song" data-type="ytSearch" data-json='${JSON.stringify(el)}' onclick='ytAdd(event)'>
 							<div class="row no-click">
@@ -1975,14 +1989,14 @@
 
 			let sng = {
 				name: song_data['title'],
-				link: song_data['link'],
+				link: `https://www.youtube.com/watch?v=${song_data['id']}`,
 				id: song_data['id'],
 				playlists: [],
 				favorited: false,
 				type: 'YOUTUBE',
 				start: 0,
-				end: hmsToSecs(song_data['duration_raw']),
-				end_raw: song_data['duration_raw'],
+				end: hmsToSecs(song_data['duration']),
+				end_raw: song_data['duration'],
 			};
 			songs.push(sng);
 			queue.push(songs.length - 1);
@@ -3125,7 +3139,7 @@
 
 
 			$(".dd-options>div").on("pointerenter", e => {
-		//		console.log('offed')
+				//		console.log('offed')
 				$('#hover-menu').hide()
 				$(".dd-options>div").off("pointerenter")
 			})
@@ -3181,7 +3195,7 @@
 			if (!player || !player.setVolume) return;
 			let id = parseInt(this.dataset.songId);
 
-			if (shift) {
+			if (alt) {
 				selecting = true;
 				$(".accept-menu").show();
 			}
@@ -3201,7 +3215,7 @@
 				return;
 			}
 
-			$(".playing").removeClass("playing");
+			//	$(".playing").removeClass("playing");
 
 			clickedSong(id);
 		});
@@ -3422,7 +3436,7 @@
 			if (is_typing) return;
 			switch (e.keyCode) {
 				case 37: {
-					if (shift) {
+					if (alt) {
 						prevSong();
 					} else {
 						Etime -= 5
@@ -3431,7 +3445,7 @@
 					break;
 				}
 				case 39: {
-					if (shift) {
+					if (alt) {
 						nextSong();
 					} else {
 						Etime += 5
@@ -3456,12 +3470,12 @@
 				}
 				case 17: {
 					e.preventDefault();
-					shift = true;
+					alt = true;
 					break;
 				}
 				case 16: {
 					e.preventDefault();
-					shift2 = true;
+					shift = true;
 					break;
 				}
 				// case 176: 
@@ -3481,12 +3495,12 @@
 			switch (e.keyCode) {
 				case 17: {
 					e.preventDefault();
-					shift = false;
+					alt = false;
 					break;
 				}
 				case 16: {
 					e.preventDefault();
-					shift2 = false;
+					shift = false;
 					break;
 				}
 			}

@@ -2,8 +2,10 @@
 const express = require("express");
 const app = express();
 var cors = require("cors");
-const scraper = require('scraper-edge').default; // require('usetube') // require("youtube-search-without-api-key"); // require('youtube-search'); //
-const yt = new scraper()
+var { google } = require("googleapis");
+var OAuth2 = google.auth.OAuth2;
+const axios = require("axios");
+const chromium = require("chromium");
 const puppeteer = require("puppeteer");
 const mongoose = require("mongoose");
 var dataModel = mongoose.model("Data", new mongoose.Schema({ data: {} }));
@@ -11,6 +13,12 @@ const URI =
   "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
 
 const YT_API_KEY = "AIzaSyCa-ozYT_nemTy1dYHDBKBUX1qdwUlZSx0";
+const baseApiUrl = "https://www.googleapis.com/youtube/v3";
+
+var opts = {
+  maxResults: 10,
+  key: "AIzaSyCa-ozYT_nemTy1dYHDBKBUX1qdwUlZSx0",
+};
 
 p = (s) => console.log(s);
 
@@ -74,37 +82,76 @@ app.post("/save", (req, res) => {
 });
 
 app.get("/yttest", (req, res) => {
-  yt.search("hello").then((results) => console.log(results));
+  axios(
+    `${baseApiUrl}/videos?id=3VHCxuxtuL8&part=contentDetails&key=${YT_API_KEY}`
+  ).then((data) => res.json(data.data));
 });
 
 // yt.search('hello').then(res => console.log(res))
 
 app.post("/YTsearch", async (req, res) => {
-   console.log(req.body.search);
-  yt.search(req.body.search)
-    .then((results) => {
-      console.log(results);
-      res.send(results);
-    })
-    .catch((err) => res.send(err));
+  console.log(req.body.search);
+  let vids;
+  await axios(
+    `${baseApiUrl}/search?key=${YT_API_KEY}
+		&type=video
+		&part=snippet
+		&maxResults=7
+		&q=${req.body.search.replace(/\s+/g, "+")}`
+  ).then((data) => (vids = data.data.items));
 
-  // yt(req.body.search, {maxResults: 10, key: YT_API_KEY}, (err, results) => {
-  // 	if(err) {
-  // 		console.log(err)
-  // 		return res.send(err)
-  // 	}
+  for (let i = 0; i < vids.length; i++) {
+    let duration = await axios(
+      `${baseApiUrl}/videos?id=${vids[i]["id"]["videoId"]}&part=contentDetails&key=${YT_API_KEY}`
+    );
+    vids[i]["duration"] =
+      duration["data"]["items"][0]["contentDetails"]["duration"];
+  }
 
-  // 	return res.json(results)
-  // })
+	//console.log(vids)
 
-	// let vv = await yt.searchVideo(req.body.search)
-	// console.log(vv)
-	// res.json(vv)
+	function parseDuration(s) {
+		let str = [''];
+		let ind;
 
+		ind = s.indexOf('H')
+		if(ind != -1) { //has H
+			str.push(s[ind-1])
+			str.push(isNaN(+s[ind-2]) ?  ':' : s[ind-2]) 
+		}
+
+		ind = s.indexOf('M')
+		if(ind != -1) {
+			str.push(isNaN(+s[ind-2]) ?  '' : s[ind-2])	
+			str.push(s[ind-1]+':')
+		} else str.push(str.length-1 ? '00:' : '0:')
+
+		ind = s.indexOf('S')
+		if(ind != -1) {
+			str.push(isNaN(+s[ind-2]) ?  '0' : s[ind-2])
+			str.push(s[ind-1])
+		} else str.push('00')
+
+		return str.join("")
+	}
+
+  let send = vids.map((e) => {
+    return {
+      title: e["snippet"]["title"],
+      duration: parseDuration(e['duration']),
+      id: e["id"]["videoId"],
+    };
+  });
+
+  console.log(parseDuration('PT3S'));
+  res.json(send);
 });
 
 app.post("/SpotifyPlaylist", async (req, res) => {
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    executablePath: chromium.path,
+    headless: true,
+  });
   const page = await browser.newPage();
   await page.goto(req.body.search, { timeout: 90000 });
 
