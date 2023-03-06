@@ -109,22 +109,67 @@ app.post("/save", (req, res) => {
 
 app.get("/yttest", (req, res) => {
   axios(
-    `${baseApiUrl}/videos?id=3VHCxuxtuL8&part=contentDetails&key=${YT_API_KEY}`
+    `${baseApiUrl}/videos?id=b8-tXG8KrWs,hZvitm7eK9c,MrLnOfYFVvQ,lcNfSwl2SmI,jcxate72OMg,oIoyTuvqHAs,cW6uJAaLfRA,xwhBRJStz7w,qn7HvnMJZd4,RDk5NB3pgJo,mg-ODPxYl9Q,CDhUvkzLsmQ,a2Cenb4UNFE,vE8zTxbifNM,yFdLSM8zVVI,uxurZPG1k-M,tRAEkH3EqGQ,MBq722OJ8QY,C6mvSrZA410,cbuV0WtQXjw,j2VtMsBYTjI&part=contentDetails&part=snippet&key=${YT_API_KEY}`
   ).then((data) => res.json(data.data));
 });
 
 app.post("/getYTData", async (req, res) => {
-  axios(
-    `${baseApiUrl}/videos?id=${req.body.search}&part=contentDetails&part=snippet&key=${YT_API_KEY}`
-  )
-    .then((data) => {
-      let info = data.data.items[0];
-      res.json({
-        name: info["snippet"]["title"],
-        end: parseDuration(info["contentDetails"]["duration"]),
-      });
-    })
-    .catch((err) => res.send(err));
+  let searches = req.body.search;
+  let str = "";
+  let count = 0;
+  let request;
+  let save = 0;
+
+  for (let i = 0; i < searches.length; i++) {
+    if (count + searches[i].length > 49) {
+      count = 0;
+      request = await axios(
+        `${baseApiUrl}/videos?id=${str}part=contentDetails&part=snippet&key=${YT_API_KEY}`
+      );
+
+      let part = request["data"]["items"];
+
+      for (let j = save; j < i; j++) {
+        for (let k = 0; k < searches[j].length; k++) {
+          searches[j][k]["duration"] =
+            part[count]["contentDetails"]["duration"] ? part[count]["contentDetails"]["duration"] : '0:00';
+          count++;
+        }
+      }
+      save = i;
+      count = 0;
+      str = "";
+    }
+
+    for (let j = 0; j < searches[i].length; j++) {
+      str += `${searches[i][j]["id"]},`;
+      count++;
+    }
+  }
+
+  if (count) {
+    count = 0;
+    let i = searches.length;
+    request = await axios(
+      `${baseApiUrl}/videos?id=${str}&part=contentDetails&part=snippet&key=${YT_API_KEY}`
+    );
+
+    let part = request["data"]['items'];
+    console.log(part);
+    console.log(str);
+
+    for (let j = save; j < i; j++) {
+      for (let k = 0; k < searches[j].length; k++) {
+        searches[j][k]["duration"] = parseDuration(
+          part[count]["contentDetails"]["duration"]
+        );
+        count++;
+      }
+    }
+  }
+
+  console.log(searches);
+  res.json({ searches: searches });
 });
 
 // yt.search('hello').then(res => console.log(res))
@@ -140,19 +185,18 @@ app.post("/YTsearch", async (req, res) => {
 		&q=${req.body.search.replace(/\s+/g, "+")}`
   ).then((data) => (vids = data.data.items));
 
-  for (let i = 0; i < vids.length; i++) {
-    let duration = await axios(
-      `${baseApiUrl}/videos?id=${vids[i]["id"]["videoId"]}&part=contentDetails&part=snippet&key=${YT_API_KEY}`
-    );
-   
-    vids[i]["duration"] =
-      duration["data"]["items"][0]["contentDetails"]["duration"];
-  }
+  // for (let i = 0; i < vids.length; i++) {
+  //   let duration = await axios(
+  //     `${baseApiUrl}/videos?id=${vids[i]["id"]["videoId"]}&part=contentDetails&part=snippet&key=${YT_API_KEY}`
+  //   );
+
+  //   vids[i]["duration"] =
+  //     duration["data"]["items"][0]["contentDetails"]["duration"];
+  // }
 
   let send = vids.map((e) => {
     return {
       name: e["snippet"]["title"],
-      end: parseDuration(e["duration"]),
       id: e["id"]["videoId"],
     };
   });
@@ -199,9 +243,7 @@ app.post("/SpotifyPlaylist", async (req, res) => {
   }
 
   console.log(songs);
-
   await browser.close();
-
   res.send(songs);
 });
 

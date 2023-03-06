@@ -1894,6 +1894,84 @@
 			end = end.includes(':') ? hmsToSecs(end) : +end
 
 			return SongAdder({ name: n, link: l, type: t, start: start, end: end })
+
+			// info_player.loadVideoByUrl(l)
+
+			// if (!n || !end) {
+			// 	let time = 0;
+			// 	let now = Date.now()
+			// 	while (info_player.getPlayerState() != 2) {
+			// 		console.log(time)
+			// 		time = Date.now() - now;
+			// 		if (time > 4000) {
+			// 			console.log('failed to get song')
+			// 			return;
+			// 		}
+			// 		await delay(250)
+			// 	}
+
+			// }
+
+			// if (!n)
+			// 	n = info_player.videoTitle;
+
+			// if (!start)
+			// 	start = 0;
+
+			// if (!end)
+			// 	end = info_player['playerInfo']['duration'];
+
+			// let links = l.split("|");
+			// console.log(links);
+
+			// let sng = {
+			// 	name: n,
+			// 	link: l,
+			// 	id: '',
+			// 	playlists: [],
+			// 	favorited: false,
+			// 	type: t,
+			// 	start: start,
+			// 	end: end,
+			// 	end_raw: secsToTime(end - start)
+			// };
+
+			// if (t == 'FILE') {
+			// 	sng.id = crypto.randomUUID();
+			// }
+
+			// if (t == 'YOUTUBE') {
+			// 	sng.id = idParser(linkParser(l));
+			// }
+
+			// console.log(sng)
+
+			// songs.push(sng);
+			// queue.push(songs.length - 1);
+			// $("#form").html("");
+			// $(".songElements").append(
+			// 	songBuilder(songs.length - 1, songs[songs.length - 1].id, n, t)
+			// );
+
+		}
+
+		async function scuffedInfoReq(id) {
+			info_player.loadVideoById(id)
+			let time = 0;
+			let now = Date.now()
+
+			while (info_player.getPlayerState() != 2) {
+				console.log(time)
+				time = Date.now() - now;
+				if (time > 4000)
+					return console.log('failed to get song');
+				await delay(250)
+			}
+
+			return {
+				name: info_player.videoTitle,
+				end: info_player['playerInfo']['duration'],
+			}
 		}
 
 		async function SongAdder(json) {
@@ -1901,14 +1979,13 @@
 			let info = {}
 
 			if (!json.link && !json.id) return console.log('invalid');
-			if (!json.link) json['link'] = `https://www.youtube.com/watch?v=${json['id']}`;
+			if (!json.link) json['link'] = `https://www.youtube.com/embed/${json['id']}?autoplay=1`;
 			if (!json.id) json['id'] = idParser(json['link']);
 			if (json.duration) json['end'] = json['duration'];
-			if(json.title) json['name'] = json['title']
-			if (!json.name || !json.end) info = await axios.post(url + '/getYTData', { search: json['id'] });
-			console.log(info['data'])
-			if (!json.name) json['name'] = info['data']['title'];
-			if (!json.end) json['end'] = hmsToSecs(info['data']['duration']);
+			if (json.title) json['name'] = json['title'];
+			if (!json.name || !json.end) info = await scuffedInfoReq(json['id']) //await axios.post(url + '/getYTData', { search: json['id'] });
+			if (!json.name) json['name'] = info['name'];
+			if (!json.end) json['end'] = info['end'];
 			if (!json.type) json['type'] = 'YOUTUBE';
 			if (!json.start) json['start'] = 0;
 
@@ -1934,7 +2011,7 @@
 								<img src="http://img.youtube.com/vi/${el.id}/0.jpg"
 								class="crop"
 								alt="" />
-								<div>${el.title}</div>
+								<div>${el.name}</div>
 							</div>
 						</div>`);
 				$('.yt-vids').html(str);
@@ -1951,24 +2028,41 @@
 
 		function ytAdd(e) {
 			$(e.target).addClass("selected");
+			//console.log(JSON.parse(e.target.dataset.json))
 			SongAdder(JSON.parse(e.target.dataset.json))
 		}
 
 		async function SpotifySearch(s) {
-
-			let temp = await axios.post(url + '/SpotifyPlaylist', { search: s });
-			let spotifySongsList = temp['data'];
+			let req = await axios.post(url + '/SpotifyPlaylist', { search: s });
+			let spotifySongsList = req['data'];
+			let search_datas = []
+			let song_data = {}
 
 			for (let i = 0; i < spotifySongsList.length; i++) {
-				temp = await axios.post(url + '/YTsearch', { search: el.name + ' ' + el.artist })
-				let song_data = temp['data'].filter(song => nearEnough(+hmsToSecs(ee['duration']), +hmsToSecs(el['length']), 3))[0]
+				let el = spotifySongsList[i];
+				req = await axios.post(url + '/YTsearch', { search: el.name + ' ' + el.artist })
+				search_datas.push(req['data']); //req['data'].filter(song => nearEnough(+hmsToSecs(el['duration']), +hmsToSecs(el['length']), 3))[0]
+			}
+
+			req = await axios.post(url + '/getYTData', { search: search_datas });
+			let searches = req['data']['searches'];
+
+			for (let i = 0; i < searches.length; i++) {
+				let el = spotifySongsList[i]
+				song_data = searches[i].filter(song => nearEnough(+hmsToSecs(song['duration']), +hmsToSecs(el['length']), 3))[0]
 
 				if (!song_data)
-					song_data = temp.data[0]
+					song_data = searches[i][0]
 
-				console.log(song_data)
 				SongAdder(song_data)
 			}
+			//console.log(req['data']['searches']);
+
+			// if (!song_data)
+			// 	song_data = req.data[0]
+
+			// console.log(song_data)
+			// SongAdder(song_data)
 		}
 
 		async function yt_auto_fill() {
