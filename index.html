@@ -47,7 +47,7 @@
 		* {
 			box-sizing: border-box;
 			color: rgb(255, 255, 255);
-			
+
 
 
 			-webkit-touch-callout: none;
@@ -57,9 +57,12 @@
 			-ms-user-select: none;
 			user-select: none;
 		}
-		input, select, textarea{
-    color: #000000;
-}
+
+		input,
+		select,
+		textarea {
+			color: #000000;
+		}
 
 		button {
 			color: black;
@@ -981,8 +984,8 @@
 		<div class="yt-abs" style="overflow: scroll;">
 			<input class="yt-search" onkeydown=" if (event.keyCode == 13) YT_SEARCH(this.value)"></input>
 			<button onclick="YT_SEARCH($('.yt-search').val())">Search</button>
-			<input class="yt-search" onkeydown="if (event.keyCode == 13) SpotifySearch(this.value)"></input>
-			<button onclick="YT_SEARCH($('.yt-search').val())">Spotify</button>
+			<input class="yt-search" id="maaa" onkeydown="if (event.keyCode == 13) SpotifySearch(this.value)"></input>
+			<button onclick="SpotifySearch($('#maaa').val())">Spotify</button>
 			<div class="yt-vids" style="overflow: scroll;"></div>
 		</div>
 
@@ -1890,71 +1893,35 @@
 			start = start.includes(':') ? hmsToSecs(start) : +start
 			end = end.includes(':') ? hmsToSecs(end) : +end
 
-			if (!l) {
-				console.log("invaalid");
-				closeSongForm();
-				return;
-			}
+			return SongAdder({ name: n, link: l, type: t, start: start, end: end })
+		}
 
-			info_player.loadVideoByUrl(l)
+		async function SongAdder(json) {
+			closeSongForm();
+			let info = {}
 
-			if (!n || !end) {
-				let time = 0;
-				let now = Date.now()
-				while (info_player.getPlayerState() != 2) {
-					console.log(time)
-					time = Date.now() - now;
-					if (time > 4000) {
-						console.log('failed to get song')
-						return;
-					}
-					await delay(250)
-				}
+			if (!json.link && !json.id) return console.log('invalid');
+			if (!json.link) json['link'] = `https://www.youtube.com/watch?v=${json['id']}`;
+			if (!json.id) json['id'] = idParser(json['link']);
+			if (json.duration) json['end'] = json['duration'];
+			if(json.title) json['name'] = json['title']
+			if (!json.name || !json.end) info = await axios.post(url + '/getYTData', { search: json['id'] });
+			console.log(info['data'])
+			if (!json.name) json['name'] = info['data']['title'];
+			if (!json.end) json['end'] = hmsToSecs(info['data']['duration']);
+			if (!json.type) json['type'] = 'YOUTUBE';
+			if (!json.start) json['start'] = 0;
 
-			}
+			json['end_raw'] = secsToTime(json.end - json.start);
+			json['playlists'] = [];
+			json['favorited'] = false;
 
-			if (!n)
-				n = info_player.videoTitle;
-
-			if (!start)
-				start = 0;
-
-			if (!end)
-				end = info_player['playerInfo']['duration'];
-
-			let links = l.split("|");
-			console.log(links);
-
-			let sng = {
-				name: n,
-				link: l,
-				id: '',
-				playlists: [],
-				favorited: false,
-				type: t,
-				start: start,
-				end: end,
-				end_raw: secsToTime(end - start)
-			};
-
-			if (t == 'FILE') {
-				sng.id = crypto.randomUUID();
-			}
-
-			if (t == 'YOUTUBE') {
-				sng.id = idParser(linkParser(l));
-			}
-
-			console.log(sng)
-
-			songs.push(sng);
+			songs.push(json);
 			queue.push(songs.length - 1);
 			$("#form").html("");
 			$(".songElements").append(
-				songBuilder(songs.length - 1, songs[songs.length - 1].id, n, t)
+				songBuilder(songs.length - 1, songs[songs.length - 1].id, json.name, json.type)
 			);
-
-			closeSongForm();
 		}
 
 		function YT_SEARCH(s) {
@@ -1984,57 +1951,24 @@
 
 		function ytAdd(e) {
 			$(e.target).addClass("selected");
-			let song_data = JSON.parse(e.target.dataset.json);
-			console.log(song_data);
-
-			let sng = {
-				name: song_data['title'],
-				link: `https://www.youtube.com/watch?v=${song_data['id']}`,
-				id: song_data['id'],
-				playlists: [],
-				favorited: false,
-				type: 'YOUTUBE',
-				start: 0,
-				end: hmsToSecs(song_data['duration']),
-				end_raw: song_data['duration'],
-			};
-			songs.push(sng);
-			queue.push(songs.length - 1);
-			let str = songBuilder(songs.length - 1, sng.id, sng.name, 'YOUTUBE')
-			$(".songElements").append(str);
-
-			if (!currentScope)
-				$(".song-scope").append(str);
+			SongAdder(JSON.parse(e.target.dataset.json))
 		}
 
 		async function SpotifySearch(s) {
-			await axios.post(url + '/SpotifyPlaylist', { search: s }).then(res => {
-				res.data.forEach(async el => {
-					await axios.post(url + '/YTsearch', { search: el.name + ' ' + el.artist }).then(vids => {
-						let song_data = vids.data.filter(ee => nearEnough(+hmsToSecs(ee['duration_raw']), +hmsToSecs(el['length']), 3))[0]
-						if (!song_data)
-							song_data = vids.data[0]
-						console.log(song_data)
-						let sng = {
-							name: song_data['title'],
-							link: song_data['url'],
-							id: song_data['id']['videoId'],
-							playlists: [],
-							favorited: false,
-							type: 'YOUTUBE',
-							start: 0,
-							end: hmsToSecs(song_data['duration_raw']),
-							end_raw: song_data['duration_raw'],
-						};
-						songs.push(sng);
-						queue.push(songs.length - 1);
-						$(".display").append(
-							songBuilder(songs.length - 1, songs[songs.length - 1].id, sng.name, 'YOUTUBE')
-						);
-					})
 
-				});
-			})
+			let temp = await axios.post(url + '/SpotifyPlaylist', { search: s });
+			let spotifySongsList = temp['data'];
+
+			for (let i = 0; i < spotifySongsList.length; i++) {
+				temp = await axios.post(url + '/YTsearch', { search: el.name + ' ' + el.artist })
+				let song_data = temp['data'].filter(song => nearEnough(+hmsToSecs(ee['duration']), +hmsToSecs(el['length']), 3))[0]
+
+				if (!song_data)
+					song_data = temp.data[0]
+
+				console.log(song_data)
+				SongAdder(song_data)
+			}
 		}
 
 		async function yt_auto_fill() {

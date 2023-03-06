@@ -12,7 +12,7 @@ var dataModel = mongoose.model("Data", new mongoose.Schema({ data: {} }));
 const URI =
   "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
 
-const YT_API_KEY = "AIzaSyCa-ozYT_nemTy1dYHDBKBUX1qdwUlZSx0";
+const YT_API_KEY = "AIzaSyCMzBshD58xKBIubjVhfjjn1jmvSA7_Ex0";
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
 var opts = {
@@ -34,6 +34,32 @@ function delay(secs) {
   return new Promise((resolve) => {
     setTimeout(() => resolve(""), secs);
   });
+}
+
+function parseDuration(s) {
+  let str = [""];
+  let ind;
+
+  ind = s.indexOf("H");
+  if (ind != -1) {
+    //has H
+    str.push(s[ind - 1]);
+    str.push(isNaN(+s[ind - 2]) ? ":" : s[ind - 2]);
+  }
+
+  ind = s.indexOf("M");
+  if (ind != -1) {
+    str.push(isNaN(+s[ind - 2]) ? "" : s[ind - 2]);
+    str.push(s[ind - 1] + ":");
+  } else str.push(str.length - 1 ? "00:" : "0:");
+
+  ind = s.indexOf("S");
+  if (ind != -1) {
+    str.push(isNaN(+s[ind - 2]) ? "0" : s[ind - 2]);
+    str.push(s[ind - 1]);
+  } else str.push("00");
+
+  return str.join("");
 }
 
 app.use(
@@ -87,6 +113,20 @@ app.get("/yttest", (req, res) => {
   ).then((data) => res.json(data.data));
 });
 
+app.post("/getYTData", async (req, res) => {
+  axios(
+    `${baseApiUrl}/videos?id=${req.body.search}&part=contentDetails&part=snippet&key=${YT_API_KEY}`
+  )
+    .then((data) => {
+      let info = data.data.items[0];
+      res.json({
+        name: info["snippet"]["title"],
+        end: parseDuration(info["contentDetails"]["duration"]),
+      });
+    })
+    .catch((err) => res.send(err));
+});
+
 // yt.search('hello').then(res => console.log(res))
 
 app.post("/YTsearch", async (req, res) => {
@@ -102,48 +142,22 @@ app.post("/YTsearch", async (req, res) => {
 
   for (let i = 0; i < vids.length; i++) {
     let duration = await axios(
-      `${baseApiUrl}/videos?id=${vids[i]["id"]["videoId"]}&part=contentDetails&key=${YT_API_KEY}`
+      `${baseApiUrl}/videos?id=${vids[i]["id"]["videoId"]}&part=contentDetails&part=snippet&key=${YT_API_KEY}`
     );
+   
     vids[i]["duration"] =
       duration["data"]["items"][0]["contentDetails"]["duration"];
   }
 
-	//console.log(vids)
-
-	function parseDuration(s) {
-		let str = [''];
-		let ind;
-
-		ind = s.indexOf('H')
-		if(ind != -1) { //has H
-			str.push(s[ind-1])
-			str.push(isNaN(+s[ind-2]) ?  ':' : s[ind-2]) 
-		}
-
-		ind = s.indexOf('M')
-		if(ind != -1) {
-			str.push(isNaN(+s[ind-2]) ?  '' : s[ind-2])	
-			str.push(s[ind-1]+':')
-		} else str.push(str.length-1 ? '00:' : '0:')
-
-		ind = s.indexOf('S')
-		if(ind != -1) {
-			str.push(isNaN(+s[ind-2]) ?  '0' : s[ind-2])
-			str.push(s[ind-1])
-		} else str.push('00')
-
-		return str.join("")
-	}
-
   let send = vids.map((e) => {
     return {
-      title: e["snippet"]["title"],
-      duration: parseDuration(e['duration']),
+      name: e["snippet"]["title"],
+      end: parseDuration(e["duration"]),
       id: e["id"]["videoId"],
     };
   });
 
-  console.log(parseDuration('PT3S'));
+  // console.log(send);
   res.json(send);
 });
 
@@ -154,14 +168,16 @@ app.post("/SpotifyPlaylist", async (req, res) => {
   });
   const page = await browser.newPage();
   await page.goto(req.body.search, { timeout: 90000 });
+  console.log("SP started");
 
   await new Promise((res, rej) => setTimeout(() => res(""), 4000));
 
-  const num = await page.$$eval(`span[data-encore-id="type"]`, (e) =>
-    e.map((el) => el.innerText)
+  const num = await page.$$eval(`meta[property="og:description"]`, (e) =>
+    e.map((el) => el.getAttribute("content"))
   );
-  let length = num[13].match(/^\d+/)[0];
+  let length = +num[0].replace(/\D+/g, "");
   let songs = [];
+  console.log(length);
 
   for (let i = 2; i < +length + 2; i++) {
     let song = await page.$$eval(`[aria-rowindex="${i}"]`, (e) =>
@@ -179,6 +195,7 @@ app.post("/SpotifyPlaylist", async (req, res) => {
     await new Promise((res, rej) => setTimeout(() => res(""), 100));
 
     songs.push(song[0]);
+    console.log(i + " songs");
   }
 
   console.log(songs);
