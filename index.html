@@ -1376,6 +1376,32 @@
 		var firstScriptTag = document.getElementsByTagName("script")[0];
 		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+		if (localStorage.getItem("dataS")) {
+			data = JSON.parse(localStorage.getItem("DataS"));
+			console.log(data);
+
+			playlists = data.playlists;
+			songs = data.songs.filter(e => e.type != 'FILE');
+			//songs.length = 50;
+
+			$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
+			songIndex = data.config.songIndex;
+			Ftime = data.config.time;
+			tog_shuffle = data.config.shuffle;
+			column_sort = data.config.column;
+
+			if (column_sort) {
+				$(".songElements").css("flex-direction", "column-reverse");
+				$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+				displayReverse = $('.songElements').css('flex-direction') == 'column-reverse';
+			}
+
+			loadPl();
+			loadSongs();
+
+			mobileSetup();
+		}
+
 		$(document).ready(async () => {
 			await fetch(url + "/load")
 				.then((res) => res.json())
@@ -1561,6 +1587,7 @@
 			};
 
 			//fetch(url + "/save", { method: "post"})
+			localStorage.setItem("dataS", JSON.stringify(dataS));
 
 			let xhr = new XMLHttpRequest();
 			xhr.open("POST", url + "/save", true);
