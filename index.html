@@ -771,6 +771,16 @@
 				overflow: hidden;
 			} */
 
+			body {
+				overflow: none;
+			}
+
+			html {
+				overflow: none;
+			}
+
+			/*#region MOBILE MAIN*/
+
 			.app-mobile {
 				width: 100vw;
 				height: 100vh;
@@ -899,8 +909,6 @@
 				font-size: 2vw;
 			}
 
-
-
 			/* .progress {
 				width: 90%;
 				height: 100%;
@@ -912,6 +920,76 @@
 				object-fit: fill;
 			}
 
+			/*#endregion */
+
+			/*#region MSV*/
+
+			.mobile-song-view {
+				width: 100vw;
+				height: 100vh;
+				display: flex;
+				flex-direction: column;
+				overflow: hidden;
+			}
+
+			.mobile-song-view>* {
+				overflow: hidden;
+			}
+
+			.msv-head {
+				flex: 7;
+				background-color: #04aa6d;
+				padding: 0px 5px;
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+			}
+
+			.msv-container {
+				flex: 78;
+				display: flex;
+				align-items: center;
+			}
+
+			.msv-foot {
+				flex: 25;
+				background-color: #04aa6d;
+			}
+
+			.footmid {
+				width: 100%;
+				height: 100%;
+			}
+
+			.fill {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+
+				max-width: 50px;
+				max-height: 50px;
+			}
+
+			.mobile-thumbnail {
+				/* flex-shrink: 0;
+   			min-width: 100%;
+   			min-height: 100% */
+				/* max-width: 50px;
+				min-height: 50px; */
+				/* ;
+			min-width: 50px; */
+				/* height: 50px; */
+				/* width: 50px; */
+				/* border: 1px solid black; */
+				/* aspect-ratio: 1; */
+
+				max-width: 100%;
+				max-height: 100%;
+				background-position: center;
+				background-size: cover;
+			}
+
+			/*#endregion */
 		}
 	</style>
 
@@ -1260,9 +1338,12 @@
 			</div>
 		</div>
 
-		<div class="song-bar" style="overflow: hidden;">
+		<div class="song-bar" onclick="openSongView()" style="overflow: hidden;">
 			<div id="sb1">
-				<img id="nm-img" class="crop" src="" alt="" />
+				<div class="fill">
+					<img class="mobile-thumbnail" src="" alt="" />
+				</div>
+
 				<div class="nm-name"></div>
 				<i class="bi-play" onclick="PlayPauseFlip()" style="font-size: 40px;" play-pause-button></i>
 			</div>
@@ -1277,6 +1358,16 @@
 
 		<div class="sv-name" style="text-align: center; display: none;"></div> -->
 
+	</div>
+
+	<div class="mobile-song-view">
+		<div class="msv-head">
+			<i class="bi bi-arrow-left" onclick="closeSongView()"></i>
+		</div>
+		<div class="msv-container">
+			<img class="mobile-thumbnail" src="hi" alt="" />
+		</div>
+		<div class="msv-foot"></div>
 	</div>
 
 	<!--JS-->
@@ -1827,14 +1918,11 @@
 			);
 			$("#songName").html(thesong.name);
 
-			$("#nm-img").attr(
+			$(".mobile-thumbnail").attr(
 				"src",
 				`http://img.youtube.com/vi/${thesong.id}/0.jpg`
 			);
 			$('.nm-name').html(thesong.name)
-
-			$('#sv-img').attr('src', $('#nm-img').attr('src'))
-			$('.sv-name').html(thesong.name)
 
 			document.title = thesong.name;
 			let temp = $(".resize");
@@ -2692,6 +2780,8 @@
 				p('to app')
 				$('.songElements').detach().appendTo('.display')
 				$('#controls').after($('.duration').detach())
+				$('.song-info').after($('.footmid').detach())
+				$('.mobile-song-view').hide()
 				onMobile = false;
 			}
 			else if (!onMobile && $('.app-mobile').is(':visible')) { // to mobile
@@ -2703,6 +2793,21 @@
 				mobilePage('library', $('[library]')[0])
 				onMobile = true;
 			}
+			closeSongView()
+		}
+
+		function openSongView() {
+			$('.app-mobile').hide()
+			$('.mobile-song-view').show()
+			$('#controls').after($('.duration').detach())
+			$('.msv-foot').append($('.footmid').detach())
+		}
+
+		function closeSongView() {
+			$('.app-mobile').show()
+			$('.mobile-song-view').hide()
+			if (onMobile)
+				$('#sb2').append($('.duration').detach())
 		}
 
 		// function songBarClick() {
@@ -3659,6 +3764,43 @@
 
 			$(query).on('pointermove', moveEnough);
 			$(query).on('pointerup', exit)
+			e.stopPropagation()
+		})
+
+		$('.msv-container').on('pointerdown', function (e) {
+			let pointX = e.pageX;
+			let pointY = e.pageY;
+			console.log(pointY)
+			$('.msv-container')[0].setPointerCapture(e.pointerId);
+
+			let moveEnough = (e2) => {
+				let gestureX = e2.offsetX - pointX;
+				let gestureY = e2.pageY - pointY;
+				if (gestureX > 70) {
+					console.log('left swipe that')
+					prevSong()
+					exit();
+				}
+				if (gestureX < -70) {
+					console.log('right swipe that')
+					nextSong(true, true)
+					exit();
+				}
+				if (gestureY < -40) {
+					console.log('up swipe that')
+					$('#sb1').toggle()
+					$('#sb2').toggle()
+					exit();
+				}
+			}
+
+			let exit = () => {
+				$('.msv-container').off('pointermove', moveEnough)
+				$('.msv-container').off('pointerup', exit)
+			}
+
+			$('.msv-container').on('pointermove', moveEnough);
+			$('.msv-container').on('pointerup', exit)
 			e.stopPropagation()
 		})
 
