@@ -3751,8 +3751,12 @@
 				}
 				if (gestureY < -40) {
 					console.log('up swipe that')
-					$('#sb1').toggle()
-					$('#sb2').toggle()
+					closeSongView()
+					exit();
+				}
+				if (gestureY > 40) {
+					console.log('down swipe that')
+					closeSongView()
 					exit();
 				}
 			}
