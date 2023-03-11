@@ -940,6 +940,10 @@
 				overflow: hidden;
 			}
 
+			.mobile-song-view {
+				display: none;
+			}
+
 			.msv-head {
 				flex: 7;
 				background-color: #04aa6d;
@@ -950,13 +954,13 @@
 			}
 
 			.msv-container {
-				flex: 78;
+				flex: 73;
 				display: flex;
 				align-items: center;
 			}
 
 			.msv-foot {
-				flex: 25;
+				flex: 20;
 				background-color: #04aa6d;
 			}
 
@@ -991,6 +995,12 @@
 				max-height: 100%;
 				background-position: center;
 				background-size: cover;
+			}
+
+			.msv-song-title {
+				height: 100px;
+				display: flex;
+				justify-content: center;
 			}
 
 			/*#endregion */
@@ -1370,6 +1380,7 @@
 		</div>
 		<div class="msv-container">
 			<img class="mobile-thumbnail" src="hi" alt="" />
+			<div class="msv-song-title"></div>
 		</div>
 		<div class="msv-foot"></div>
 	</div>
@@ -2779,7 +2790,7 @@
 			$('#nm_info').html(playlists[s]['name'])
 		}
 
-		function setupSwap() {
+		async function setupSwap() {
 			if (onMobile && $('.app').is(':visible')) { //to main
 				p('to app')
 				$('.songElements').detach().appendTo('.display')
@@ -2796,6 +2807,7 @@
 				mobilePage('library', $('[library]')[0])
 				onMobile = true;
 			}
+
 			//closeSongView()
 		}
 
@@ -3692,6 +3704,7 @@
 		window.addEventListener('resize', e => {
 			//console.log(screen.width)
 			setupSwap()
+
 		})
 
 		var hides = [];
@@ -3793,10 +3806,13 @@
 					nextSong(true, true)
 					exit();
 				}
-				if (gestureY < -40) {
+				if (gestureY < -70) {
 					console.log('up swipe that')
-					$('#sb1').toggle()
-					$('#sb2').toggle()
+					closeSongView()
+					exit();
+				}
+				if (gestureY > 70) {
+					closeSongView()
 					exit();
 				}
 			}
