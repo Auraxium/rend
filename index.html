@@ -754,7 +754,11 @@
 
 	<!-- official mobile -->
 	<style>
-		.app-mobile, .mobile-song-view {
+		.app-mobile {
+			display: none;
+		}
+
+		.mobile-song-view {
 			display: none;
 		}
 	</style>
@@ -2781,7 +2785,6 @@
 				$('.songElements').detach().appendTo('.display')
 				$('#controls').after($('.duration').detach())
 				$('.song-info').after($('.footmid').detach())
-				$('.mobile-song-view').hide()
 				onMobile = false;
 			}
 			else if (!onMobile && $('.app-mobile').is(':visible')) { // to mobile
@@ -2793,7 +2796,7 @@
 				mobilePage('library', $('[library]')[0])
 				onMobile = true;
 			}
-			closeSongView()
+			//closeSongView()
 		}
 
 		function openSongView() {
