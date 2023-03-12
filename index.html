@@ -940,10 +940,6 @@
 				overflow: hidden;
 			}
 
-			.mobile-song-view {
-				display: none;
-			}
-
 			.msv-head {
 				flex: 7;
 				background-color: #04aa6d;
@@ -954,7 +950,7 @@
 			}
 
 			.msv-container {
-				flex: 73;
+				flex: 68;
 				display: flex;
 				align-items: center;
 			}
@@ -979,28 +975,22 @@
 			}
 
 			.mobile-thumbnail {
-				/* flex-shrink: 0;
-   			min-width: 100%;
-   			min-height: 100% */
-				/* max-width: 50px;
-				min-height: 50px; */
-				/* ;
-			min-width: 50px; */
-				/* height: 50px; */
-				/* width: 50px; */
-				/* border: 1px solid black; */
-				/* aspect-ratio: 1; */
-
 				max-width: 100%;
 				max-height: 100%;
 				background-position: center;
 				background-size: cover;
+
 			}
 
 			.msv-song-title {
-				height: 100px;
+				flex: 5;
+				/* border: 1px solid; */
 				display: flex;
 				justify-content: center;
+				align-items: center;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 
 			/*#endregion */
@@ -1304,12 +1294,12 @@
 						body: JSON.stringify({'search': this.value}), headers: {'Content-Type': 'application/json'
 						}}).then(res => res.json()).then(videos => 
 						$('.youtube-tab-results').html(videos.map(el => 
-						`<div class='song' data-type='ytSearch' data-json='${JSON.stringify(el)}'>
-						<div class='row no-click'>
-							<img src='http://img.youtube.com/vi/${el.id.videoId}/0.jpg'
+						`<div class='song' onclick='ytAdd(event)' data-type='ytSearch' data-json='${JSON.stringify(el)}'>
+						<div class='row no-click' >
+							<img src='http://img.youtube.com/vi/${el.id}/0.jpg'
 							class='crop'
 							alt='' />
-							<div>${el.title}</div>
+							<div>${el.name}</div>
 						</div>
 					</div>`)))
 					}" />
@@ -1380,8 +1370,9 @@
 		</div>
 		<div class="msv-container">
 			<img class="mobile-thumbnail" src="hi" alt="" />
-			<div class="msv-song-title"></div>
+
 		</div>
+		<div class="msv-song-title">QWERFIU</div>
 		<div class="msv-foot"></div>
 	</div>
 
@@ -1787,11 +1778,11 @@
 					//	console.log(the_song.start)
 					loading = true
 
-					player.setVolume(0)
+					// player.setVolume(0)
 
-					do {
-						await delay(100)
-					} while (player.getVolume())
+					// do {
+					// 	await delay(100)
+					// } while (player.getVolume())
 
 					//await delay(100)
 
@@ -1808,7 +1799,7 @@
 
 					//	player.seekTo(the_song.start)
 
-					setVolume(slider.value)
+					//setVolume(slider.value)
 					updateHUDInfo(the_song);
 					break;
 
@@ -1932,6 +1923,7 @@
 					thesong.name
 			);
 			$("#songName").html(thesong.name);
+			$(".msv-song-title").html(thesong.name);
 
 			$(".mobile-thumbnail").attr(
 				"src",
@@ -1940,12 +1932,8 @@
 			$('.nm-name').html(thesong.name)
 
 			document.title = thesong.name;
-			let temp = $(".resize");
-			if (thesong.favorited) {
-				$(temp).attr("class", "bi-star-fill resize");
-			} else {
-				$(temp).attr("class", "bi-star resize");
-			}
+
+			$(".resize").attr("class", `bi-star${thesong.favorited ? '-fill' : ''} resize`);
 
 			$("#length").html(function () {
 				return `${Math.floor(
@@ -2157,6 +2145,7 @@
 		}
 
 		function ytAdd(e) {
+			console.log('??????????????????')
 			$(e.target).addClass("selected");
 			//console.log(JSON.parse(e.target.dataset.json))
 			SongAdder(JSON.parse(e.target.dataset.json))
@@ -2806,8 +2795,8 @@
 				$('#sb2').append($('.duration').detach())
 				mobilePage('library', $('[library]')[0])
 				onMobile = true;
+				$('.mobile-song-view').hide()
 			}
-
 			//closeSongView()
 		}
 
@@ -2821,8 +2810,6 @@
 		function closeSongView() {
 			$('.app-mobile').show()
 			$('.mobile-song-view').hide()
-			if (onMobile)
-				$('#sb2').append($('.duration').detach())
 		}
 
 		// function songBarClick() {
