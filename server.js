@@ -78,7 +78,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test", (req, res) => {
-  res.send({ howdy: "hey" });
+  res.json({ howdy: "hey" });
 });
 
 app.get("/native", (req, res) => {
