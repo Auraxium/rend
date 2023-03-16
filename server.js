@@ -247,7 +247,7 @@ app.post("/SpotifyPlaylist", async (req, res) => {
   res.send(songs);
 });
 
-const PORT = process.env.PORT || 5555;
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, null, () => console.log("Running on " + PORT));
 
 //#endregion
