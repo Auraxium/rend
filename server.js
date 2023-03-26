@@ -15,6 +15,8 @@ const URI =
 const YT_API_KEY = "AIzaSyCMzBshD58xKBIubjVhfjjn1jmvSA7_Ex0";
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
+const URL = process.env.URL || "http://localhost:8080";
+
 mongoose
   .connect(URI, {
     useNewUrlParser: true,
@@ -139,7 +141,7 @@ let googCache = {};
 const GOauth = new google.auth.OAuth2(
   googCID,
   googCS,
-  "http://localhost:8080/googOauth/callback"
+  URL + "/googOauth/callback"
 );
 
 app.post("/googOauth", (req, res) => {
@@ -294,7 +296,7 @@ let spotCache = {};
 const spotifyApi = new SpotifyWebApi({
   clientId: spotifyCID,
   clientSecret: spotifyCS,
-  redirectUri: "http://localhost:8080/spotifyOauth/callback",
+  redirectUri: URL + "/spotifyOauth/callback",
 });
 
 app.post("/spotGetToken", (req, res) => {
