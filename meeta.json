@@ -1,0 +1,43 @@
+{
+  "resourceName": "people/111470474894879961387",
+  "etag": "%EgcBAgkuNz0+GgQBAgUHIgw3NGw5L0ZGSFRVaz0=",
+  "metadata": {
+    "sources": [
+      {
+        "type": "PROFILE",
+        "id": "111470474894879961387",
+        "etag": "#lMBu1eCOdiE=",
+        "profileMetadata": {
+          "objectType": "PERSON",
+          "userTypes": ["GOOGLE_USER"]
+        },
+        "updateTime": "2023-03-21T19:40:05.014543Z"
+      }
+    ],
+    "objectType": "PERSON"
+  },
+  "names": [
+    {
+      "metadata": {
+        "primary": true,
+        "source": { "type": "PROFILE", "id": "111470474894879961387" },
+        "sourcePrimary": true
+      },
+      "displayName": "Oceanman",
+      "givenName": "Oceanman",
+      "displayNameLastFirst": "Oceanman",
+      "unstructuredName": "Oceanman"
+    }
+  ],
+  "emailAddresses": [
+    {
+      "metadata": {
+        "primary": true,
+        "verified": true,
+        "source": { "type": "ACCOUNT", "id": "111470474894879961387" },
+        "sourcePrimary": true
+      },
+      "value": "clutchmasterman@gmail.com"
+    }
+  ]
+}

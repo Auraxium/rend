@@ -84,14 +84,20 @@
 			flex-direction: column;
 		}
 
+		.app>* {
+			overflow: scroll;
+		}
+
 		.nav {
-			background-color: lime;
+			background-color: rgb(19, 48, 19);
+			padding: 0 5px;
+			flex-basis: 5%;
 
 			display: flex;
 			flex-wrap: nowrap;
 			flex-direction: row;
 			justify-content: space-between;
-			align-content: center;
+			align-items: center;
 		}
 
 		.nav-mobile {
@@ -100,9 +106,13 @@
 		}
 
 		.main-container {
-			flex: 70;
+			flex-basis: 83%;
 			overflow: hidden;
 			display: flex;
+		}
+
+		.px-2 {
+			padding: 0 3px
 		}
 
 		.container {
@@ -551,7 +561,7 @@
 	<!--Foot-->
 	<style>
 		.foot {
-			flex: 10;
+			flex-basis: 12%;
 
 			background-color: rgb(15, 37, 15);
 			display: flex;
@@ -1075,34 +1085,31 @@
 
 	<div class="app">
 
-		<!-- <div class="test">
-			<div class="yes">yes</div>
-			<div class="hi">hi</div>
-			<div class="hello">hello</div>
-		</div>
-
-		<div class="testt">
-
-		</div> -->
-
 		<div class="nav">
-			<div>hi</div>
-			<button onclick="ytMenu()" tysbut>my</button>
+			<div style="font-size: 30px;"><b>Lo-Player</b></div>
+			<button onclick="ytMenu()" tysbut>Youtube</button>
 			<button onclick="">name</button>
 			<div>is</div>
 			<div>
-				<input type="file" name="" id="JData" />
+				<div data-context="account" style="height: 100%;" onclick="openContextMenu(event, this)">
+					Account
+				</div>
 			</div>
 		</div>
 
 		<div class="main-container">
 			<div class="left">
+
 				<div class="" style="text-align: center;">playlists</div>
-				<div class="playlist" onclick="openPlaylist(); $('.playlist-tools').hide()">All Songs
-				</div>
+				<div class="playlist" onclick="openPlaylist(); $('.playlist-tools').hide()">All Songs</div>
 				<div class="playlist" onclick="openPlaylist('favorites'); $('.playlist-tools').hide()">Favorites</div>
+
+				<hr />
+				<div class="playlist" onclick="spotListPlaylists()">Spotify</div>
+
 				<button style="width: 100%; margin-top: 5px;" onclick="$('.playlist-form').show()">Create Playlist</button>
 				<hr />
+
 				<div class="playlist-form" style="display: none;">
 					<input id="playlist_name" />
 					<button style="margin-top: 5px;" onclick="addPlaylist()">Create</button>
@@ -1114,22 +1121,19 @@
 
 			<div class="container">
 				<div class="tools">
-					<div style="display: flex; align-items: center; font-size: 25px; ">
-						<div id="songName" style="display: none; text-overflow: ellipsis; overflow: hidden;
-						white-space: nowrap;">name</div>
-						<i class="bi bi-three-dots-vertical" data-type="sel"></i>
-					</div>
 
-					<div>
+					<div class="t1">
 						<button onclick="buttonAddSong()">Add Song</button>
 						<button onclick="editSong(queue[songIndex])">Edit</button>
 						<button onclick="AutoSave()">Save</button>
 						<button onclick="showVideo()">Show Video</button>
 						<button id="fix" onclick="fix()">fix</button>
-						<button onclick="save()">Download</button>
+						<button onclick="download()">Download</button>
 						<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake
 							server</button>
-						<i class="bi bi-arrow-bar-left"></i>
+						<button onclick="initLoad()">Load</button>
+						<div class="offline">Offline Mode</div>
+
 					</div>
 
 					<i class="bi bi-search-heart"></i>
@@ -1377,9 +1381,9 @@
 
 	<!--JS-->
 	<script>
-		//#region ------------------Initializers-(vars)-----------------
+		//#region ----------------Initializers-(vars)-----------------
 
-		var input = document.querySelector("#JData");
+		//var input = document.querySelector("#JData");
 
 		var url = (window.location.origin == 'http://localhost:8080' || window.location.origin == 'http://127.0.0.1:5500') ? 'http://localhost:8080' : 'https://lo-player.auraxium.online' // 'https://lo-player.onrender.com' //  window.location.origin;//
 
@@ -1426,6 +1430,12 @@
 		let songSkipDirection = true
 		let displayReverse = false;
 		var repeat = false;
+		let googleSI = false;
+		let spoitfySI = false;
+		let offline = true;
+
+		let spotPlaylists;
+
 		var onMobile = document.querySelector('.app').style.display == 'none';
 
 		var fetchQueue;
@@ -1472,13 +1482,72 @@
 		var firstScriptTag = document.getElementsByTagName("script")[0];
 		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-		if (localStorage.getItem("dataS")) {
-			data = JSON.parse(localStorage.getItem("dataS"));
+		let googToken;
+
+		if (localStorage.getItem("googUUID")) {
+			axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(async ax => {
+				console.log(googToken = ax.data);
+				localStorage.setItem("googToken", JSON.stringify(googToken));
+				localStorage.removeItem("googUUID");
+				console.log(googToken);
+			})
+		} else if (localStorage.getItem("googToken")) {
+			googToken = JSON.parse(localStorage.getItem("googToken"));
+			// if (Date.now() - googToken['now'] > googToken['expires'] * 1000) {
+			// 	console.log('expired')
+			// 	axios.post(url + '/googGetAccess', { rt: googToken['refresh_token'] }).then(ax => {
+			// 		googToken['access_token'] = ax.data.ac;
+			// 		googToken['now'] = Date.now()
+			// 		localStorage.setItem("googToken", JSON.stringify(googToken));
+			// 	})
+			// }
+		}
+
+		let spotToken;
+
+		if (localStorage.getItem("spotUUID")) {
+			axios.post(url + '/spotGetToken', { uuid: localStorage.getItem("spotUUID") }).then(async ax => {
+				console.log(spotToken = ax.data)
+				let ax2 = await axios('https://api.spotify.com/v1/me', {
+					headers: {
+						Authorization: `Bearer ${spotToken['access_token']}`
+					}
+				})
+				spotToken['username'] = ax2.data.display_name;
+				localStorage.setItem("spotToken", JSON.stringify(spotToken));
+				localStorage.removeItem("spotUUID");
+				console.log(spotToken);
+			})
+		} else if (localStorage.getItem("spotToken")) {
+			spotToken = JSON.parse(localStorage.getItem("spotToken"));
+			if (Date.now() - spotToken['now'] > spotToken['expires'] * 1000) {
+				console.log('expired')
+				axios.post(url + '/spotGetAccess', { rt: spotToken['refresh_token'] }).then(ax => {
+					spotToken['access_token'] = ax.data.ac;
+					spotToken['now'] = Date.now()
+					localStorage.setItem("spotToken", JSON.stringify(spotToken));
+				})
+			}
+		}
+
+		$(document).ready(() => {
+			initLoad()
+		});
+
+		async function initLoad() {
+			if (googToken) {
+				await fetch(url + "/load", { method: "POST", headers: { "Content-Type": 'application/json' }, body: JSON.stringify({ _id: googToken.googleId }) })
+					.then(res => res.json())
+					.then(res2 => {data = res2; offline = false;} )
+					.catch(err => data = JSON.parse(localStorage.getItem('dataS')));
+			} else {
+				data = JSON.parse(localStorage.getItem('dataS'))
+			}
+
 			console.log(data);
 
 			playlists = data.playlists;
 			songs = data.songs.filter(e => e.type != 'FILE');
-			//songs.length = 50;
 
 			$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
 			songIndex = data.config.songIndex;
@@ -1496,44 +1565,12 @@
 			loadSongs();
 
 			mobileSetup();
+			offline ? $('.offline').show() : $('.offline').hide()
 		}
-
-		$(document).ready(async () => {
-			await fetch(url + "/load")
-				.then((res) => res.json())
-				.then((res_data) => {
-					data = res_data;
-					console.log(data);
-
-					playlists = data.playlists;
-					songs = data.songs.filter(e => e.type != 'FILE');
-					//songs.length = 50;
-
-					$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
-					songIndex = data.config.songIndex;
-					Ftime = data.config.time;
-					tog_shuffle = data.config.shuffle;
-					column_sort = data.config.column;
-
-					if (column_sort) {
-						$(".songElements").css("flex-direction", "column-reverse");
-						$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-						displayReverse = $('.songElements').css('flex-direction') == 'column-reverse';
-					}
-
-					loadPl();
-					loadSongs();
-
-					mobileSetup();
-				})
-				.catch((err) => {
-					console.log("(865 <Initializers>) failed to get songs data: " + err);
-				});
-		});
 
 		//#endregion
 
-		//#region ------------------Loading-----------------
+		//#region -------------------Loading-----------------
 
 		async function fix() {
 			// for (let i = 0; i < songs.length; i++) {
@@ -1544,43 +1581,43 @@
 			//fetch(url + '/yttest', {method: "POST",})
 		}
 
-		input.addEventListener("change", () => {
-			// songs file selected (ALSO IS SOMEHWOW RUNNING FUCNTION ASYC???)
+		// input.addEventListener("change", () => {
+		// 	// songs file selected (ALSO IS SOMEHWOW RUNNING FUCNTION ASYC???)
 
-			let files = input.files;
-			if (files.length == 0) return;
-			const file = files[0];
-			let reader = new FileReader();
+		// 	let files = input.files;
+		// 	if (files.length == 0) return;
+		// 	const file = files[0];
+		// 	let reader = new FileReader();
 
-			reader.onload = (e) => {
-				const contents = e.target.result;
-				data = JSON.parse(contents);
+		// 	reader.onload = (e) => {
+		// 		const contents = e.target.result;
+		// 		data = JSON.parse(contents);
 
-				playlists = data.playlists;
-				songs = data.songs;
-				//console.log("the width of the screen is " + screen.width)
+		// 		playlists = data.playlists;
+		// 		songs = data.songs;
+		// 		//console.log("the width of the screen is " + screen.width)
 
-				$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
-				songIndex = data.config.songIndex;
-				Ftime = data.config.time;
-				tog_shuffle = data.config.shuffle;
-				column_sort = data.config.column;
+		// 		$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
+		// 		songIndex = data.config.songIndex;
+		// 		Ftime = data.config.time;
+		// 		tog_shuffle = data.config.shuffle;
+		// 		column_sort = data.config.column;
 
-				// if (column_sort) {
-				// 	$("#tt").css("flex-direction", "column-reverse");
-				// 	//   $("#st").css("flex-direction", "column-reverse");
-				// 	//  $("#songsList").css("flex-direction", "column");
-				// 	$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-				// }
+		// 		// if (column_sort) {
+		// 		// 	$("#tt").css("flex-direction", "column-reverse");
+		// 		// 	//   $("#st").css("flex-direction", "column-reverse");
+		// 		// 	//  $("#songsList").css("flex-direction", "column");
+		// 		// 	$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+		// 		// }
 
-				loadPl();
-				loadSongs();
+		// 		loadPl();
+		// 		loadSongs();
 
-				precleanUp();
-			};
-			reader.onerror = (e) => alert(e.target.error.name);
-			reader.readAsText(file);
-		});
+		// 		precleanUp();
+		// 	};
+		// 	reader.onerror = (e) => alert(e.target.error.name);
+		// 	reader.readAsText(file);
+		// });
 
 		function loadPl() {
 			let str = ''
@@ -1662,6 +1699,7 @@
 				time: Ftime,
 				shuffle: tog_shuffle,
 				column: column_sort,
+				now: Date.now()
 			};
 
 			console.log(!songs || !config || !data);
@@ -1677,23 +1715,28 @@
 			}
 
 			var dataS = {
+				_id: googToken.googleId,
 				config: config,
 				songs: songs,
 				playlists: playlists,
 			};
 
+			//console.log(dataS)
+
 			//fetch(url + "/save", { method: "post"})
 			localStorage.setItem("dataS", JSON.stringify(dataS));
 
-			let xhr = new XMLHttpRequest();
-			xhr.open("POST", url + "/save", true);
-			xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+			axios.post(url + '/save', dataS).then(console.log).catch(console.log)
 
-			xhr.onreadystatechange = function () {
-				if (xhr.readyState === 4 && xhr.status === 200) console.log(this.responseText);
-			};
+			// let xhr = new XMLHttpRequest( 7617);
+			// xhr.open("POST", url + "/save", true);
+			// xhr.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
 
-			xhr.send(JSON.stringify(dataS));
+			// xhr.onreadystatec hange = function () {
+			// 	if (xhr.readyState === 4 && xhr.st atus === 200) console.log(this.responseText);
+			// };
+
+			// xhr.send(JSON.stringify(dataS));
 		};
 
 		function songBuilder(id_num, im_link_id, name, type) {
@@ -1808,9 +1851,9 @@
 						.replace(/\\/g, "☹☸☼☺☿☾☻")
 						.replace(/\//g, "☹☸☼☺☿☾☻");
 
-					if (fetching) 			
+					if (fetching)
 						return fetchQueue = path;
-					
+
 					fetching = true;
 					await fetch(url + "/song/" + path)
 						.then((res) => {
@@ -2145,38 +2188,7 @@
 			SongAdder(JSON.parse(e.target.dataset.json))
 		}
 
-		async function SpotifySearch(s) {
-			let req = await axios.post(url + '/SpotifyPlaylist', { search: s });
-			let spotifySongsList = req['data'];
-			let search_datas = []
-			let song_data = {}
 
-			for (let i = 0; i < spotifySongsList.length; i++) {
-				let el = spotifySongsList[i];
-				req = await axios.post(url + '/YTsearch', { search: el.name + ' ' + el.artist })
-				search_datas.push(req['data']); //req['data'].filter(song => nearEnough(+hmsToSecs(el['duration']), +hmsToSecs(el['length']), 3))[0]
-			}
-
-			req = await axios.post(url + '/getYTData', { search: search_datas });
-			let searches = req['data']['searches'];
-
-			for (let i = 0; i < searches.length; i++) {
-				let el = spotifySongsList[i]
-				song_data = searches[i].filter(song => nearEnough(+hmsToSecs(song['duration']), +hmsToSecs(el['length']), 3))[0]
-
-				if (!song_data)
-					song_data = searches[i][0]
-
-				SongAdder(song_data)
-			}
-			//console.log(req['data']['searches']);
-
-			// if (!song_data)
-			// 	song_data = req.data[0]
-
-			// console.log(song_data)
-			// SongAdder(song_data)
-		}
 
 		async function yt_auto_fill() {
 			console.log(linkParser($('#link').val()))
@@ -2441,6 +2453,39 @@
 					`
 					break;
 
+				case 'account':
+					console.log(Boolean(googToken))
+					console.log(googToken)
+					content = `
+
+					${googToken ?
+							`
+							<div style="display: flex; align-items: center;" onclick="localStorage.removeItem('googToken'); googToken = null">
+			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK5q0FP74VV9wbfwP378_7kj7iDomHuKrxkXsxDdUT28V9dlVMNUe-EMzaLwaFhneeuZI&usqp=CAU" alt="" width="45" height="45">
+			<div class="px-2">${googToken.username}</div>
+		</div>
+						` :
+							`
+						<div style="display: flex; align-items: center;" onclick="googOauth()">
+			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK5q0FP74VV9wbfwP378_7kj7iDomHuKrxkXsxDdUT28V9dlVMNUe-EMzaLwaFhneeuZI&usqp=CAU" alt="" width="45" height="45">
+			<div class="px-2">Login</div>
+		</div>
+		
+						`}
+					<hr/>
+		${spotToken ? `
+				<div style="display: flex; align-items: center;" onclick="localStorage.removeItem('spotToken'); spotToken = null"> 	
+					<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Spotify_App_Logo.svg/2048px-Spotify_App_Logo.svg.png" alt="" width="45" height="45">
+					<div class="px-2">${spotToken['username']}</div>
+				</div>
+			` : `<div style="display: flex; align-items: center;" onclick="spotOauth()">
+			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Spotify_App_Logo.svg/2048px-Spotify_App_Logo.svg.png" alt="" width="45" height="45">
+			<div class="px-2">Login</div>
+		</div>` }
+		
+					`
+					break;
+
 				default:
 					console.log(e.target)
 			}
@@ -2459,9 +2504,87 @@
 
 			contextMenu.css("top", `${e.pageY - (e.clientY > yHalf ? 300 : 10)}px`);
 			contextMenu.css("left", `${e.pageX - (e.clientX > xHalf ? 150 : 10)}px`);
+		}
 
-			//	$('.dropdown-menu').hide()
+		function openForm(content) {
+			$(".misc-form").html(content);
+			$(".misc-form").show();
+			$(".form-blur").show();
+		}
 
+		function googOauth() {
+			let uuid = crypto.randomUUID();
+			localStorage.setItem("googUUID", uuid)
+			axios.post(url + '/googOauth', { uuid: uuid, origin: window.location.href }).then(({ data }) => window.location.replace(data.url))
+		}
+
+		function spotOauth() {
+			let uuid = crypto.randomUUID();
+			localStorage.setItem("spotUUID", uuid)
+			axios.post(url + '/spotOauth', { uuid: uuid, origin: window.location.href }).then(({ data }) => window.location.replace(data.url))
+		}
+
+		function spotListPlaylists() {
+			axios('https://api.spotify.com/v1/me/playlists', { headers: { Authorization: `Bearer ${spotToken['access_token']}` } })
+				.then(rs => {
+					console.log(rs.data)
+					$(".playlist-list").html(rs.data.items.map((el) => {
+						return `<div class="playlist" onclick="spotOpenPlaylist('${el.tracks.href}')">${el.name}</div>`
+					}))
+				})
+				.catch(spotOauth)
+		}
+
+		function spotOpenPlaylist(tracksUri) {
+			let content = ''
+
+			axios.get(tracksUri, {
+				headers: {
+					Authorization: `Bearer ${spotToken['access_token']}`
+				}
+			}).then(ax => {
+				console.log(ax)
+				ax.data.items.forEach((el) => content += songBuilder(0, 0, el.track.name, 'YOUTUBE'))
+				openForm(content)
+			})
+		}
+
+		async function SpotifySearch(s) {
+			console.log(s.match(/playlist\/(\w+)\?si=/)[1])
+			let req = await axios.get(`https://api.spotify.com/v1/playlists/${s.match(/playlist\/(\w+)\?si=/)[1]}`, {
+				headers: {
+					Authorization: `Bearer ${spotToken['access_token']}`
+				}
+			});
+			console.log(req['data']['tracks']['items'])
+			let spotifySongsList = req['data']['tracks']['items'].map((el) => {
+				return {
+					name: el.track.name,
+					artist: el.track.artists[0].name,
+					length: secsToTime(el.track.duration_ms / 1000)
+				}
+			});
+			let search_datas = []
+			let song_data = {}
+
+			for (let i = 0; i < spotifySongsList.length; i++) {
+				let el = spotifySongsList[i];
+				req = await axios.post(url + '/YTsearch', { search: el.name + ' ' + el.artist })
+				search_datas.push(req['data']); //req['data'].filter(song => nearEnough(+hmsToSecs(el['duration']), +hmsToSecs(el['length']), 3))[0]
+			}
+
+			req = await axios.post(url + '/getYTData', { search: search_datas });
+			let searches = req['data']['searches'];
+
+			for (let i = 0; i < searches.length; i++) {
+				let el = spotifySongsList[i]
+				song_data = searches[i].filter(song => nearEnough(+hmsToSecs(song['duration']), +hmsToSecs(el['length']), 3))[0]
+
+				if (!song_data)
+					song_data = searches[i][0]
+
+				SongAdder(song_data)
+			}
 		}
 
 		ChangeType = (i, j) => {
@@ -2595,6 +2718,10 @@
 			$('.songElements>*:hidden').show()
 		}
 
+		function hideAllSongs() {
+			$('.songElements>*:visible').hide()
+		}
+
 		function flipSort() {
 			column_sort = !column_sort;
 			if (column_sort) {
@@ -2720,10 +2847,9 @@
 		}
 		//#endregion
 
-
 		//#endregion
 
-		//#region ---------------------MOBILE-------------------------
+		//#region -------------------MOBILE-------------------------
 
 		function mobilePage(s, el) {
 			$('[mobile-container]').hide();
@@ -2935,7 +3061,7 @@
 
 		//#endregion
 
-		//#region ---------------------API-------------------------
+		//#region -----------------Youtube API-------------------------
 
 		function onYouTubeIframeAPIReady() {
 			player = new YT.Player("sng", {
