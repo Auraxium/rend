@@ -16,6 +16,7 @@ const YT_API_KEY = "AIzaSyCMzBshD58xKBIubjVhfjjn1jmvSA7_Ex0";
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
 const URL = process.env.URL || "http://localhost:8080";
+console.log(process.env.URL)
 
 mongoose
   .connect(URI, {
