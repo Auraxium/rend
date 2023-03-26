@@ -5,7 +5,6 @@ var cors = require("cors");
 var { google } = require("googleapis");
 const axios = require("axios");
 const mongoose = require("mongoose");
-const { ObjectId } = require('mongodb');
 var dataModel = mongoose.model("Account", new mongoose.Schema({_id: {}, config: {}, songs: {}, playlists: {}}));
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
