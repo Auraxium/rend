@@ -1544,7 +1544,6 @@
 				try {
 					console.log(googToken.googleId)
 					let fet = await axios.post(url + "/load", { _id: googToken.googleId});
-					console.log(2)
 					data = fet.data
 					$('.offline').hide()
 				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null; console.log('fetch failed') }
@@ -2535,6 +2534,7 @@
 
 		function googOauth() {
 			let uuid = crypto.randomUUID();
+			if (!uuid) return console.log('no cryto???????')
 			localStorage.setItem("googUUID", uuid)
 			axios.post(url + '/googOauth', { uuid: uuid, origin: window.location.href }).then(({ data }) => window.location.replace(data.url))
 		}
