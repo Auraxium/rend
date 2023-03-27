@@ -96,11 +96,11 @@ app.post("/load", (req, res) => {
   dataModel.findById(req.body._id)
     .then((data) => {
 			if(!data) {
-				return res.status(501)
+				return res.status(501).json({})
 			} 
 			res.json(data)
 		})
-    .catch((err) => res.json("Error: " + err));
+    .catch((err) => res.status(200).json(err));
 });
 
 app.post("/save", (req, res) => {
