@@ -1545,9 +1545,10 @@
 					let fet = await axios.post(url + "/load", { _id: googToken.googleId});
 					data = await fet.json()
 					$('.offline').hide()
-				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null }
+				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null; console.log('fetch failed') }
 			} else {
-				data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null
+				data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null;
+				console.log('no goog') 
 			}
 
 			console.log(data)

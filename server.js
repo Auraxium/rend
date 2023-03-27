@@ -17,7 +17,6 @@ const YT_API_KEY = "AIzaSyCMzBshD58xKBIubjVhfjjn1jmvSA7_Ex0";
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
 const URL = "https://lo-player.auraxium.online";
-console.log(process.env.URL)
 
 mongoose
   .connect(URI, {
