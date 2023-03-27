@@ -5,7 +5,7 @@ var cors = require("cors");
 var { google } = require("googleapis");
 const axios = require("axios");
 const mongoose = require("mongoose");
-const dataModel = mongoose.model("Account2", new mongoose.Schema({_id: {}, data: {}}));
+const dataModel = mongoose.model("Account2", new mongoose.Schema({_id: {}, username: String, data: {}}));
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
 //require('dotenv').config();
@@ -106,17 +106,25 @@ app.post("/load", (req, res) => {
 app.post("/save", (req, res) => {
 	//console.log(req.body)
   dataModel.findById(req.body._id).then((mg) => {
+    console.log('1')
     if (!mg) {
+    console.log('2')
+
       let init = new dataModel(req.body);
       init.save()
-			res.status(400).json("songs updated!")
+    console.log('3')
+
+			res.status(200).json("songs updated!")
     } else {
+    console.log('4')
+    console.log(mg)
       mg.data = req.body;
-      mg.save()
+    console.log('5')
+    mg.save()
         .then(() => res.json("songs updated!"))
         .catch((err) => res.status(400).json("Error: " + err));
     }
-  }).catch(console.log);
+  }).catch(err => { console.log('L'); console.log(err); res.status(500).json({err: err})});
 
   // dataModel.findOne().then((response) => {
   //   if (response == null) {
