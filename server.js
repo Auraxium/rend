@@ -8,7 +8,7 @@ const mongoose = require("mongoose");
 var dataModel = mongoose.model("Account", new mongoose.Schema({_id: {}, username: String, config: {}, songs: {}, playlists: {}}));
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
-require('dotenv').config();
+//require('dotenv').config();
 
 const URI =
   "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
@@ -16,7 +16,7 @@ const URI =
 const YT_API_KEY = "AIzaSyCMzBshD58xKBIubjVhfjjn1jmvSA7_Ex0";
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
-const URL = process.env.URL || "https://lo-player.auraxium.online";
+const URL = "https://lo-player.auraxium.online";
 console.log(process.env.URL)
 
 mongoose
