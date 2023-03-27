@@ -17,6 +17,7 @@ const YT_API_KEY = "AIzaSyCMzBshD58xKBIubjVhfjjn1jmvSA7_Ex0";
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
 const URL = "https://lo-player.auraxium.online";
+console.log(process.env.URL)
 
 mongoose
   .connect(URI, {
@@ -82,18 +83,20 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test", (req, res) => {
-  res.json({ howdy: "hey", env: process.env.URL });
+  res.json({ howdy: "hey"});
 });
 
 app.get("/native", (req, res) => {
   res.sendFile(__dirname + "/songs.json", (err) => console.log(err));
 });
 
+app.post("/mognoInit", (req, res) => {});
+
 app.post("/load", (req, res) => {
   dataModel.findById(req.body._id)
     .then((data) => {
 			if(!data) {
-				return res.status(501).json({})
+				return res.status(501).json({no: 'data'})
 			} 
 			res.json(data)
 		})
