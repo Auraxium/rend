@@ -1543,13 +1543,13 @@
 			if (googToken) {
 				try {
 					console.log(googToken.googleId)
-					let fet = await axios.post(url + "/load", { _id: googToken.googleId});
+					let fet = await axios.post(url + "/load", { _id: googToken.googleId });
 					data = fet.data
 					$('.offline').hide()
 				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null; console.log('fetch failed') }
 			} else {
 				data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null;
-				console.log('no goog') 
+				console.log('no goog')
 			}
 
 			console.log(data)
@@ -1731,7 +1731,6 @@
 
 
 			var dataS = {
-				_id: googToken.googleId,
 				username: googToken.username,
 				config: config,
 				songs: songs,
@@ -1741,7 +1740,7 @@
 			//console.log(dataS)
 
 			//fetch(url + "/save", { method: "post"})
-			localStorage.setItem("dataS", JSON.stringify(dataS));
+			localStorage.setItem("dataS", JSON.stringify({ _id: googToken.googleId, data: dataS }));
 
 			if (!googToken) return console.log('no account but saved lcoally')
 
