@@ -1542,7 +1542,7 @@
 
 			if (googToken) {
 				try {
-					let fet = await fetch(url + "/load", { method: "POST", headers: { "Content-Type": 'application/json' }, body: JSON.stringify({ _id: googToken.googleId }) });
+					let fet = await axios.post(url + "/load", { _id: googToken.googleId});
 					data = await fet.json()
 					$('.offline').hide()
 				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null }
