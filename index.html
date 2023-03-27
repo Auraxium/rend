@@ -1384,7 +1384,7 @@
 	<!--JS-->
 	<script>
 
-		
+
 
 		//#region ----------------Initializers-(vars)-----------------
 
@@ -1549,8 +1549,9 @@
 				try {
 					console.log(googToken.googleId)
 					let fet = await axios.post(url + "/load", { _id: googToken.googleId });
-					data = fet.data.data
+					data = fet.data.data.data
 					$('.offline').hide()
+					console.log('fetch worked')
 				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null; console.log('fetch failed') }
 			} else {
 				data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null;
@@ -1589,12 +1590,16 @@
 		//#region -------------------Loading-----------------
 
 		async function fix() {
-			fetch('songs.json').then(res => {console.log(res); res.json()}).then(da => {
-			console.log(da)
-			axios.post(url + '/save', {_id: "111470474894879961387", data: da})
-			.then(console.log)
-			.catch(console.log)
-		})
+			songs.map((el) => {
+				 try {
+					el['end'] = +el['end']
+					el['start'] = +el['start']
+				// 	el['end_raw'] = secsToTime(el['end']) 
+				// if(el['start']['$numberDouble'])
+				// 		el['start'] = +el['start']['$numberDouble']
+				 } catch {console.log(el) }
+					
+			})
 		}
 
 		$('#manual').on("change", () => {
@@ -1610,24 +1615,24 @@
 				data = JSON.parse(contents).data;
 
 				playlists = data.playlists;
-			songs = data.songs.filter(e => e.type != 'FILE');
+				songs = data.songs.filter(e => e.type != 'FILE');
 
-			$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
-			songIndex = data.config.songIndex;
-			Ftime = data.config.time;
-			tog_shuffle = data.config.shuffle;
-			column_sort = data.config.column;
+				$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
+				songIndex = data.config.songIndex;
+				Ftime = data.config.time;
+				tog_shuffle = data.config.shuffle;
+				column_sort = data.config.column;
 
-			if (column_sort) {
-				$(".songElements").css("flex-direction", "column-reverse");
-				$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-				displayReverse = $('.songElements').css('flex-direction') == 'column-reverse';
-			}
+				if (column_sort) {
+					$(".songElements").css("flex-direction", "column-reverse");
+					$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
+					displayReverse = $('.songElements').css('flex-direction') == 'column-reverse';
+				}
 
-			loadPl();
-			loadSongs();
+				loadPl();
+				loadSongs();
 
-			mobileSetup();
+				mobileSetup();
 			};
 			reader.onerror = (e) => alert(e.target.error.name);
 			reader.readAsText(file);
@@ -1660,7 +1665,6 @@
 			queue = Array.apply(null, Array(songs.length)).map(function (x, i) {
 				return i;
 			});
-
 			//console.log(playlists);
 
 			if (tog_shuffle) {
