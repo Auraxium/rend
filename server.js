@@ -16,7 +16,7 @@ const URI =
 const YT_API_KEY = "AIzaSyCMzBshD58xKBIubjVhfjjn1jmvSA7_Ex0";
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
-const URL = process.env.URL || "https://lo-player.auraxium.online" 
+const URL = process.env.URL || "http://localhost:8080" 
 console.log(process.env.URL)
 
 mongoose
@@ -83,7 +83,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test", (req, res) => {
-  res.json({ howdy: "heya", justlikett: process.env.URL || 'none', thrid: '???'});
+  res.json({ howdy: "heya", env: process.env.URL || 'none', url: URL});
 });
 
 app.get("/native", (req, res) => {
