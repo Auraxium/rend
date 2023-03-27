@@ -83,7 +83,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test", (req, res) => {
-  res.json({ howdy: "hey", env: process.env.URL || 'none'});
+  res.json({ howdy: "hey", justlikett: process.env.URL || 'none'});
 });
 
 app.get("/native", (req, res) => {
