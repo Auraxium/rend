@@ -5,9 +5,10 @@ var cors = require("cors");
 var { google } = require("googleapis");
 const axios = require("axios");
 const mongoose = require("mongoose");
-var dataModel = mongoose.model("Account", new mongoose.Schema({_id: {}, config: {}, songs: {}, playlists: {}}));
+var dataModel = mongoose.model("Account", new mongoose.Schema({_id: {}, username: String, config: {}, songs: {}, playlists: {}}));
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
+require('dotenv').config();
 
 const URI =
   "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
@@ -93,9 +94,13 @@ app.post("/mognoInit", (req, res) => {});
 
 app.post("/load", (req, res) => {
   dataModel.findById(req.body._id)
-    .then((data) => res.json(data))
+    .then((data) => {
+			if(!data) {
+				return res.status(501)
+			} 
+			res.json(data)
+		})
     .catch((err) => res.json("Error: " + err));
-	res.status(500)
 });
 
 app.post("/save", (req, res) => {
@@ -103,7 +108,8 @@ app.post("/save", (req, res) => {
   dataModel.findById(req.body._id).then((mg) => {
     if (!mg) {
       let init = new dataModel(req.body);
-      init.save().catch(console.log);
+      init.save()
+			res.status(400).json("songs updated!")
     } else {
       mg.data = req.body;
       mg.save()
@@ -160,7 +166,6 @@ app.post("/googOauth", (req, res) => {
 });
 
 app.get("/googOauth/callback", async (req, res) => {
-  console.log(req.query);
   session = req.query.state;
   const response = await GOauth.getToken(req.query.code);
   GOauth.setCredentials({
@@ -185,6 +190,7 @@ app.get("/googOauth/callback", async (req, res) => {
 
 app.post("/googGetToken", (req, res) => {
   let token = googCache[req.body.uuid];
+	console.log(token)
   delete googCache[req.body.uuid];
   return res.json(token);
 });

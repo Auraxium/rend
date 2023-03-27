@@ -1373,7 +1373,7 @@
 			<i class="bi bi-arrow-left" onclick="closeSongView()"></i>
 		</div>
 		<div class="msv-container">
-			<img class="mobile-thumbnail" src="hi" alt="" />
+			<img class="mobile-thumbnail" src="" alt="" />
 		</div>
 		<div class="msv-song-title">QWERFIU</div>
 		<div class="msv-foot"></div>
@@ -1404,12 +1404,13 @@
 		let hoverSongElement;
 
 		let player;
-		let queue;
+		let queue = [];
 		let time = 0;
 		let currentType = -1;
 		let currentId = -1;
 		let Etime = -1;
 		let Ytime = -1;
+		let Ftime = -1;
 		let time_update_save = 0;
 
 		let info_player;
@@ -1485,14 +1486,17 @@
 		let googToken;
 
 		if (localStorage.getItem("googUUID")) {
-			axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(async ax => {
-				console.log(googToken = ax.data);
+			console.log('uuids nuts')
+			axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(ax => {
+				googToken = ax.data;
 				localStorage.setItem("googToken", JSON.stringify(googToken));
 				localStorage.removeItem("googUUID");
 				console.log(googToken);
+				initLoad()
 			})
-		} else if (localStorage.getItem("googToken")) {
+		} else if (localStorage.getItem("googToken") && localStorage.getItem("googToken") != 'undefined') {
 			googToken = JSON.parse(localStorage.getItem("googToken"));
+			initLoad()
 			// if (Date.now() - googToken['now'] > googToken['expires'] * 1000) {
 			// 	console.log('expired')
 			// 	axios.post(url + '/googGetAccess', { rt: googToken['refresh_token'] }).then(ax => {
@@ -1501,7 +1505,7 @@
 			// 		localStorage.setItem("googToken", JSON.stringify(googToken));
 			// 	})
 			// }
-		}
+		} else initLoad()
 
 		let spotToken;
 
@@ -1531,20 +1535,25 @@
 		}
 
 		$(document).ready(() => {
-			initLoad()
+			//
 		});
 
 		async function initLoad() {
+
 			if (googToken) {
-				await fetch(url + "/load", { method: "POST", headers: { "Content-Type": 'application/json' }, body: JSON.stringify({ _id: googToken.googleId }) })
-					.then(res => res.json())
-					.then(res2 => {data = res2; offline = false;} )
-					.catch(err => data = JSON.parse(localStorage.getItem('dataS')));
+				try {
+					let fet = await fetch(url + "/load", { method: "POST", headers: { "Content-Type": 'application/json' }, body: JSON.stringify({ _id: googToken.googleId }) });
+					data = await fet.json()
+					$('.offline').hide()
+				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null }
 			} else {
-				data = JSON.parse(localStorage.getItem('dataS'))
+				data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null
 			}
 
-			console.log(data);
+			console.log(data)
+
+			if (!data)
+				return
 
 			playlists = data.playlists;
 			songs = data.songs.filter(e => e.type != 'FILE');
@@ -1565,7 +1574,7 @@
 			loadSongs();
 
 			mobileSetup();
-			offline ? $('.offline').show() : $('.offline').hide()
+
 		}
 
 		//#endregion
@@ -1621,6 +1630,7 @@
 
 		function loadPl() {
 			let str = ''
+			if (!playlists) return
 			for (const [key, value] of Object.entries(playlists)) {
 				str += playlistBuilder(key, value['name'])
 			}
@@ -1695,27 +1705,32 @@
 		AutoSave = () => {
 			var config = {
 				volume: parseInt($("#myRange").val()),
-				songIndex: queue[songIndex],
-				time: Ftime,
+				songIndex: queue[songIndex] || 0,
+				time: Ftime || 0,
 				shuffle: tog_shuffle,
 				column: column_sort,
 				now: Date.now()
 			};
 
-			console.log(!songs || !config || !data);
-			if (!songs || !config || !data) {
+			console.log(!songs || !config);
+			if (!songs || !config) {
 				console.log('nothing to save')
 				return;
 			}
 
-			delete playlists['favorites']
 
-			for (const [key, value] of Object.entries(playlists)) {
-				playlists[key].songs = [];
+			if (playlists) {
+				delete playlists['favorites']
+
+				for (const [key, value] of Object.entries(playlists)) {
+					playlists[key].songs = [];
+				}
 			}
+
 
 			var dataS = {
 				_id: googToken.googleId,
+				username: googToken.username,
 				config: config,
 				songs: songs,
 				playlists: playlists,
@@ -1725,6 +1740,8 @@
 
 			//fetch(url + "/save", { method: "post"})
 			localStorage.setItem("dataS", JSON.stringify(dataS));
+
+			if (!googToken) return console.log('no account but saved lcoally')
 
 			axios.post(url + '/save', dataS).then(console.log).catch(console.log)
 
@@ -1775,6 +1792,7 @@
 		function mobileSetup() {
 			setupSwap()
 			let content;
+			if (!playlists) return
 			for (const [key, value] of Object.entries(playlists)) {
 				content += `<div class="playlist" onclick="mobilePlaylist('${key}')">${value['name']}</div>`
 			}
