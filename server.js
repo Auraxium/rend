@@ -89,8 +89,6 @@ app.get("/native", (req, res) => {
   res.sendFile(__dirname + "/songs.json", (err) => console.log(err));
 });
 
-app.post("/mognoInit", (req, res) => {});
-
 app.post("/load", (req, res) => {
   dataModel.findById(req.body._id)
     .then((data) => {

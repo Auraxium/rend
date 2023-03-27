@@ -1542,8 +1542,10 @@
 
 			if (googToken) {
 				try {
+					console.log(googToken.googleId)
 					let fet = await axios.post(url + "/load", { _id: googToken.googleId});
-					data = await fet.json()
+					console.log(2)
+					data = fet.data
 					$('.offline').hide()
 				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null; console.log('fetch failed') }
 			} else {
