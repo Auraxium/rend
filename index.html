@@ -1130,7 +1130,7 @@
 						<button onclick="AutoSave()">Save</button>
 						<button onclick="showVideo()">Show Video</button>
 						<button id="fix" onclick="fix()">fix</button>
-						<button onclick="download()">Download</button>
+						<button onclick="save()">Download</button>
 						<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake
 							server</button>
 						<button onclick="initLoad()">Load</button>
@@ -1549,7 +1549,7 @@
 				try {
 					console.log(googToken.googleId)
 					let fet = await axios.post(url + "/load", { _id: googToken.googleId });
-					data = fet.data.data.data
+					data = fet['data']['data']
 					$('.offline').hide()
 					console.log('fetch worked')
 				} catch (err) { data = localStorage.getItem('dataS') ? JSON.parse(localStorage.getItem('dataS')) : null; console.log('fetch failed') }
@@ -1558,7 +1558,7 @@
 				console.log('no goog')
 			}
 
-			console.log(data)
+			console.log('data is: ' + data)
 
 			if (!data)
 				return
@@ -1590,13 +1590,17 @@
 		//#region -------------------Loading-----------------
 
 		async function fix() {
+			//data = data.data
 			songs.map((el) => {
 				 try {
-					el['end'] = +el['end']
-					el['start'] = +el['start']
-				// 	el['end_raw'] = secsToTime(el['end']) 
-				// if(el['start']['$numberDouble'])
-				// 		el['start'] = +el['start']['$numberDouble']
+					// el['end'] = +el['end']
+					// el['start'] = +el['start']
+					// if(el['end'])
+					// 	el['end_raw'] = secsToTime(el['end']) 
+				// if(el['start']['$numberInt'])
+				// 		el['start'] = +el['start']['$numberInt']
+				// if(el['end']['$numberInt'])
+				// 		el['end'] = +el['end']['$numberInt']
 				 } catch {console.log(el) }
 					
 			})
@@ -1739,7 +1743,7 @@
 			var dataS = {
 				config: config,
 				songs: songs,
-				playlists: playlists,
+				playlists: playlists || {},
 			};
 
 			//console.log(dataS)
