@@ -230,7 +230,7 @@ app.post("/YTsearch", async (req, res) => {
 		&maxResults=7
 		&q=${req.body.search.replace(/\s+/g, "+")}`
   ).then((data) => (vids = data.data.items))
-	.catch((err) => console.log(err.details))
+	.catch((err) => console.log(err.response.data))
 
 	if(!vids) return 
 
