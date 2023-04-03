@@ -5,10 +5,14 @@ var cors = require("cors");
 var { google } = require("googleapis");
 const axios = require("axios");
 const mongoose = require("mongoose");
-const dataModel = mongoose.model("Account2", new mongoose.Schema({_id: {}, data: {}}));
+const dataModel = mongoose.model(
+  "Account2",
+  new mongoose.Schema({ _id: {}, username: String, data: {} })
+);
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
 require('dotenv').config();
+
 
 const URI =
   "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
@@ -17,8 +21,10 @@ const YT_API_KEY = process.env.YT_API_KEY;
 // console.log(YT_API_KEY)
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
-const URL = "http://localhost:8080" // "https://lo-player.auraxium.online" 
-// console.log(process.env.URL)
+
+const URL = process.env.URL || "http://localhost:8080";
+// console.log(process.env.URL);
+
 
 mongoose
   .connect(URI, {
@@ -84,7 +90,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test", (req, res) => {
-  res.json({ howdy: "hey"});
+  res.json({ howdy: "heya", env: process.env.URL || "none", url: URL });
 });
 
 app.get("/native", (req, res) => {
@@ -94,30 +100,38 @@ app.get("/native", (req, res) => {
 app.post("/mognoInit", (req, res) => {});
 
 app.post("/load", (req, res) => {
-  dataModel.findById(req.body._id)
+  dataModel
+    .findById(req.body._id)
     .then((data) => {
-			if(!data) {
-				return res.status(501).json({no: 'data'})
-			} 
-			res.json(data)
-		})
+      if (!data) {
+        return res.status(501).json({ no: "data" });
+      }
+      res.json(data);
+    })
     .catch((err) => res.status(200).json(err));
 });
 
 app.post("/save", (req, res) => {
-	//console.log(req.body)
-  dataModel.findById(req.body._id).then((mg) => {
-    if (!mg) {
-      let init = new dataModel(req.body);
-      init.save()
-			res.status(400).json("songs updated!")
-    } else {
-      mg.data = req.body;
-      mg.save()
-        .then(() => res.json("songs updated!"))
-        .catch((err) => res.status(400).json("Error: " + err));
-    }
-  }).catch(console.log);
+  //console.log(req.body)
+  dataModel
+    .findById(req.body._id)
+    .then((mg) => {
+      if (!mg) {
+        //let init = new dataModel(req.body);
+        // init.save()
+        res.status(200).json("songs updated!");
+      } else {
+        mg.data = req.body.data;
+        mg.save()
+          .then(() => res.json("songs updated!"))
+          .catch((err) => res.status(400).json("Error: " + err));
+      }
+    })
+    .catch((err) => {
+      console.log("L");
+      console.log(err);
+      res.status(500).json({ err: err });
+    });
 
   // dataModel.findOne().then((response) => {
   //   if (response == null) {
@@ -191,7 +205,7 @@ app.get("/googOauth/callback", async (req, res) => {
 
 app.post("/googGetToken", (req, res) => {
   let token = googCache[req.body.uuid];
-	console.log(token)
+  console.log(token);
   delete googCache[req.body.uuid];
   return res.json(token);
 });
