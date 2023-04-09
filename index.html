@@ -1383,13 +1383,37 @@
 	<!--JS-->
 	<script>
 
-
-
 		//#region ----------------Initializers-(vars)-----------------
 
 		//var input = document.querySelector("#JData");
 
-		var url = (window.location.origin == 'http://localhost:8080' || window.location.origin == 'http://127.0.0.1:5500') ? 'http://localhost:8080' : 'https://lo-player.auraxium.online' // 'https://lo-player.onrender.com' //  window.location.origin;//
+		var url = (() => {
+			switch (window.location.origin) {
+				case process.env.FEURL:
+					return process.env.FEURL
+					break;
+
+				case 'http://localhost:8080':
+					return 'http://localhost:8080'
+					break;
+
+					case 'http://127.0.0.1:5500':
+					return 'http://localhost:8080'
+					break;
+
+					case 'https://lo-player.onrender.com':
+					return 'https://lo-player.onrender.com'
+					break;
+			
+				default:
+					return 'https://lo-player.auraxium.online'
+					break;
+			}
+		})()
+
+		console.log(url)
+		
+		(window.location.origin == 'http://localhost:8080' || window.location.origin == 'http://127.0.0.1:5500') ? 'http://localhost:8080' : 'https://lo-player.auraxium.online' // 'https://lo-player.onrender.com' //  window.location.origin;//
 
 		var songs = [];
 		var songScope = [];
