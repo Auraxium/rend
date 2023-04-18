@@ -1092,7 +1092,7 @@
 				<input id='manual' type="file">
 			</div>
 			<div>
-				<button data-context="account" style="height: 100%;" onclick="openContextMenu(event, this)">
+				<button data-context="account" style="height: 100%;" onclick="accountMenu()">
 					Account
 				</button>
 			</div>
@@ -1321,6 +1321,8 @@
 
 			<div class="misc-mc" mobile-container>
 				<div class="ce" onclick="AutoSave()">SAVE</div>
+				<div class="ce mgoog" onclick="googOauth()">GOOGLE</div>
+				<div class="ce mspot" onclick="spotOauth()">SPOTIFY</div>
 			</div>
 		</div>
 
@@ -1522,10 +1524,12 @@
 				localStorage.setItem("googToken", JSON.stringify(googToken));
 				localStorage.removeItem("googUUID");
 				console.log(googToken);
+				$('.mgoog').html(googToken.username)
 				initLoad()
 			})
 		} else if (localStorage.getItem("googToken") && localStorage.getItem("googToken") != 'undefined') {
 			googToken = JSON.parse(localStorage.getItem("googToken"));
+			$('.mgoog').html(googToken.username)
 			initLoad()
 			// if (Date.now() - googToken['now'] > googToken['expires'] * 1000) {
 			// 	console.log('expired')
@@ -2581,6 +2585,51 @@
 
 			contextMenu.css("top", `${e.pageY - (e.clientY > yHalf ? 300 : 10)}px`);
 			contextMenu.css("left", `${e.pageX - (e.clientX > xHalf ? 150 : 10)}px`);
+		}
+
+		function accountMenu() {
+			console.log(Boolean(googToken))
+					console.log(googToken)
+				let	content = `
+
+					${googToken ?
+							`
+							<div style="display: flex; align-items: center;" onclick="localStorage.removeItem('googToken'); googToken = null">
+			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK5q0FP74VV9wbfwP378_7kj7iDomHuKrxkXsxDdUT28V9dlVMNUe-EMzaLwaFhneeuZI&usqp=CAU" alt="" width="45" height="45">
+			<div class="px-2">${googToken.username}</div>
+		</div>
+						` :
+							`
+						<div style="display: flex; align-items: center;" onclick="googOauth()">
+			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK5q0FP74VV9wbfwP378_7kj7iDomHuKrxkXsxDdUT28V9dlVMNUe-EMzaLwaFhneeuZI&usqp=CAU" alt="" width="45" height="45">
+			<div class="px-2">Login</div>
+		</div>
+		
+						`}
+					<hr/>
+		${spotToken ? `
+				<div style="display: flex; align-items: center;" onclick="localStorage.removeItem('spotToken'); spotToken = null"> 	
+					<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Spotify_App_Logo.svg/2048px-Spotify_App_Logo.svg.png" alt="" width="45" height="45">
+					<div class="px-2">${spotToken['username']}</div>
+				</div>
+			` : `<div style="display: flex; align-items: center;" onclick="spotOauth()">
+			<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Spotify_App_Logo.svg/2048px-Spotify_App_Logo.svg.png" alt="" width="45" height="45">
+			<div class="px-2">Login</div>
+		</div>` }
+		
+					`
+
+					contextMenu.html(content);
+			contextMenu.show();
+
+			contextMenu.addClass("active");
+
+			//if (screen.width < mobileScreen) {
+			//	return
+			//}
+
+			contextMenu.css("top", `${$('[data-context="account"]').offset().top}px`);
+			contextMenu.css("left", `${$('[data-context="account"]').offset().left - contextMenu[0].offsetWidth/1.7}px`);
 		}
 
 		function openForm(content) {
