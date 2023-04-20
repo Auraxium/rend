@@ -1389,33 +1389,7 @@
 
 		//var input = document.querySelector("#JData");
 
-		var url = (() => {
-			console.log('??')
-			
-			switch (window.location.origin) {
-				// case process.env.FEURL:
-				// 	return process.env.FEURL
-				// 	break;
-
-				case 'http://localhost:8080':
-					return 'http://localhost:8080'
-					break;
-
-					case 'http://127.0.0.1:5500':
-					return 'http://localhost:8080'
-					break;
-
-					case 'https://lo-player.onrender.com':
-					return 'https://lo-player.onrender.com'
-					break;
-			
-				default:
-					return 'https://lo-player.auraxium.online'
-					break;
-			}
-		})()
-
-		console.log(url)
+		var url;
 		
 		//(window.location.origin == 'http://localhost:8080' || window.location.origin == 'http://127.0.0.1:5500') ? 'http://localhost:8080' : 'https://lo-player.auraxium.online' // 'https://lo-player.onrender.com' //  window.location.origin;//
 
@@ -1517,86 +1491,15 @@
 
 		let googToken;
 
-		if (localStorage.getItem("googUUID")) {
-			console.log('uuids nuts')
-			axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(ax => {
-				googToken = ax.data;
-				localStorage.setItem("googToken", JSON.stringify(googToken));
-				localStorage.removeItem("googUUID");
-				console.log(googToken);
-				$('.mgoog').html(googToken.username)
-				initLoad()
-			})
-		} else if (localStorage.getItem("googToken") && localStorage.getItem("googToken") != 'undefined') {
-			googToken = JSON.parse(localStorage.getItem("googToken"));
-			$('.mgoog').html(googToken.username)
+
+		$(document).ready(() => { // onready only checks for: ???
 			initLoad()
-			// if (Date.now() - googToken['now'] > googToken['expires'] * 1000) {
-			// 	console.log('expired')
-			// 	axios.post(url + '/googGetAccess', { rt: googToken['refresh_token'] }).then(ax => {
-			// 		googToken['access_token'] = ax.data.ac;
-			// 		googToken['now'] = Date.now()
-			// 		localStorage.setItem("googToken", JSON.stringify(googToken));
-			// 	})
-			// }
-		} else initLoad()
-
-		let spotToken;
-
-		if (localStorage.getItem("spotUUID")) {
-			axios.post(url + '/spotGetToken', { uuid: localStorage.getItem("spotUUID") }).then(async ax => {
-				console.log(spotToken = ax.data)
-				let ax2 = await axios('https://api.spotify.com/v1/me', {
-					headers: {
-						Authorization: `Bearer ${spotToken['access_token']}`
-					}
-				})
-				spotToken['username'] = ax2.data.display_name;
-				localStorage.setItem("spotToken", JSON.stringify(spotToken));
-				localStorage.removeItem("spotUUID");
-				console.log(spotToken);
-			})
-		} else if (localStorage.getItem("spotToken")) {
-			spotToken = JSON.parse(localStorage.getItem("spotToken"));
-			if (Date.now() - spotToken['now'] > spotToken['expires'] * 1000) {
-				console.log('expired')
-				axios.post(url + '/spotGetAccess', { rt: spotToken['refresh_token'] }).then(ax => {
-					spotToken['access_token'] = ax.data.ac;
-					spotToken['now'] = Date.now()
-					localStorage.setItem("spotToken", JSON.stringify(spotToken));
-				})
-			}
-		}
-
-		$(document).ready(() => {
-			var url = (() => {
-			switch (window.location.origin) {
-				// case process.env.FEURL:
-				// 	return process.env.FEURL
-				// 	break;
-
-				case 'http://localhost:8080':
-					return 'http://localhost:8080'
-					break;
-
-					case 'http://127.0.0.1:5500':
-					return 'http://localhost:8080'
-					break;
-
-					case 'https://lo-player.onrender.com':
-					return 'https://lo-player.onrender.com'
-					break;
-			
-				default:
-					return 'https://lo-player.auraxium.online'
-					break;
-			}
-		})()
-
-		console.log(url)
 		});
 
 		async function initLoad() {
+			await findPort()
+			console.log('This is the port: ' + url)
+			await getTokens()
 
 			if (googToken) {
 				try {
@@ -1636,6 +1539,67 @@
 
 			mobileSetup();
 
+		}
+
+		async function findPort() {
+			let ports = ['http://localhost:8080', 'https://lo-player.auraxium.online', 'https://lo-player.onrender.com']
+			for (let i = 0; i < ports.length; i++) {
+				const el = ports[i];
+				url = await axios(el+'/test').catch(() => null);
+				if(url)
+					return url = el;
+			}	
+		}
+
+		async function getTokens() {
+			if (localStorage.getItem("googUUID")) {
+			console.log('uuids nuts')
+			axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(ax => {
+				googToken = ax.data;
+				localStorage.setItem("googToken", JSON.stringify(googToken));
+				localStorage.removeItem("googUUID");
+				console.log(googToken);
+				$('.mgoog').html(googToken.username)
+			})
+		} else if (localStorage.getItem("googToken") && localStorage.getItem("googToken") != 'undefined') {
+			googToken = JSON.parse(localStorage.getItem("googToken"));
+			$('.mgoog').html(googToken.username)
+			// if (Date.now() - googToken['now'] > googToken['expires'] * 1000) {
+			// 	console.log('expired')
+			// 	axios.post(url + '/googGetAccess', { rt: googToken['refresh_token'] }).then(ax => {
+			// 		googToken['access_token'] = ax.data.ac;
+			// 		googToken['now'] = Date.now()
+			// 		localStorage.setItem("googToken", JSON.stringify(googToken));
+			// 	})
+			// }
+		}
+
+		let spotToken;
+
+		if (localStorage.getItem("spotUUID")) {
+			axios.post(url + '/spotGetToken', { uuid: localStorage.getItem("spotUUID") }).then(async ax => {
+				console.log(spotToken = ax.data)
+				let ax2 = await axios('https://api.spotify.com/v1/me', {
+					headers: {
+						Authorization: `Bearer ${spotToken['access_token']}`
+					}
+				})
+				spotToken['username'] = ax2.data.display_name;
+				localStorage.setItem("spotToken", JSON.stringify(spotToken));
+				localStorage.removeItem("spotUUID");
+				console.log(spotToken);
+			})
+		} else if (localStorage.getItem("spotToken")) {
+			spotToken = JSON.parse(localStorage.getItem("spotToken"));
+			if (Date.now() - spotToken['now'] > spotToken['expires'] * 1000) {
+				console.log('expired')
+				axios.post(url + '/spotGetAccess', { rt: spotToken['refresh_token'] }).then(ax => {
+					spotToken['access_token'] = ax.data.ac;
+					spotToken['now'] = Date.now()
+					localStorage.setItem("spotToken", JSON.stringify(spotToken));
+				})
+			}
+		}
 		}
 
 		//#endregion
@@ -2465,7 +2429,7 @@
 
 		//#endregion
 
-		//#region misc
+		//#region misc // comers manuver 
 
 		function openContextMenu(e, ele, ctx = ele.dataset.context) {
 			if (screen.width < mobileScreen) {
@@ -2503,7 +2467,7 @@
 						<hr/>
 						<div onclick="editSong(${el.songId})">Edit</div>
 						<div onclick="selectSong(${el.songId}); $('.dropdown-menu').hide(); event.stopPropagation()">Select</div>
-						<div style="color: red" onclick="">Delete</div>
+						<div style="color: red" onclick="songs.splice(el.songId, 1); initLoad() ">Delete</div>
 					</div>
 					`
 					break;
