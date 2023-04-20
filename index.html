@@ -1490,7 +1490,7 @@
 		firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
 		let googToken;
-
+		let spotToken;
 
 		$(document).ready(() => { // onready only checks for: ???
 			initLoad()
@@ -1531,14 +1531,10 @@
 			if (column_sort) {
 				$(".songElements").css("flex-direction", "column-reverse");
 				$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-				displayReverse = $('.songElements').css('flex-direction') == 'column-reverse';
+				displayReverse = $('.FsongElements').css('flex-direction') == 'column-reverse';
 			}
 
-			loadPl();
-			loadSongs();
-
-			mobileSetup();
-
+			initData()
 		}
 
 		async function findPort() {
@@ -1550,6 +1546,16 @@
 					return url = el;
 			}	
 		}
+
+		function initData() {
+
+
+			loadPl();
+			loadSongs();
+
+			mobileSetup();
+
+		}		
 
 		async function getTokens() {
 			if (localStorage.getItem("googUUID")) {
@@ -1574,7 +1580,6 @@
 			// }
 		}
 
-		let spotToken;
 
 		if (localStorage.getItem("spotUUID")) {
 			axios.post(url + '/spotGetToken', { uuid: localStorage.getItem("spotUUID") }).then(async ax => {
@@ -1635,25 +1640,7 @@
 				const contents = e.target.result;
 				data = JSON.parse(contents).data;
 
-				playlists = data.playlists;
-				songs = data.songs.filter(e => e.type != 'FILE');
-
-				$("#myRange").val((screen.width > mobileScreen) ? data.config.volume : 100);
-				songIndex = data.config.songIndex;
-				Ftime = data.config.time;
-				tog_shuffle = data.config.shuffle;
-				column_sort = data.config.column;
-
-				if (column_sort) {
-					$(".songElements").css("flex-direction", "column-reverse");
-					$(".bi-arrow-bar-up").attr("class", "bi bi-arrow-bar-down bim");
-					displayReverse = $('.songElements').css('flex-direction') == 'column-reverse';
-				}
-
-				loadPl();
-				loadSongs();
-
-				mobileSetup();
+				initData();
 			};
 			reader.onerror = (e) => alert(e.target.error.name);
 			reader.readAsText(file);
@@ -1691,8 +1678,6 @@
 			if (tog_shuffle) {
 				$(".shuffle-button").css("opacity", "1");
 			}
-
-
 		}
 
 		function download(filename, text) {
@@ -2467,7 +2452,7 @@
 						<hr/>
 						<div onclick="editSong(${el.songId})">Edit</div>
 						<div onclick="selectSong(${el.songId}); $('.dropdown-menu').hide(); event.stopPropagation()">Select</div>
-						<div style="color: red" onclick="songs.splice(el.songId, 1); initLoad() ">Delete</div>
+						<div style="color: red" onclick="songs.splice(${el.songId-1}, 1); initData() ">Delete</div>
 					</div>
 					`
 					break;
