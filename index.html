@@ -1323,6 +1323,8 @@
 				<div class="ce" onclick="AutoSave()">SAVE</div>
 				<div class="ce mgoog" onclick="googOauth()">GOOGLE</div>
 				<div class="ce mspot" onclick="spotOauth()">SPOTIFY</div>
+				<input type="checkbox" onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+				<label>Force high quality</label>
 			</div>
 		</div>
 
