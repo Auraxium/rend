@@ -194,8 +194,6 @@
 			align-items: center;
 		}
 
-
-
 		.playlist:hover {
 			background-color: rgb(58, 58, 58);
 		}
@@ -1133,7 +1131,9 @@
 						<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake
 							server</button>
 						<button onclick="initLoad()">Load</button>
-						<div class="offline">Offline Mode</div>
+						<input type="checkbox" onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+						<label>Force high quality</label>
+						<div class="offline" >Offline Mode</div>
 
 					</div>
 
