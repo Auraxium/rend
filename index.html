@@ -5,8 +5,7 @@
 	<meta charset="UTF-8" />
 	<!-- <meta name="referrer" content="no-referrer"> -->
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" 
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<title>Lo Player v5</title>
 	<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">-->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" />
@@ -1132,9 +1131,10 @@
 						<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake
 							server</button>
 						<button onclick="initLoad()">Load</button>
-						<input type="checkbox" onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+						<input type="checkbox"
+							onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
 						<label>Force high quality</label>
-						<div class="offline" >Offline Mode</div>
+						<div class="offline">Offline Mode</div>
 
 					</div>
 
@@ -1324,7 +1324,8 @@
 				<div class="ce" onclick="AutoSave()">SAVE</div>
 				<div class="ce mgoog" onclick="googOauth()">GOOGLE</div>
 				<div class="ce mspot" onclick="spotOauth()">SPOTIFY</div>
-				<input type="checkbox" onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+				<input type="checkbox"
+					onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
 				<label>Force high quality</label>
 			</div>
 		</div>
@@ -1393,7 +1394,7 @@
 		//var input = document.querySelector("#JData");
 
 		var url;
-		
+
 		//(window.location.origin == 'http://localhost:8080' || window.location.origin == 'http://127.0.0.1:5500') ? 'http://localhost:8080' : 'https://lo-player.auraxium.online' // 'https://lo-player.onrender.com' //  window.location.origin;//
 
 		var songs = [];
@@ -1544,10 +1545,10 @@
 			let ports = ['http://localhost:8080', 'https://lo-player.auraxium.online', 'https://lo-player.onrender.com']
 			for (let i = 0; i < ports.length; i++) {
 				const el = ports[i];
-				url = await axios(el+'/test').catch(() => null);
-				if(url)
+				url = await axios(el + '/test').catch(() => null);
+				if (url)
 					return url = el;
-			}	
+			}
 		}
 
 		function initData() {
@@ -1555,56 +1556,56 @@
 			loadSongs();
 
 			mobileSetup();
-		}		
+		}
 
 		async function getTokens() {
 			if (localStorage.getItem("googUUID")) {
-			console.log('uuids nuts')
-			axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(ax => {
-				googToken = ax.data;
-				localStorage.setItem("googToken", JSON.stringify(googToken));
-				localStorage.removeItem("googUUID");
-				console.log(googToken);
+				console.log('uuids nuts')
+				axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(ax => {
+					googToken = ax.data;
+					localStorage.setItem("googToken", JSON.stringify(googToken));
+					localStorage.removeItem("googUUID");
+					console.log(googToken);
+					$('.mgoog').html(googToken.username)
+				})
+			} else if (localStorage.getItem("googToken") && localStorage.getItem("googToken") != 'undefined') {
+				googToken = JSON.parse(localStorage.getItem("googToken"));
 				$('.mgoog').html(googToken.username)
-			})
-		} else if (localStorage.getItem("googToken") && localStorage.getItem("googToken") != 'undefined') {
-			googToken = JSON.parse(localStorage.getItem("googToken"));
-			$('.mgoog').html(googToken.username)
-			// if (Date.now() - googToken['now'] > googToken['expires'] * 1000) {
-			// 	console.log('expired')
-			// 	axios.post(url + '/googGetAccess', { rt: googToken['refresh_token'] }).then(ax => {
-			// 		googToken['access_token'] = ax.data.ac;
-			// 		googToken['now'] = Date.now()
-			// 		localStorage.setItem("googToken", JSON.stringify(googToken));
-			// 	})
-			// }
-		}
-
-
-		if (localStorage.getItem("spotUUID")) {
-			axios.post(url + '/spotGetToken', { uuid: localStorage.getItem("spotUUID") }).then(async ax => {
-				console.log(spotToken = ax.data)
-				let ax2 = await axios('https://api.spotify.com/v1/me', {
-					headers: {
-						Authorization: `Bearer ${spotToken['access_token']}`
-					}
-				})
-				spotToken['username'] = ax2.data.display_name;
-				localStorage.setItem("spotToken", JSON.stringify(spotToken));
-				localStorage.removeItem("spotUUID");
-				console.log(spotToken);
-			})
-		} else if (localStorage.getItem("spotToken")) {
-			spotToken = JSON.parse(localStorage.getItem("spotToken"));
-			if (Date.now() - spotToken['now'] > spotToken['expires'] * 1000) {
-				console.log('expired')
-				axios.post(url + '/spotGetAccess', { rt: spotToken['refresh_token'] }).then(ax => {
-					spotToken['access_token'] = ax.data.ac;
-					spotToken['now'] = Date.now()
-					localStorage.setItem("spotToken", JSON.stringify(spotToken));
-				})
+				// if (Date.now() - googToken['now'] > googToken['expires'] * 1000) {
+				// 	console.log('expired')
+				// 	axios.post(url + '/googGetAccess', { rt: googToken['refresh_token'] }).then(ax => {
+				// 		googToken['access_token'] = ax.data.ac;
+				// 		googToken['now'] = Date.now()
+				// 		localStorage.setItem("googToken", JSON.stringify(googToken));
+				// 	})
+				// }
 			}
-		}
+
+
+			if (localStorage.getItem("spotUUID")) {
+				axios.post(url + '/spotGetToken', { uuid: localStorage.getItem("spotUUID") }).then(async ax => {
+					console.log(spotToken = ax.data)
+					let ax2 = await axios('https://api.spotify.com/v1/me', {
+						headers: {
+							Authorization: `Bearer ${spotToken['access_token']}`
+						}
+					})
+					spotToken['username'] = ax2.data.display_name;
+					localStorage.setItem("spotToken", JSON.stringify(spotToken));
+					localStorage.removeItem("spotUUID");
+					console.log(spotToken);
+				})
+			} else if (localStorage.getItem("spotToken")) {
+				spotToken = JSON.parse(localStorage.getItem("spotToken"));
+				if (Date.now() - spotToken['now'] > spotToken['expires'] * 1000) {
+					console.log('expired')
+					axios.post(url + '/spotGetAccess', { rt: spotToken['refresh_token'] }).then(ax => {
+						spotToken['access_token'] = ax.data.ac;
+						spotToken['now'] = Date.now()
+						localStorage.setItem("spotToken", JSON.stringify(spotToken));
+					})
+				}
+			}
 		}
 
 		//#endregion
@@ -1614,17 +1615,17 @@
 		async function fix() {
 			//data = data.data
 			songs.map((el) => {
-				 try {
+				try {
 					// el['end'] = +el['end']
 					// el['start'] = +el['start']
 					// if(el['end'])
 					// 	el['end_raw'] = secsToTime(el['end']) 
-				// if(el['start']['$numberInt'])
-				// 		el['start'] = +el['start']['$numberInt']
-				// if(el['end']['$numberInt'])
-				// 		el['end'] = +el['end']['$numberInt']
-				 } catch {console.log(el) }
-					
+					// if(el['start']['$numberInt'])
+					// 		el['start'] = +el['start']['$numberInt']
+					// if(el['end']['$numberInt'])
+					// 		el['end'] = +el['end']['$numberInt']
+				} catch { console.log(el) }
+
 			})
 		}
 
@@ -1673,7 +1674,8 @@
 			queue = Array.apply(null, Array(songs.length)).map(function (x, i) {
 				return i;
 			});
-			//console.log(playlists);
+
+			if (column_sort) queue.reverse()
 
 			if (tog_shuffle) {
 				$(".shuffle-button").css("opacity", "1");
@@ -1817,6 +1819,9 @@
 
 		//#region Song players and HUD
 		async function playSong() {
+			if (songIndex >= queue.length) songIndex = 0;
+			if (songIndex < 0) songIndex = queue.length - 1;
+
 			if (songs[queue[songIndex]].type == "YOUTUBE")
 				seek_ready = false;
 
@@ -1929,35 +1934,38 @@
 			//setVolume(slider.value);
 		}
 
-		function clickedSong(i) {
+		function clickedSong(i, sh = shift) {
 			if (!Number.isInteger(i)) {
 				console.log("clicked song id is not a number!");
 				return;
 			}
 
-			if (shift) {
+			if (sh) {
 				let ind = queue.indexOf(i);
-				if(songIndex == ind || songIndex+1 == ind) return;
+				if (songIndex == ind || songIndex + 1 == ind) return;
+				if (songIndex > ind) songIndex--;
 				queue.splice(ind, 1);
-				queue.splice(songIndex+1, 0, i);
-				if(songIndex > ind)
-					songIndex--;
+				queue.splice(songIndex + 1, 0, i);
 				return;
 			}
 
 			let toSplice = 0;
 
-			//	if (currentScope !== lastScope) {
-			if (currentScope) {
-				queue = [...playlists[currentScope]['songs']]
-				toSplice = queue.indexOf(i)
-			} else {
-				queue = [...Array.apply(null, Array(songs.length)).map(function (x, j) {
-					return j;
-				})];
-				toSplice = i;
+			if (currentScope !== lastScope) {
+				if (currentScope) {
+					queue = [...playlists[currentScope]['songs']]
+					toSplice = queue.indexOf(i)
+				} else {
+					queue = [...Array.apply(null, Array(songs.length)).map(function (x, j) {
+						return j;
+					})];
+					toSplice = i;
+				}
 			}
-			//}
+
+			// queue = $('.songElements>*:visible').map(el => el.attr())
+
+
 
 			lastScope = currentScope;
 
@@ -1967,8 +1975,11 @@
 				queue.unshift(i)
 
 				songIndex = 0;
-			} else
+			} else {
+				if (column_sort) queue.reverse()
 				songIndex = queue.indexOf(i);
+			}
+
 
 			if (i != currentId)
 				return playSong();
@@ -2437,7 +2448,7 @@
 					<hr/>
 					<div class="dd-options">
 						<div onclick="clickedSong(${el.songId})">Play</div>
-						<div onclick="shift = true;	clickedSong(${el.songId}); shift = false;">Play Next</div>
+						<div onclick="clickedSong(${el.songId}, true);">Play Next</div>
 						<div onclick="queue.push(${el.songId}); updateQueueHUD()">Queue</div>
 						<hr/>
 						<div onclick="songs[${el.songId}].favorited = !songs[${el.songId}].favorited">${(song.favorited) ? 'Unfavorite' : 'Favorite'}</div>
@@ -2450,7 +2461,7 @@
 						<hr/>
 						<div onclick="editSong(${el.songId})">Edit</div>
 						<div onclick="selectSong(${el.songId}); $('.dropdown-menu').hide(); event.stopPropagation()">Select</div>
-						<div style="color: red" onclick="songs.splice(${el.songId-1}, 1); initData() ">Delete</div>
+						<div style="color: red" onclick="songs.splice(${el.songId - 1}, 1); initData() ">Delete</div>
 					</div>
 					`
 					break;
@@ -2536,17 +2547,17 @@
 
 		function accountMenu() {
 			console.log(Boolean(googToken))
-					console.log(googToken)
-				let	content = `
+			console.log(googToken)
+			let content = `
 
 					${googToken ?
-							`
+					`
 							<div style="display: flex; align-items: center;" onclick="localStorage.removeItem('googToken'); googToken = null">
 			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK5q0FP74VV9wbfwP378_7kj7iDomHuKrxkXsxDdUT28V9dlVMNUe-EMzaLwaFhneeuZI&usqp=CAU" alt="" width="45" height="45">
 			<div class="px-2">${googToken.username}</div>
 		</div>
 						` :
-							`
+					`
 						<div style="display: flex; align-items: center;" onclick="googOauth()">
 			<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSK5q0FP74VV9wbfwP378_7kj7iDomHuKrxkXsxDdUT28V9dlVMNUe-EMzaLwaFhneeuZI&usqp=CAU" alt="" width="45" height="45">
 			<div class="px-2">Login</div>
@@ -2566,7 +2577,7 @@
 		
 					`
 
-					contextMenu.html(content);
+			contextMenu.html(content);
 			contextMenu.show();
 
 			contextMenu.addClass("active");
@@ -2576,7 +2587,7 @@
 			//}
 
 			contextMenu.css("top", `${$('[data-context="account"]').offset().top}px`);
-			contextMenu.css("left", `${$('[data-context="account"]').offset().left - contextMenu[0].offsetWidth/1.7}px`);
+			contextMenu.css("left", `${$('[data-context="account"]').offset().left - contextMenu[0].offsetWidth / 1.7}px`);
 		}
 
 		function openForm(content) {
