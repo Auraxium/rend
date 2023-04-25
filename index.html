@@ -1933,14 +1933,12 @@
 			}
 
 			if (shift) {
-				if (i == queue[songIndex] || i == queue[songIndex + 1]) return;
-				var ind = queue.indexOf(i);
-				//if (ind < songIndex) songIndex--;
+				let ind = queue.indexOf(i);
+				if(songIndex == ind || songIndex+1 == ind) return;
 				queue.splice(ind, 1);
-				column_sort ?
-					queue.splice(songIndex == 0 ? queue.length - 1 : songIndex - 1, 0, i)
-					:
-					queue.splice(songIndex == queue.length - 1 ? 0 : songIndex + 1, 0, i)
+				queue.splice(songIndex+1, 0, i);
+				if(songIndex > ind)
+					songIndex--;
 				return;
 			}
 
@@ -3245,40 +3243,15 @@
 			nextSong();
 		}
 
-		function nextSong(bool = songSkipDirection, force) {
-
-			if (!force) {
-				if (!bool)
-					return prevSong();
-
-				if (repeat && bool != false) {
-					player.seekTo(0.1)
-					return
-				}
-			}
-
-			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
-
-			if (!displayReverse)
-				songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
-			else
-				songIndex = songIndex ? songIndex - 1 : queue.length - 1;
-
+		function nextSong() {
+			// $(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
+			songIndex++;
 			playSong();
-			songSkipDirection = true;
 		}
 
 		function prevSong() {
-
-			$(`[data-song-id="${queue[songIndex]}"]`).removeClass("playing");
-
-			if (!displayReverse)
-				songIndex = songIndex ? songIndex - 1 : queue.length - 1;
-			else
-				songIndex = songIndex > queue.length - 2 ? 0 : songIndex + 1;
-
+			songIndex--;
 			playSong();
-			songSkipDirection = false;
 		}
 
 		function pauseSong() {
