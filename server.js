@@ -85,9 +85,9 @@ app.use(
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 
-app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/./index.html");
-});
+// app.get("/", (req, res) => {
+//   res.sendFile(__dirname + "/./index.html");
+// });
 
 app.get("/test", (req, res) => {
   res.json({ howdy: "heya", env: process.env.URL || "none", url: URL });
@@ -343,8 +343,9 @@ app.post("/spotGetAccess", async (req, res) => {
 });
 
 app.post("/spotOauth", async (req, res) => {
+	console.log('???')
   spotCache[req.body.uuid] = { origin: req.body.origin };
-  const authorizeUrl = spotifyApi.createAuthorizeURL(
+  const authorizeUrl = await spotifyApi.createAuthorizeURL(
     ["playlist-read-collaborative"],
     req.body.uuid
   );

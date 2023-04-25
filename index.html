@@ -5,7 +5,8 @@
 	<meta charset="UTF-8" />
 	<!-- <meta name="referrer" content="no-referrer"> -->
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="viewport" 
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
 	<title>Lo Player v5</title>
 	<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">-->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css" />
@@ -193,8 +194,6 @@
 			display: flex;
 			align-items: center;
 		}
-
-
 
 		.playlist:hover {
 			background-color: rgb(58, 58, 58);
@@ -1133,7 +1132,9 @@
 						<button onclick="axios.get(`https:/\/lo-player.onrender.com/load`).then(res => console.log('wokage'))">wake
 							server</button>
 						<button onclick="initLoad()">Load</button>
-						<div class="offline">Offline Mode</div>
+						<input type="checkbox" onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+						<label>Force high quality</label>
+						<div class="offline" >Offline Mode</div>
 
 					</div>
 
@@ -1323,6 +1324,8 @@
 				<div class="ce" onclick="AutoSave()">SAVE</div>
 				<div class="ce mgoog" onclick="googOauth()">GOOGLE</div>
 				<div class="ce mspot" onclick="spotOauth()">SPOTIFY</div>
+				<input type="checkbox" onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+				<label>Force high quality</label>
 			</div>
 		</div>
 
