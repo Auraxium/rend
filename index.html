@@ -318,6 +318,11 @@
 			background-color: #d3d3d3;
 		}
 
+		[type="checkbox"] {
+			width: 20px;
+			height: 20px
+		}
+
 		.form {}
 
 		#sng {
@@ -2453,7 +2458,7 @@
 						<div onclick="queue.push(${el.songId}); updateQueueHUD()">Queue</div>
 						<hr/>
 						<div onclick="songs[${el.songId}].favorited = !songs[${el.songId}].favorited">${(song.favorited) ? 'Unfavorite' : 'Favorite'}</div>
-						${(currentScope) ? `<div onclick="let arr = playlists[currentScope]['songs']; arr.splice(arr.findIndex(el => el==${el.songId}) ,1); updateScope()">Remove from Playlist</div>` : ""}
+						${(currentScope) ? `<div onclick="let arr = playlists[currentScope]['songs']; arr.splice(arr.findIndex(el => el==${el.songId}) ,1)">Remove from Playlist</div>` : ""}
 						<div data-hover-menu="addPlaylist" onclick="event.stopPropagation(); $('#hover-menu').show()" style="display: flex; justify-content: space-between; align-items: center;">
 							<div>${(currentScope) ? 'Add to Another Playlist' : 'Add to Playlist'}</div>
 							<i class="bi bi-caret-right-fill"></i>
