@@ -2461,7 +2461,7 @@
 						<hr/>
 						<div onclick="editSong(${el.songId})">Edit</div>
 						<div onclick="selectSong(${el.songId}); $('.dropdown-menu').hide(); event.stopPropagation()">Select</div>
-						<div style="color: red" onclick="songs.splice(${el.songId - 1}, 1); initData() ">Delete</div>
+						<div style="color: red" onclick="songs.splice(${el.songId}, 1); initData() ">Delete</div>
 					</div>
 					`
 					break;
