@@ -1132,7 +1132,7 @@
 							server</button>
 						<button onclick="initLoad()">Load</button>
 						<input type="checkbox"
-							onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+							onchange="ForceHighQuality(event)">
 						<label>Force high quality</label>
 						<div class="offline">Offline Mode</div>
 
@@ -1325,7 +1325,7 @@
 				<div class="ce mgoog" onclick="googOauth()">GOOGLE</div>
 				<div class="ce mspot" onclick="spotOauth()">SPOTIFY</div>
 				<input type="checkbox"
-					onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+					onchange="ForceHighQuality(event)">
 				<label>Force high quality</label>
 			</div>
 		</div>
@@ -1444,6 +1444,7 @@
 		let googleSI = false;
 		let spoitfySI = false;
 		let offline = true;
+		let hq = false;
 
 		let spotPlaylists;
 
@@ -1855,11 +1856,11 @@
 					//	console.log(the_song.start)
 					loading = true
 
-					player.setVolume(0)
-
-					do {
-						await delay(100)
-					} while (player.getVolume())
+					// player.setVolume(0)
+// 
+					// do {
+						// await delay(100)
+					// } while (player.getVolume())
 
 					//await delay(100)
 
@@ -1871,11 +1872,11 @@
 					});
 
 					//player.loadPlaylist([  songs[queue[((songIndex-1) < 0) ? queue.length-1:songIndex-1]].id, the_song.id, songs[queue[((songIndex+1) > queue.length-1) ? 0:songIndex+1]].id], 1, 0)
-
+					hq ? player.setPlaybackQuality('highres') : player.setPlaybackQuality('auto')
+					setVolume(slider.value)
 
 					player.seekTo(the_song.start)
 
-					setVolume(slider.value)
 					updateHUDInfo(the_song);
 					break;
 
@@ -2543,6 +2544,11 @@
 
 			contextMenu.css("top", `${e.pageY - (e.clientY > yHalf ? 300 : 10)}px`);
 			contextMenu.css("left", `${e.pageX - (e.clientX > xHalf ? 150 : 10)}px`);
+		}
+
+		function ForceHighQuality(e) {
+			hq = e.target.checked
+			hq ? player.setPlaybackQuality('highres') : player.setPlaybackQuality('auto')
 		}
 
 		function accountMenu() {
