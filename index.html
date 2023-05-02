@@ -1569,6 +1569,7 @@
 				console.log('uuids nuts')
 				axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(ax => {
 					googToken = ax.data;
+					if(googToken.username == null) return localStorage.removeItem("googUUID");
 					localStorage.setItem("googToken", JSON.stringify(googToken));
 					localStorage.removeItem("googUUID");
 					console.log(googToken);
@@ -2611,7 +2612,7 @@
 			let uuid = crypto.randomUUID();
 			if (!uuid) return console.log('no cryto???????')
 			localStorage.setItem("googUUID", uuid)
-			axios.post(url + '/googOauth', { uuid: uuid, origin: window.location.href }).then(({ data }) => window.location.replace(data.url))
+			axios.post(url + '/googOauth', { uuid: uuid, origin: window.location.href }).then(({ data }) => window.location.href = data.url)
 		}
 
 		function spotOauth() {
