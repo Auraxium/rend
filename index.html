@@ -318,6 +318,11 @@
 			background-color: #d3d3d3;
 		}
 
+		[type="checkbox"] {
+			width: 20px;
+			height: 20px
+		}
+
 		.form {}
 
 		#sng {
@@ -1132,7 +1137,7 @@
 							server</button>
 						<button onclick="initLoad()">Load</button>
 						<input type="checkbox"
-							onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+							onchange="ForceHighQuality(event)">
 						<label>Force high quality</label>
 						<div class="offline">Offline Mode</div>
 
@@ -1325,7 +1330,7 @@
 				<div class="ce mgoog" onclick="googOauth()">GOOGLE</div>
 				<div class="ce mspot" onclick="spotOauth()">SPOTIFY</div>
 				<input type="checkbox"
-					onchange="console.log(this.checked ? player.setPlaybackQuality('highres'):player.setPlaybackQuality('auto'))">
+					onchange="ForceHighQuality(event)">
 				<label>Force high quality</label>
 			</div>
 		</div>
@@ -1444,6 +1449,7 @@
 		let googleSI = false;
 		let spoitfySI = false;
 		let offline = true;
+		let hq = false;
 
 		let spotPlaylists;
 
@@ -1563,6 +1569,7 @@
 				console.log('uuids nuts')
 				axios.post(url + '/googGetToken', { uuid: localStorage.getItem("googUUID") }).then(ax => {
 					googToken = ax.data;
+					if(googToken.username == null) return localStorage.removeItem("googUUID");
 					localStorage.setItem("googToken", JSON.stringify(googToken));
 					localStorage.removeItem("googUUID");
 					console.log(googToken);
@@ -1853,11 +1860,11 @@
 					//	console.log(the_song.start)
 					loading = true
 
-					player.setVolume(0)
-
-					do {
-						await delay(100)
-					} while (player.getVolume())
+					// player.setVolume(0)
+// 
+					// do {
+						// await delay(100)
+					// } while (player.getVolume())
 
 					//await delay(100)
 
@@ -1869,11 +1876,11 @@
 					});
 
 					//player.loadPlaylist([  songs[queue[((songIndex-1) < 0) ? queue.length-1:songIndex-1]].id, the_song.id, songs[queue[((songIndex+1) > queue.length-1) ? 0:songIndex+1]].id], 1, 0)
-
+					hq ? player.setPlaybackQuality('highres') : player.setPlaybackQuality('auto')
+					setVolume(slider.value)
 
 					player.seekTo(the_song.start)
 
-					setVolume(slider.value)
 					updateHUDInfo(the_song);
 					break;
 
@@ -2446,7 +2453,7 @@
 						<div onclick="queue.push(${el.songId}); updateQueueHUD()">Queue</div>
 						<hr/>
 						<div onclick="songs[${el.songId}].favorited = !songs[${el.songId}].favorited">${(song.favorited) ? 'Unfavorite' : 'Favorite'}</div>
-						${(currentScope) ? `<div onclick="let arr = playlists[currentScope]['songs']; arr.splice(arr.findIndex(el => el==${el.songId}) ,1); updateScope()">Remove from Playlist</div>` : ""}
+						${(currentScope) ? `<div onclick="let arr = playlists[currentScope]['songs']; arr.splice(arr.findIndex(el => el==${el.songId}) ,1)">Remove from Playlist</div>` : ""}
 						<div data-hover-menu="addPlaylist" onclick="event.stopPropagation(); $('#hover-menu').show()" style="display: flex; justify-content: space-between; align-items: center;">
 							<div>${(currentScope) ? 'Add to Another Playlist' : 'Add to Playlist'}</div>
 							<i class="bi bi-caret-right-fill"></i>
@@ -2455,7 +2462,7 @@
 						<hr/>
 						<div onclick="editSong(${el.songId})">Edit</div>
 						<div onclick="selectSong(${el.songId}); $('.dropdown-menu').hide(); event.stopPropagation()">Select</div>
-						<div style="color: red" onclick="songs.splice(${el.songId - 1}, 1); initData() ">Delete</div>
+						<div style="color: red" onclick="songs.splice(${el.songId}, 1); initData() ">Delete</div>
 					</div>
 					`
 					break;
@@ -2539,6 +2546,11 @@
 			contextMenu.css("left", `${e.pageX - (e.clientX > xHalf ? 150 : 10)}px`);
 		}
 
+		function ForceHighQuality(e) {
+			hq = e.target.checked
+			hq ? player.setPlaybackQuality('highres') : player.setPlaybackQuality('auto')
+		}
+
 		function accountMenu() {
 			console.log(Boolean(googToken))
 			console.log(googToken)
@@ -2594,7 +2606,7 @@
 			let uuid = crypto.randomUUID();
 			if (!uuid) return console.log('no cryto???????')
 			localStorage.setItem("googUUID", uuid)
-			axios.post(url + '/googOauth', { uuid: uuid, origin: window.location.href }).then(({ data }) => window.location.replace(data.url))
+			axios.post(url + '/googOauth', { uuid: uuid, origin: window.location.href }).then(({ data }) => window.location.href = data.url)
 		}
 
 		function spotOauth() {
