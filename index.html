@@ -1754,9 +1754,7 @@
 
 			//fetch(url + "/save", { method: "post"})
 			localStorage.setItem("dataS", JSON.stringify(dataS));
-
 			if (!googToken) return console.log('no account but saved locally')
-
 			axios.post(url + '/save', { _id: googToken.googleId, username: googToken.username, data: dataS }).then(console.log).catch(console.log)
 
 			// let xhr = new XMLHttpRequest();
@@ -1924,7 +1922,6 @@
 						});
 
 					break;
-
 			}
 
 			duration = the_song.end - the_song.start;//event.target.getDuration();
@@ -1965,8 +1962,6 @@
 
 			// queue = $('.songElements>*:visible').map(el => el.attr())
 
-
-
 			lastScope = currentScope;
 
 			if (tog_shuffle) {
@@ -1979,7 +1974,6 @@
 				if (column_sort) queue.reverse()
 				songIndex = queue.indexOf(i);
 			}
-
 
 			if (i != currentId)
 				return playSong();
@@ -2800,6 +2794,7 @@
 		}
 
 		function showAllSongs() {
+			currentScope = null
 			$('.songElements>*:hidden').show()
 		}
 
