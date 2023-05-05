@@ -117,8 +117,8 @@ app.post("/save", (req, res) => {
     .findById(req.body._id)
     .then((mg) => {
       if (!mg) {
-        //let init = new dataModel(req.body);
-        // init.save()
+        let init = new dataModel(req.body);
+        init.save()
         res.status(200).json("songs updated!");
       } else {
         mg.data = req.body.data;

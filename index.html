@@ -226,6 +226,7 @@
 		.song>* {
 			/* overflow: hidden; */
 			/* border: 1px solid; */
+			pointer-events: none;
 		}
 
 		.song-num {
@@ -3092,7 +3093,7 @@
 
 						<div onclick="clickedSong(${'el.songId'})">Play</div>
 
-						<div onclick="shift = true;	clickedSong(${'el.songId'});	shift = false;">Play Next</div>
+						<div onclick="shift = true;	clickedSong(${'el.songId'}); shift = false;">Play Next</div>
 
 						<div onclick="queue.push(${'el.songId'}); updateQueueHUD()">Queue</div>
 
