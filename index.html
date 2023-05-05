@@ -118,13 +118,11 @@
 			display: flex;
 			flex-direction: column;
 			flex-wrap: nowrap;
-			flex: auto;
+			flex-basis: 70%;
 		}
 
 		.left {
-			flex: 15;
-			min-width: 15%;
-			max-width: 15%;
+			flex-basis: 15%;
 
 			overflow: scroll;
 			border-style: solid;
@@ -133,7 +131,7 @@
 		}
 
 		.right {
-			flex: 15;
+			flex-basis: 15%;
 			min-width: 15%;
 			max-width: 15%;
 
@@ -216,6 +214,7 @@
 			background-color: rgb(33, 33, 33);
 			padding: 5px;
 			/* max-width: 100%; */
+			width: 100%;
 
 			display: flex;
 			flex-direction: row;
@@ -230,27 +229,29 @@
 		}
 
 		.song-num {
-			flex: 3;
+			flex-basis: 3%;
 			text-align: center;
 		}
 
 		.song-name {
-			flex: 87;
-			margin-left: 3px;
-			white-space: nowrap;
+			flex-basis: 87%;
+			/* margin-left: 3px; */
+			/* white-space: nowrap; */
 			/* overflow: hidden; */
-			text-overflow: ellipsis;
+			/* text-overflow: ellipsis; */
 		}
 
 		.song-img {
-			flex: 5;
-			margin-left: 3px;
+			flex-basis: 5%;
+			margin: 0 3px
+			/* margin-left: 3px; */
 		}
 
 		.song-dots {
-			flex: 5;
+			flex-basis: 5%;
 			text-align: end;
 			font-size: 10px;
+			pointer-events: auto;
 		}
 
 		.song-text {
@@ -258,6 +259,10 @@
 			white-space: nowrap;
 			overflow: hidden;
 			text-overflow: ellipsis;
+		}
+
+		.bi-three-dots-vertical {
+			font-size: 1px;
 		}
 
 		.song:hover {
@@ -2998,6 +3003,7 @@
 				$('.songElements').detach().appendTo('.display')
 				$('#controls').after($('.duration').detach())
 				$('.song-info').after($('.footmid').detach())
+				$('.bi-three-dots-vertical').removeClass('bi-three-dots-vertical').addClass('bi-three-dots')
 				onMobile = false;
 			}
 			else if (!onMobile && $('.app-mobile').is(':visible')) { // to mobile
@@ -3009,6 +3015,8 @@
 				mobilePage('library', $('[library]')[0])
 				onMobile = true;
 				$('.mobile-song-view').hide()
+				// p($('.bi-three-dots'))
+				$('.bi-three-dots').removeClass('bi-three-dots').addClass('bi-three-dots-vertical')
 			}
 			//closeSongView()
 		}
@@ -3047,9 +3055,9 @@
 		// 	$('.foot').hide()
 		// }
 
-		function openMobileContextMenu(e) {
+		function openMobileContextMenu(e, ele, ctx = ele.dataset.context) {
 			let content = '';
-			let el = e.target.dataset;
+			let el = ele.dataset;
 
 
 			switch (el.context) {
@@ -3512,6 +3520,14 @@
 		});
 
 		$(document).on("mousedown", ".bi-three-dots", e => {
+			e.stopPropagation()
+		});
+
+		$(document).on("click", ".bi-three-dots-vertical", (e) => {
+			e['3-dots-prop'] = true;
+		});
+
+		$(document).on("mousedown", ".bi-three-dots-vertical", e => {
 			e.stopPropagation()
 		});
 
