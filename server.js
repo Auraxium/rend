@@ -128,7 +128,6 @@ app.post("/save", (req, res) => {
       }
     })
     .catch((err) => {
-      console.log("L");
       console.log(err);
       res.status(500).json({ err: err });
     });
