@@ -2431,7 +2431,7 @@
 
 		//#endregion
 
-		//#region misc // comers manuver 
+		//#region misc 
 
 		function openContextMenu(e, ele, ctx = ele.dataset.context) {
 			if (screen.width < mobileScreen) {
@@ -2895,11 +2895,11 @@
 		function secsToTime(secs) {
 			if (!secs && secs !== 0)
 				return '-:--';
-			return new Date(secs * 1000).toISOString().substring(14, 19).replace(/^0+/, '').substring().replace(/^:+/, '0:');
+			return new Date(secs * 1000).toISOString().match(/(?<=T).+?(?=\.)/)[0].replace(/^0+(?=\d)/, '')
 		}
 
 		function hmsToSecs(str) {
-			var p = str.split(':'),
+			let p = str.split(':'),
 				s = 0, m = 1;
 
 			while (p.length > 0) {
@@ -2908,6 +2908,7 @@
 			}
 
 			return s;
+
 		}
 
 		function nearEnough(target, compare, range) {
@@ -3492,9 +3493,6 @@
 				$('#hover-menu').css({ "left": `${dis.right - (comparer.width + dis.width)}px`, "top": `${dis.bottom - $('#hover-menu').height()}px` })
 			else
 				$('#hover-menu').css({ "left": `${dis.right}px`, "top": `${dis.bottom - $('#hover-menu').height()}px` })
-
-
-
 
 			$(".dd-options>div").on("pointerenter", e => {
 				//		console.log('offed')
