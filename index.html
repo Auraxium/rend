@@ -1498,7 +1498,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		const p = (s) => console.log(s);
+		const p = console.log;
 
 		var tag = document.createElement("script");
 
@@ -1974,7 +1974,6 @@
 				}
 			}
 
-			// queue = $('.songElements>*:visible').map(el => el.attr())
 
 			lastScope = currentScope;
 
@@ -2018,12 +2017,6 @@
 			document.title = thesong.name;
 
 			$(".resize").attr("class", `bi-star${thesong.favorited ? '-fill' : ''} resize`);
-
-			// $("#length").html(function () {
-			// 	return `${Math.floor(
-			// 		duration / 60
-			// 	)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
-			// });
 
 			seek_ready = true;
 
@@ -2096,64 +2089,6 @@
 			end = end.includes(':') ? hmsToSecs(end) : +end
 
 			return SongAdder({ name: n, link: l, type: t, start: start, end: end })
-
-			// info_player.loadVideoByUrl(l)
-
-			// if (!n || !end) {
-			// 	let time = 0;
-			// 	let now = Date.now()
-			// 	while (info_player.getPlayerState() != 2) {
-			// 		console.log(time)
-			// 		time = Date.now() - now;
-			// 		if (time > 4000) {
-			// 			console.log('failed to get song')
-			// 			return;
-			// 		}
-			// 		await delay(250)
-			// 	}
-
-			// }
-
-			// if (!n)
-			// 	n = info_player.videoTitle;
-
-			// if (!start)
-			// 	start = 0;
-
-			// if (!end)
-			// 	end = info_player['playerInfo']['duration'];
-
-			// let links = l.split("|");
-			// console.log(links);
-
-			// let sng = {
-			// 	name: n,
-			// 	link: l,
-			// 	id: '',
-			// 	playlists: [],
-			// 	favorited: false,
-			// 	type: t,
-			// 	start: start,
-			// 	end: end,
-			// 	end_raw: secsToTime(end - start)
-			// };
-
-			// if (t == 'FILE') {
-			// 	sng.id = crypto.randomUUID();
-			// }
-
-			// if (t == 'YOUTUBE') {
-			// 	sng.id = idParser(linkParser(l));
-			// }
-
-			// console.log(sng)
-
-			// songs.push(sng);
-			// queue.push(songs.length - 1);
-			// $("#form").html("");
-			// $(".songElements").append(
-			// 	songBuilder(songs.length - 1, songs[songs.length - 1].id, n, t)
-			// );
 
 		}
 
@@ -2235,8 +2170,6 @@
 			SongAdder(JSON.parse(e.target.dataset.json))
 		}
 
-
-
 		async function yt_auto_fill() {
 			console.log(linkParser($('#link').val()))
 			info_player.loadVideoByUrl(linkParser($('#link').val()))
@@ -2295,6 +2228,7 @@
 		}
 
 		function editSong(id) {
+			p('i am editing')
 			$(".add-song-form").show();
 			let buts = `	
 			<button class="form-option" onclick="submitEditedSong(${id})">Edit Song</button>
@@ -2435,7 +2369,7 @@
 
 		function openContextMenu(e, ele, ctx = ele.dataset.context) {
 			if (screen.width < mobileScreen) {
-				openMobileContextMenu(e)
+				openMobileContextMenu(e, ele)
 				return;
 			}
 
@@ -2541,10 +2475,6 @@
 			contextMenu.show();
 
 			contextMenu.addClass("active");
-
-			//if (screen.width < mobileScreen) {
-			//	return
-			//}
 
 			let yHalf = window.innerHeight / 2;
 			let xHalf = window.innerWidth / 2;
@@ -2806,6 +2736,7 @@
 		}
 
 		function closeSongForm() {
+			p('closing form')
 			$(".add-song-form").hide()
 			$(".form-blur").hide()
 			$('.misc-form').hide()
@@ -2963,6 +2894,7 @@
 					$('.displayM').show()
 					showAllSongs()
 					$('.nm_info').html('Library')
+					$('.songElements').detach().appendTo('.displayM')
 					break;
 
 				case 'playlists':
@@ -3088,7 +3020,7 @@
 						</div>
 						
 						<hr/>
-						<div onclick="editSong(${el.songId})">Edit</div>
+						<div onclick="event.stopPropagation(); editSong(${el.songId}); $('.misc-form').hide()  ">Edit</div>
 						<div onclick="selectSong(${el.songId}); $('.dropdown-menu').hide(); closeSongForm(); event.stopPropagation()">Select</div>
 						<div style="color: red" onclick="">Delete</div>
 					</div>
@@ -3159,6 +3091,7 @@
 					break;
 
 				default:
+					p('not implemented yet dummy')
 					break;
 			}
 
