@@ -2019,11 +2019,11 @@
 
 			$(".resize").attr("class", `bi-star${thesong.favorited ? '-fill' : ''} resize`);
 
-			$("#length").html(function () {
-				return `${Math.floor(
-					duration / 60
-				)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
-			});
+			// $("#length").html(function () {
+			// 	return `${Math.floor(
+			// 		duration / 60
+			// 	)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
+			// });
 
 			seek_ready = true;
 
@@ -2777,7 +2777,7 @@
 
 			$("#elapsed").html(() => {
 				let temp = Math.floor(t % 60);
-				return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp}`;
+				return `${secsToTime(t)}`;
 			});
 		}
 
@@ -2877,8 +2877,8 @@
 			}
 
 			$("#elapsed").html(() => {
-				let temp = Etime % 60;
-				return `${Math.floor(Etime / 60)}:${temp < 10 ? `0${temp}` : temp}`;
+				//let temp = Etime % 60;
+				return `${secsToTime(Etime)}`;
 			});
 			progress.style.width = `${(Etime / duration) * 100}%`;
 		}
@@ -2895,7 +2895,10 @@
 		function secsToTime(secs) {
 			if (!secs && secs !== 0)
 				return '-:--';
-			return new Date(secs * 1000).toISOString().match(/(?<=T).+?(?=\.)/)[0].replace(/^0+(?=\d)/, '')
+			let time = new Date(secs * 1000).toISOString().match(/(?<=T).+?(?=\.)/)[0].replace(/^0*:/, '').replace(/^0+/, '')//.replace(/^0*:/, '').replace(/^0*:/, '')
+			if(time.length == 3)
+				time = '0' + time;
+			return time;
 		}
 
 		function hmsToSecs(str) {
@@ -2908,7 +2911,6 @@
 			}
 
 			return s;
-
 		}
 
 		function nearEnough(target, compare, range) {
@@ -3413,8 +3415,7 @@
 						t = clamp((clickX / width) * duration, 0, duration);
 
 						let temp = Math.floor(t % 60);
-						return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp
-							} / ${$("#length").html()}`;
+						return `${secsToTime(t)} / ${$("#length").html()}`;
 					});
 					el.css("top", `${e.pageY - 35}px`);
 					el.css("left", `${e.pageX - 27}px`);
