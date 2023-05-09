@@ -2200,6 +2200,7 @@
 			$(".songElements").append(
 				songBuilder(songs.length - 1, songs[songs.length - 1].id, json.name, json.type)
 			);
+			AutoSave()
 		}
 
 		function YT_SEARCH(s) {
@@ -3058,7 +3059,6 @@
 		function openMobileContextMenu(e, ele, ctx = ele.dataset.context) {
 			let content = '';
 			let el = ele.dataset;
-
 
 			switch (el.context) {
 				case 'song':
