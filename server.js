@@ -128,23 +128,9 @@ app.post("/save", (req, res) => {
       }
     })
     .catch((err) => {
-      console.log("L");
       console.log(err);
       res.status(500).json({ err: err });
     });
-
-  // dataModel.findOne().then((response) => {
-  //   if (response == null) {
-  //     let init = new dataModel(req.body);
-  //     init.save();
-  //   } else {
-  //     response.data = req.body;
-  //     response
-  //       .save()
-  //       .then(() => res.json("songs updated!"))
-  //       .catch((err) => res.status(400).json("Error: " + err));
-  //   }
-  // });
 });
 
 const PORT = process.env.PORT || 8080;

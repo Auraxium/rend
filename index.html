@@ -1456,6 +1456,7 @@
 		let spoitfySI = false;
 		let offline = true;
 		let hq = false;
+		let clickReshuffles = true
 
 		let spotPlaylists;
 
@@ -1497,7 +1498,7 @@
 		var tog_shuffle = true;
 		var tog_repeat = true;
 
-		const p = (s) => console.log(s);
+		const p = console.log;
 
 		var tag = document.createElement("script");
 
@@ -1973,7 +1974,6 @@
 				}
 			}
 
-			// queue = $('.songElements>*:visible').map(el => el.attr())
 
 			lastScope = currentScope;
 
@@ -2017,12 +2017,6 @@
 			document.title = thesong.name;
 
 			$(".resize").attr("class", `bi-star${thesong.favorited ? '-fill' : ''} resize`);
-
-			$("#length").html(function () {
-				return `${Math.floor(
-					duration / 60
-				)}:${Math.floor(duration % 60) < 10 ? `0${Math.floor(duration % 60)}` : Math.floor(duration % 60)}`;
-			});
 
 			seek_ready = true;
 
@@ -2095,64 +2089,6 @@
 			end = end.includes(':') ? hmsToSecs(end) : +end
 
 			return SongAdder({ name: n, link: l, type: t, start: start, end: end })
-
-			// info_player.loadVideoByUrl(l)
-
-			// if (!n || !end) {
-			// 	let time = 0;
-			// 	let now = Date.now()
-			// 	while (info_player.getPlayerState() != 2) {
-			// 		console.log(time)
-			// 		time = Date.now() - now;
-			// 		if (time > 4000) {
-			// 			console.log('failed to get song')
-			// 			return;
-			// 		}
-			// 		await delay(250)
-			// 	}
-
-			// }
-
-			// if (!n)
-			// 	n = info_player.videoTitle;
-
-			// if (!start)
-			// 	start = 0;
-
-			// if (!end)
-			// 	end = info_player['playerInfo']['duration'];
-
-			// let links = l.split("|");
-			// console.log(links);
-
-			// let sng = {
-			// 	name: n,
-			// 	link: l,
-			// 	id: '',
-			// 	playlists: [],
-			// 	favorited: false,
-			// 	type: t,
-			// 	start: start,
-			// 	end: end,
-			// 	end_raw: secsToTime(end - start)
-			// };
-
-			// if (t == 'FILE') {
-			// 	sng.id = crypto.randomUUID();
-			// }
-
-			// if (t == 'YOUTUBE') {
-			// 	sng.id = idParser(linkParser(l));
-			// }
-
-			// console.log(sng)
-
-			// songs.push(sng);
-			// queue.push(songs.length - 1);
-			// $("#form").html("");
-			// $(".songElements").append(
-			// 	songBuilder(songs.length - 1, songs[songs.length - 1].id, n, t)
-			// );
 
 		}
 
@@ -2235,8 +2171,6 @@
 			SongAdder(JSON.parse(e.target.dataset.json))
 		}
 
-
-
 		async function yt_auto_fill() {
 			console.log(linkParser($('#link').val()))
 			info_player.loadVideoByUrl(linkParser($('#link').val()))
@@ -2295,6 +2229,7 @@
 		}
 
 		function editSong(id) {
+			p('i am editing')
 			$(".add-song-form").show();
 			let buts = `	
 			<button class="form-option" onclick="submitEditedSong(${id})">Edit Song</button>
@@ -2431,11 +2366,11 @@
 
 		//#endregion
 
-		//#region misc // comers manuver 
+		//#region misc 
 
 		function openContextMenu(e, ele, ctx = ele.dataset.context) {
 			if (screen.width < mobileScreen) {
-				openMobileContextMenu(e)
+				openMobileContextMenu(e, ele)
 				return;
 			}
 
@@ -2541,10 +2476,6 @@
 			contextMenu.show();
 
 			contextMenu.addClass("active");
-
-			//if (screen.width < mobileScreen) {
-			//	return
-			//}
 
 			let yHalf = window.innerHeight / 2;
 			let xHalf = window.innerWidth / 2;
@@ -2777,7 +2708,7 @@
 
 			$("#elapsed").html(() => {
 				let temp = Math.floor(t % 60);
-				return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp}`;
+				return `${secsToTime(t)}`;
 			});
 		}
 
@@ -2806,6 +2737,7 @@
 		}
 
 		function closeSongForm() {
+			p('closing form')
 			$(".add-song-form").hide()
 			$(".form-blur").hide()
 			$('.misc-form').hide()
@@ -2877,8 +2809,8 @@
 			}
 
 			$("#elapsed").html(() => {
-				let temp = Etime % 60;
-				return `${Math.floor(Etime / 60)}:${temp < 10 ? `0${temp}` : temp}`;
+				//let temp = Etime % 60;
+				return `${secsToTime(Etime)}`;
 			});
 			progress.style.width = `${(Etime / duration) * 100}%`;
 		}
@@ -2895,11 +2827,14 @@
 		function secsToTime(secs) {
 			if (!secs && secs !== 0)
 				return '-:--';
-			return new Date(secs * 1000).toISOString().substring(14, 19).replace(/^0+/, '').substring().replace(/^:+/, '0:');
+			let time = new Date(secs * 1000).toISOString().match(/(?<=T).+?(?=\.)/)[0].replace(/^0*:/, '').replace(/^0+/, '')//.replace(/^0*:/, '').replace(/^0*:/, '')
+			if(time.length == 3)
+				time = '0' + time;
+			return time;
 		}
 
 		function hmsToSecs(str) {
-			var p = str.split(':'),
+			let p = str.split(':'),
 				s = 0, m = 1;
 
 			while (p.length > 0) {
@@ -2960,6 +2895,7 @@
 					$('.displayM').show()
 					showAllSongs()
 					$('.nm_info').html('Library')
+					$('.songElements').detach().appendTo('.displayM')
 					break;
 
 				case 'playlists':
@@ -3084,7 +3020,7 @@
 						</div>
 						
 						<hr/>
-						<div onclick="editSong(${el.songId})">Edit</div>
+						<div onclick="event.stopPropagation(); editSong(${el.songId}); $('.misc-form').hide()  ">Edit</div>
 						<div onclick="selectSong(${el.songId}); $('.dropdown-menu').hide(); closeSongForm(); event.stopPropagation()">Select</div>
 						<div style="color: red" onclick="">Delete</div>
 					</div>
@@ -3155,6 +3091,7 @@
 					break;
 
 				default:
+					p('not implemented yet dummy')
 					break;
 			}
 
@@ -3411,8 +3348,7 @@
 						t = clamp((clickX / width) * duration, 0, duration);
 
 						let temp = Math.floor(t % 60);
-						return `${Math.floor(t / 60)}:${temp < 10 ? `0${temp}` : temp
-							} / ${$("#length").html()}`;
+						return `${secsToTime(t)} / ${$("#length").html()}`;
 					});
 					el.css("top", `${e.pageY - 35}px`);
 					el.css("left", `${e.pageX - 27}px`);
@@ -3492,10 +3428,6 @@
 			else
 				$('#hover-menu').css({ "left": `${dis.right}px`, "top": `${dis.bottom - $('#hover-menu').height()}px` })
 
-
-			//console.log(comparer.width);
-
-
 			$(".dd-options>div").on("pointerenter", e => {
 				//		console.log('offed')
 				$('#hover-menu').hide()
@@ -3546,17 +3478,6 @@
 		})
 
 		$(document).on("mousedown", "[data-type=\"song\"]", function (e) {
-			//console.log(e['propa'])
-			// if (e['propa']) {
-			// 	hoverSongId = +this.dataset.songId;
-			// 	hoverSongElement = this;
-
-			// 	if (screen.width > mobileScreen)
-			// 		openContextMenu(e, this);
-			// 	else
-			// 		openMobileContextMenu(e, this)
-			// 	return;
-			// }
 			if (e.which != 1) return;
 			if (!player || !player.setVolume) return;
 			let id = parseInt(this.dataset.songId);
@@ -3581,8 +3502,6 @@
 				return;
 			}
 
-			//	$(".playing").removeClass("playing");
-
 			clickedSong(id);
 		});
 
@@ -3603,182 +3522,6 @@
 		$(document).on("click", ".dd-options", (e) => {
 			e['stop-prop'] = true;
 
-			// switch (e.target.getAttribute("title")) {
-			// 	case "edit": {
-			// 		editSong(hoverSongId);
-			// 		$(".form-blur").addClass("active");
-			// 		break;
-			// 	}
-			// 	case "play": {
-			// 		shift = true;
-			// 		clickedSong(hoverSongId);
-			// 		shift = false;
-			// 		clickedSong(songs[queue[songIndex]]);
-			// 		break;
-			// 	}
-			// 	case "queue-next": {
-			// 		shift = true;
-			// 		clickedSong(hoverSongId);
-			// 		shift = false;
-			// 		break;
-			// 	}
-			// 	case "favorite": {
-			// 		var bool = songs[hoverSongId].favorited;
-			// 		if (bool) {
-			// 			songs[hoverSongId].favorited = false;
-			// 			favorites.splice(favorites.indexOf(songIndex), 1);
-			// 		} else {
-			// 			songs[hoverSongId].favorited = true;
-			// 			favorites.push(hoverSongId);
-			// 		}
-			// 		break;
-			// 	}
-			// 	case "remove-from-playlist": {
-			// 		console.log(songs[hoverSongId]);
-			// 		var the_playlist = playlists[playlistIndex];
-			// 		//find where deleting song is in the playlist
-			// 		var ind = the_playlist.songs.indexOf(hoverSongId);
-			// 		if (ind == -1) return;
-
-			// 		var icant = (() => {
-			// 			for (let l = 0; l < songs[hoverSongId].playlists.length; l++) {
-			// 				if (songs[hoverSongId].playlists[l].name == the_playlist.name)
-			// 					return l;
-			// 			}
-			// 			return -1;
-			// 		})();
-			// 		songs[hoverSongId].playlists.splice(icant, 1);
-
-			// 		//splice deleting song
-			// 		the_playlist.songs.splice(ind, 1);
-			// 		// move positions for songs after it down (couldve just loop through
-			// 		// the songs array and set everysong to its new position but this is
-			// 		// more effeciant)
-			// 		for (let k = ind; k < the_playlist.songs.length; k++) {
-			// 			var currentSong = songs[the_playlist.songs[k]];
-			// 			var findIndexForRetrival = (() => {
-			// 				for (let l = 0; l < currentSong.playlists.length; l++) {
-			// 					if (currentSong.playlists[l].name == the_playlist.name)
-			// 						return l;
-			// 				}
-			// 				return -1;
-			// 			})();
-			// 			currentSong.playlists[findIndexForRetrival].position--;
-			// 		}
-			// 		the_playlist.size = the_playlist.songs.length;
-
-			// 		hoverSongElement.remove();
-			// 		break;
-			// 	}
-			// 	case "delete": {
-			// 		//loops through every playlists that has deleting song to remove it from that playlist.
-			// 		for (let i = 0; i < songs[hoverSongId].playlists.length; i++) {
-			// 			const element = songs[hoverSongId].playlists[i];
-			// 			//find where playlist is in playlists array
-			// 			var playlistId = FindPlaylistIndexByName(element.name);
-
-			// 			if (playlistId == -1) return;
-			// 			//find where deleting song is in the playlist
-			// 			var ind = playlists[playlistId].songs.indexOf(hoverSongId);
-			// 			if (ind == -1) return;
-
-			// 			console.log(element);
-			// 			//splice deleting song
-			// 			playlists[playlistId].songs.splice(ind, 1);
-			// 			// move positions for songs after it down (couldve just loop through
-			// 			// the songs array and set everysong to its new position but this is
-			// 			// more effeciant)
-			// 			for (let k = ind; k < playlists[playlistId].songs.length; k++) {
-			// 				var currentSong = songs[playlists[playlistId].songs[k]];
-			// 				var findIndexForRetrival = (() => {
-			// 					for (let l = 0; l < currentSong.playlists.length; l++) {
-			// 						if (currentSong.playlists[l].name == element.name) return l;
-			// 					}
-			// 					return -1;
-			// 				})();
-			// 				currentSong.playlists[findIndexForRetrival].position--;
-			// 			}
-			// 			if (playlists[playlistId] != null)
-			// 				playlists[playlistId].size = playlists[playlistId].songs.length;
-			// 		}
-			// 		songs.splice(hoverSongId, 1);
-			// 		hoverSongElement.remove();
-			// 		loadSongs();
-			// 		break;
-			// 	}
-
-			// 	case "select": {
-			// 		selecting = true;
-			// 		$(".accept-menu").show();
-			// 		hoverSongElement.classList.toggle("selected");
-			// 		if (hoverSongElement.classList.contains("selected"))
-			// 			selects.push(hoverSongId);
-			// 		else {
-			// 			selects.splice(selects.indexOf(hoverSongId), 1);
-			// 			if (!selects.length) {
-			// 				selecting = false;
-			// 				$(".accept-menu").hide();
-			// 			}
-			// 		}
-			// 		break;
-			// 	}
-
-			// 	case "sel-delete": {
-			// 		for (let g = 0; g < selects.length; g++) {
-			// 			var sel_num = selects[g];
-			// 			//if(songs[sel_num] == null) continue
-			// 			if (songs[sel_num] != null && songs[sel_num].playlists != null) {
-			// 				for (let i = 0; i < songs[sel_num].playlists.length; i++) {
-			// 					const element = songs[sel_num].playlists[i];
-			// 					//find where playlist is in playlists array
-			// 					var playlistId = FindPlaylistIndexByName(element.name);
-
-			// 					if (playlistId == -1) break;
-			// 					//find where deleting song is in the playlist
-			// 					var ind = playlists[playlistId].songs.indexOf(sel_num);
-			// 					if (ind == -1) break;
-
-			// 					//console.log(element);
-			// 					//splice deleting song
-			// 					playlists[playlistId].songs.splice(ind, 1);
-			// 					// move positions for songs after it down (couldve just loop through
-			// 					// the songs array and set everysong to its new position but this is
-			// 					// more effeciant)
-			// 					console.log(playlists[playlistId].songs);
-			// 					for (
-			// 						let k = ind; k < playlists[playlistId].songs.length; k++
-			// 					) {
-			// 						//console.log(songs[playlists[playlistId].songs[k]])
-			// 						if (playlists[playlistId].songs[k] == null) continue;
-			// 						var currentSong = songs[playlists[playlistId].songs[k]];
-			// 						var findIndexForRetrival = currentSong.playlists.findIndex(
-			// 							(el) => el.name == element.name
-			// 						);
-
-			// 						currentSong.playlists[findIndexForRetrival].position--;
-			// 					}
-			// 					if (playlists[playlistId] != null)
-			// 						playlists[playlistId].size =
-			// 							playlists[playlistId].songs.length;
-			// 				}
-			// 			}
-			// 			songs[sel_num] = null;
-			// 			$(`[data-song-id="${sel_num}"]`).remove();
-			// 		}
-
-			// 		songs = songs.filter((el) => el !== null);
-			// 		selects = [];
-			// 		selecting = false;
-			// 		$(".accept-menu").hide();
-			// 		//updateQueueHUD()
-			// 		//loadSongs();
-
-			// 		break;
-			// 	}
-
-			// 	default:
-			// 		console.log(e.target.getAttribute("title"));
-			// }
 			contextMenu.removeClass("active");
 			hoverSongElement.classList.remove("highlight");
 		});
@@ -3843,18 +3586,9 @@
 					e.preventDefault();
 					shift = true;
 					break;
-				}
-				// case 176: 
-				// 	nextSong()
-				// 	break;
-				// case 179:
-				// 	PlayPauseFlip()
-				// 	break;
-				// case 177:
-				// 	prevSong();
-				// 	break;
+				}	
 			}
-			//	console.log(e.keyCode)
+
 		});
 
 		$(document).on("keyup", (e) => {
@@ -3871,18 +3605,6 @@
 				}
 			}
 		});
-
-		// document.addEventListener("dragover", (event) => {
-		// 	event.stopPropagation();
-		// 	event.preventDefault();
-		// 	event.dataTransfer.dropEffect = "copy";
-		// });
-
-		// document.addEventListener("drop", (event) => {
-		// 	event.stopPropagation();
-		// 	event.preventDefault();
-		// 	DragSong(event.dataTransfer.files);
-		// });
 
 		window.addEventListener(
 			"beforeunload",
@@ -3951,7 +3673,7 @@
 					prevSong()
 					exit();
 				}
-				if (gestureX < -70) {
+				if (gestureX < -60) {
 					console.log('right swipe that')
 					nextSong(true, true)
 					exit();
@@ -3992,17 +3714,17 @@
 					prevSong()
 					exit();
 				}
-				if (gestureX < -70) {
+				if (gestureX < -60) {
 					console.log('right swipe that')
 					nextSong(true, true)
 					exit();
 				}
-				if (gestureY < -70) {
+				if (gestureY < -60) {
 					console.log('up swipe that')
 					closeSongView()
 					exit();
 				}
-				if (gestureY > 70) {
+				if (gestureY > 60) {
 					closeSongView()
 					exit();
 				}
