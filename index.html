@@ -2165,7 +2165,7 @@
 		}
 
 		function ytAdd(e) {
-			console.log('??????????????????')
+			// console.log('??????????????????')
 			$(e.target).addClass("selected");
 			//console.log(JSON.parse(e.target.dataset.json))
 			SongAdder(JSON.parse(e.target.dataset.json))
@@ -2334,7 +2334,8 @@
 			})
 			selects = []
 			selectp = []
-			updateScope()
+			$('.selected').removeClass('selected')
+			// updateScope()
 		}
 
 		function selectPlaylist(e, key) {
