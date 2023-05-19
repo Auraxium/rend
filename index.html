@@ -1882,8 +1882,17 @@
 						startSeconds: 0,
 					});
 
+					await delay(3000)
+
+
+					while (loading) {
+						await delay(100)
+						p('i was running for this long')
+					}
+
+					let quals = player['playerInfo']['availableQualityLevels']
 					//player.loadPlaylist([  songs[queue[((songIndex-1) < 0) ? queue.length-1:songIndex-1]].id, the_song.id, songs[queue[((songIndex+1) > queue.length-1) ? 0:songIndex+1]].id], 1, 0)
-					hq ? player.setPlaybackQuality('highres') : player.setPlaybackQuality('auto')
+					hq ? player.setPlaybackQuality(quals[0]) : player.setPlaybackQuality(quals[quals.length-1])
 					setVolume(slider.value)
 
 					player.seekTo(the_song.start)
@@ -3197,7 +3206,8 @@
 			}
 			playing = event.data == YT.PlayerState.PLAYING
 			timeUpdate()
-			player.setPlaybackQuality('hd720');
+
+			hq ? player.setPlaybackQuality(quals[0]) : player.setPlaybackQuality(quals[quals.length-1])
 		}
 
 		function stopVideo() {
