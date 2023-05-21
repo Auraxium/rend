@@ -1520,7 +1520,7 @@
 
 			if (googToken) {
 				try {
-					console.log(googToken.googleId)
+					// console.log(googToken.googleId)
 					let fet = await axios.post(url + "/load", { _id: googToken.googleId });
 					data = fet['data']['data']
 					$('.offline').hide()
@@ -1882,7 +1882,9 @@
 						startSeconds: 0,
 					});
 
-					await delay(3000)
+					// await delay(3000)
+
+					updateHUDInfo(the_song);
 
 
 					while (loading) {
@@ -1897,7 +1899,6 @@
 
 					player.seekTo(the_song.start)
 
-					updateHUDInfo(the_song);
 					break;
 
 				case 'FILE':
@@ -3207,6 +3208,7 @@
 			playing = event.data == YT.PlayerState.PLAYING
 			timeUpdate()
 
+			let quals = player['playerInfo']['availableQualityLevels']
 			hq ? player.setPlaybackQuality(quals[0]) : player.setPlaybackQuality(quals[quals.length-1])
 		}
 
