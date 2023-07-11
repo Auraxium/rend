@@ -5,26 +5,22 @@ var cors = require("cors");
 var { google } = require("googleapis");
 const axios = require("axios");
 const mongoose = require("mongoose");
-const dataModel = mongoose.model(
-  "Account2",
-  new mongoose.Schema({ _id: {}, username: String, data: {} })
-);
+const dataModel = mongoose.model("Account2", new mongoose.Schema({ _id: {}, username: String, data: {} }));
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
-require('dotenv').config();
+const lz = require("lz-string");
+require("dotenv").config();
 
+let p = console.log;
 
-const URI =
-  "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
+const URI = "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
 
 const YT_API_KEY = process.env.YT_API_KEY;
 // console.log(YT_API_KEY)
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
-
 const URL = process.env.URL || "http://localhost:8080";
 // console.log(process.env.URL);
-
 
 mongoose
   .connect(URI, {
@@ -97,6 +93,55 @@ app.get("/native", (req, res) => {
   res.sendFile(__dirname + "/songs.json", (err) => console.log(err));
 });
 
+app.post("/getImg", async (req, res) => {
+  let a = await axios(`https://i.ytimg.com/vi/${req.body.id}/default.jpg`).catch((err) => null);
+  if (!a) return res.end();
+
+  a = Buffer.from(a.data, "binary").toString("base64");
+  let bound = Math.floor(a.length * 0.75);
+  res.send(a.length < 17 ? a : a.substring(bound - 16, bound + 16));
+
+  // let j = fs.readFileSync(__dirname + '/imgsMap.json', 'utf8');
+  // console.log(Object.entries(j)[9]);
+  // let rrr = {}
+  // Object.entries(j).forEach(e => {
+  // 	let bound = Math.floor(e[0].length*.75)
+  // 	rrr[e[0].substring(bound-10, bound+10)] = e[1]
+  // })
+
+  // res.json()
+
+  // console.log(req.body);
+  // return res.end()
+
+  // let ims = { none: [] };
+  // for (let i = 0; i < req.body.ids.length; i++) {
+  //   const e = req.body.ids[i];
+  //   let a = await axios(`https://i.ytimg.com/vi/${e}/default.jpg`, { responseType: "blob" }).catch(err => {
+  // 		console.log(err.data);
+  // 		return null;
+  // 	});
+  //   if (!a) {
+  //     ims.none.push(i);
+  //     continue;
+  //   }
+
+  //   a = Buffer.from(a.data, "binary").toString("base64");
+	// 	let bound = Math.floor(a.length * 0.75);
+	// 	a = a.length < 17 ? a : a.substring(bound - 16, bound + 16);
+  // 	//  lz.compre
+  // 	if(ims[a]) {
+  // 		ims[a].push(i)
+  // 		continue;
+  // 	}
+
+  // 	ims[a] = [i];
+  // }
+  // res.json(ims)
+  // fs.writeFileSync(__dirname +"/imgsMap2.json", JSON.stringify(ims), 'utf-8')
+  // res.end();
+});
+
 app.post("/mognoInit", (req, res) => {});
 
 app.post("/load", (req, res) => {
@@ -106,6 +151,7 @@ app.post("/load", (req, res) => {
       if (!data) {
         return res.status(501).json({ no: "data" });
       }
+      // console.log(data);
       res.json(data);
     })
     .catch((err) => res.status(200).json(err));
@@ -118,7 +164,7 @@ app.post("/save", (req, res) => {
     .then((mg) => {
       if (!mg) {
         let init = new dataModel(req.body);
-        init.save()
+        init.save();
         res.status(200).json("songs updated!");
       } else {
         mg.data = req.body.data;
@@ -140,26 +186,18 @@ app.listen(PORT, null, () => console.log("Running on " + PORT));
 
 //#region ---------------GOOGLE---------------------
 
-const googCID =
-  "482771111816-0fpbmptbpflo8ackjf70gl1ls3ejl7fi.apps.googleusercontent.com";
+const googCID = "482771111816-0fpbmptbpflo8ackjf70gl1ls3ejl7fi.apps.googleusercontent.com";
 const googCS = "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";
 
 let googCache = {};
 
-const GOauth = new google.auth.OAuth2(
-  googCID,
-  googCS,
-  URL + "/googOauth/callback"
-);
+const GOauth = new google.auth.OAuth2(googCID, googCS, URL + "/googOauth/callback");
 
 app.post("/googOauth", (req, res) => {
   googCache[req.body.uuid] = { origin: req.body.origin };
   const googAuthUrl = GOauth.generateAuthUrl({
     access_type: "offline",
-    scope: [
-      "https://www.googleapis.com/auth/userinfo.profile",
-      "https://www.googleapis.com/auth/userinfo.email",
-    ],
+    scope: ["https://www.googleapis.com/auth/userinfo.profile", "https://www.googleapis.com/auth/userinfo.email"],
     include_granted_scopes: true,
     state: req.body.uuid,
   });
@@ -175,14 +213,11 @@ app.get("/googOauth/callback", async (req, res) => {
   });
   googCache[session]["access_token"] = response.tokens.access_token;
   googCache[session]["refresh_token"] = response.tokens.refresh_token;
-  let ax = await axios(
-    "https://people.googleapis.com/v1/people/me?personFields=names",
-    {
-      headers: {
-        Authorization: `Bearer ${response.tokens.access_token}`,
-      },
-    }
-  );
+  let ax = await axios("https://people.googleapis.com/v1/people/me?personFields=names", {
+    headers: {
+      Authorization: `Bearer ${response.tokens.access_token}`,
+    },
+  });
   googCache[session]["googleId"] = ax.data.names[0].metadata.source.id;
   googCache[session]["username"] = ax.data.names[0].displayName;
   googCache[session]["now"] = Date.now();
@@ -201,9 +236,7 @@ app.post("/googGetToken", (req, res) => {
 //#region ---------------YOUTUBE--------------------
 
 app.get("/yttest", (req, res) => {
-  axios(
-    `${baseApiUrl}/videos?id=b8-tXG8KrWs,hZvitm7eK9c,MrLnOfYFVvQ,lcNfSwl2SmI,jcxate72OMg,oIoyTuvqHAs,cW6uJAaLfRA,xwhBRJStz7w,qn7HvnMJZd4,RDk5NB3pgJo,mg-ODPxYl9Q,CDhUvkzLsmQ,a2Cenb4UNFE,vE8zTxbifNM,yFdLSM8zVVI,uxurZPG1k-M,tRAEkH3EqGQ,MBq722OJ8QY,C6mvSrZA410,cbuV0WtQXjw,j2VtMsBYTjI&part=contentDetails&part=snippet&key=${YT_API_KEY}`
-  ).then((data) => res.json(data.data));
+  axios(`${baseApiUrl}/videos?id=b8-tXG8KrWs,hZvitm7eK9c,MrLnOfYFVvQ,lcNfSwl2SmI,jcxate72OMg,oIoyTuvqHAs,cW6uJAaLfRA,xwhBRJStz7w,qn7HvnMJZd4,RDk5NB3pgJo,mg-ODPxYl9Q,CDhUvkzLsmQ,a2Cenb4UNFE,vE8zTxbifNM,yFdLSM8zVVI,uxurZPG1k-M,tRAEkH3EqGQ,MBq722OJ8QY,C6mvSrZA410,cbuV0WtQXjw,j2VtMsBYTjI&part=contentDetails&part=snippet&key=${YT_API_KEY}`).then((data) => res.json(data.data));
 });
 
 app.post("/YTsearch", async (req, res) => {
@@ -213,12 +246,13 @@ app.post("/YTsearch", async (req, res) => {
     `${baseApiUrl}/search?key=${YT_API_KEY}
 		&type=video
 		&part=snippet
-		&maxResults=7
+		&maxResults=10
 		&q=${req.body.search.replace(/\s+/g, "+")}`
-  ).then((data) => (vids = data.data.items))
-	.catch((err) => console.log(err.response.data))
+  )
+    .then((data) => (vids = data.data.items))
+    .catch((err) => console.log(err.response.data));
 
-	if(!vids) return 
+  if (!vids) return;
 
   let send = vids.map((e) => {
     return {
@@ -239,20 +273,14 @@ app.post("/getYTData", async (req, res) => {
   for (let i = 0; i < searches.length; i++) {
     if (count + searches[i].length > 49) {
       count = 0;
-      request = await axios(
-        `${baseApiUrl}/videos?id=${str}part=contentDetails&part=snippet&key=${YT_API_KEY}`
-      );
+      request = await axios(`${baseApiUrl}/videos?id=${str}part=contentDetails&part=snippet&key=${YT_API_KEY}`);
 
       let part = request["data"]["items"];
 
       for (let j = save; j < i; j++) {
         for (let k = 0; k < searches[j].length; k++) {
           try {
-            searches[j][k]["duration"] = part[count]["contentDetails"][
-              "duration"
-            ]
-              ? part[count]["contentDetails"]["duration"]
-              : "0:00";
+            searches[j][k]["duration"] = part[count]["contentDetails"]["duration"] ? part[count]["contentDetails"]["duration"] : "0:00";
             count++;
           } catch (err) {
             continue;
@@ -273,9 +301,7 @@ app.post("/getYTData", async (req, res) => {
   if (count) {
     count = 0;
     let i = searches.length;
-    request = await axios(
-      `${baseApiUrl}/videos?id=${str}&part=contentDetails&part=snippet&key=${YT_API_KEY}`
-    );
+    request = await axios(`${baseApiUrl}/videos?id=${str}&part=contentDetails&part=snippet&key=${YT_API_KEY}`);
 
     let part = request["data"]["items"];
     console.log(part);
@@ -283,9 +309,7 @@ app.post("/getYTData", async (req, res) => {
 
     for (let j = save; j < i; j++) {
       for (let k = 0; k < searches[j].length; k++) {
-        searches[j][k]["duration"] = parseDuration(
-          part[count]["contentDetails"]["duration"]
-        );
+        searches[j][k]["duration"] = parseDuration(part[count]["contentDetails"]["duration"]);
         count++;
       }
     }
@@ -329,12 +353,9 @@ app.post("/spotGetAccess", async (req, res) => {
 });
 
 app.post("/spotOauth", async (req, res) => {
-	console.log('???')
+  console.log("???");
   spotCache[req.body.uuid] = { origin: req.body.origin };
-  const authorizeUrl = await spotifyApi.createAuthorizeURL(
-    ["playlist-read-collaborative"],
-    req.body.uuid
-  );
+  const authorizeUrl = await spotifyApi.createAuthorizeURL(["playlist-read-collaborative"], req.body.uuid);
   res.json({ url: authorizeUrl });
 });
 
