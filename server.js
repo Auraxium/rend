@@ -96,7 +96,7 @@ app.get("/native", (req, res) => {
 app.post("/getImg", async (req, res) => {
   let a = await axios(`https://i.ytimg.com/vi/${req.body.id}/default.jpg`).catch((err) => null);
   if (!a) return res.end();
-
+;
   a = Buffer.from(a.data, "binary").toString("base64");
   let bound = Math.floor(a.length * 0.75);
   res.send(a.length < 17 ? a : a.substring(bound - 16, bound + 16));
@@ -159,25 +159,42 @@ app.post("/load", (req, res) => {
 
 app.post("/save", (req, res) => {
   //console.log(req.body)
-  dataModel
-    .findById(req.body._id)
-    .then((mg) => {
-      if (!mg) {
-        let init = new dataModel(req.body);
-        init.save();
-        res.status(200).json("songs updated!");
-      } else {
-        mg.data = req.body.data;
-        mg.save()
-          .then(() => res.json("songs updated!"))
-          .catch((err) => res.status(400).json("Error: " + err));
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      res.status(500).json({ err: err });
-    });
+  dataModel.findByIdAndUpdate(req.body._id, req.body.parts, {new: true}, (err, doc) => {
+		if(err)
+			return res.send(err);
+		if(!doc) {
+			let init = new dataModel({
+				_id: req.body._id,
+				username: 'test',
+				data: {}
+			})
+			init.save().then(e => dataModel.findByIdAndUpdate(req.body._id, req.body.parts, {new: true}))
+			return res.send('Id not found so created new')
+		}
+			
+		res.send('updated')
+	})
 });
+
+app.post("/hardSave", (req, res) => {
+	dataModel.findById(req.body._id).then(data => {
+		if(!data) {
+			let init = new dataModel(req.body)
+			init.save();
+      return res.status(200).json("songs updated!");
+		}
+		data.config = req.body.config;
+		data.songs = req.body.songs;
+		data.playlists = req.body.playlists;
+		data.imgs = req.body.imgs;
+		data.data = null;
+		data.save()
+		res.end()
+	})
+});
+
+// app.post()
+// dataModel.findById
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, null, () => console.log("Running on " + PORT));
