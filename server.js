@@ -183,11 +183,7 @@ app.post("/hardSave", (req, res) => {
 			init.save();
       return res.status(200).json("songs updated!");
 		}
-		data.config = req.body.config;
-		data.songs = req.body.songs;
-		data.playlists = req.body.playlists;
-		data.imgs = req.body.imgs;
-		data.data = null;
+		data.data = req.body.data;
 		data.save()
 		res.end()
 	})
