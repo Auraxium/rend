@@ -4,6 +4,7 @@ const app = express();
 var cors = require("cors");
 var { google } = require("googleapis");
 const axios = require("axios");
+const querystring = require('querystring');
 const mongoose = require("mongoose");
 const dataModel = mongoose.model("Account2", new mongoose.Schema({ _id: {}, username: String, data: {} }));
 const SpotifyWebApi = require("spotify-web-api-node");
@@ -96,7 +97,6 @@ app.get("/native", (req, res) => {
 app.post("/getImg", async (req, res) => {
   let a = await axios(`https://i.ytimg.com/vi/${req.body.id}/default.jpg`).catch((err) => null);
   if (!a) return res.end();
-;
   a = Buffer.from(a.data, "binary").toString("base64");
   let bound = Math.floor(a.length * 0.75);
   res.send(a.length < 17 ? a : a.substring(bound - 16, bound + 16));
@@ -127,8 +127,8 @@ app.post("/getImg", async (req, res) => {
   //   }
 
   //   a = Buffer.from(a.data, "binary").toString("base64");
-	// 	let bound = Math.floor(a.length * 0.75);
-	// 	a = a.length < 17 ? a : a.substring(bound - 16, bound + 16);
+  // 	let bound = Math.floor(a.length * 0.75);
+  // 	a = a.length < 17 ? a : a.substring(bound - 16, bound + 16);
   // 	//  lz.compre
   // 	if(ims[a]) {
   // 		ims[a].push(i)
@@ -159,34 +159,32 @@ app.post("/load", (req, res) => {
 
 app.post("/save", (req, res) => {
   //console.log(req.body)
-  dataModel.findByIdAndUpdate(req.body._id, req.body.parts, {new: true}, (err, doc) => {
-		if(err)
-			return res.send(err);
-		if(!doc) {
-			let init = new dataModel({
-				_id: req.body._id,
-				username: 'test',
-				data: {}
-			})
-			init.save().then(e => dataModel.findByIdAndUpdate(req.body._id, req.body.parts, {new: true}))
-			return res.send('Id not found so created new')
-		}
-			
-		res.send('updated')
-	})
+  dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }, (err, doc) => {
+    if (err) return res.send(err);
+    if (!doc) {
+      let init = new dataModel({
+        _id: req.body._id,
+        username: "test",
+        data: {},
+      });
+      init.save().then((e) => dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }));
+      return res.send("Id not found so created new");
+    }
+    res.json({ msg: "updated", doc: doc });
+  });
 });
 
 app.post("/hardSave", (req, res) => {
-	dataModel.findById(req.body._id).then(data => {
-		if(!data) {
-			let init = new dataModel(req.body)
-			init.save();
+  dataModel.findById(req.body._id).then((data) => {
+    if (!data) {
+      let init = new dataModel(req.body);
+      init.save();
       return res.status(200).json("songs updated!");
-		}
-		data.data = req.body.data;
-		data.save()
-		res.end()
-	})
+    }
+    data.data = req.body.data;
+    data.save();
+    res.end();
+  });
 });
 
 // app.post()
@@ -259,7 +257,7 @@ app.post("/YTsearch", async (req, res) => {
     `${baseApiUrl}/search?key=${YT_API_KEY}
 		&type=video
 		&part=snippet
-		&maxResults=10
+		&maxResults=${req.body.count || 10}
 		&q=${req.body.search.replace(/\s+/g, "+")}`
   )
     .then((data) => (vids = data.data.items))
@@ -354,15 +352,30 @@ app.post("/spotGetToken", (req, res) => {
 });
 
 app.post("/spotGetAccess", async (req, res) => {
-  axios
-    .post("https://www.googleapis.com/oauth2/v4/token", {
-      client_id: spotifyCID,
-      client_secret: spotifyCS,
-      refresh_token: req.body.rt,
-      grant_type: "refresh_token",
-    })
-    .then((ax) => res.json({ ac: ac }))
-    .catch((err) => res.json(err));
+  const refresh_token = req.body.rt;
+  const client_id = spotifyCID;
+  const client_secret = spotifyCS;
+
+  const authOptions = {
+    url: 'https://accounts.spotify.com/api/token',
+    headers: { 'Authorization': 'Basic ' + (Buffer.from(client_id + ':' + client_secret).toString('base64')) },
+    data: querystring.stringify({
+      grant_type: 'refresh_token',
+      refresh_token: refresh_token,
+    }),
+  };
+
+  try {
+    const response = await axios.post(authOptions.url, authOptions.data, {
+      headers: authOptions.headers,
+    });
+
+    const access_token = response.data.access_token;
+    res.json({ ac: access_token });
+  } catch (error) {
+    console.error('Error refreshing access token:', error);
+    res.status(500).json({ error: 'Error refreshing access token' });
+  }
 });
 
 app.post("/spotOauth", async (req, res) => {
@@ -372,18 +385,24 @@ app.post("/spotOauth", async (req, res) => {
   res.json({ url: authorizeUrl });
 });
 
-app.get("/spotifyOauth/callback", (req, res) => {
+app.get("/spotifyOauth/callback", async (req, res) => {
   let state = req.query.state;
-  spotifyApi
-    .authorizationCodeGrant(req.query.code)
-    .then((data) => {
-      console.log(data);
-      spotCache[state]["access_token"] = data.body["access_token"];
-      spotCache[state]["refresh_token"] = data.body["refresh_token"];
-      spotCache[state]["expires"] = data.body["expires_in"];
-      spotCache[state]["now"] = Date.now();
+  let data = await spotifyApi.authorizationCodeGrant(req.query.code).catch((err) => console.log("err in data_req: " + err));
+  // console.log(data.body);
+  let { data: name_req } = await axios
+    .get(`https://api.spotify.com/v1/me`, {
+      headers: {
+        Authorization: `Bearer ${data.body["access_token"]}`,
+      },
     })
-    .finally(() => res.redirect(spotCache[state]["origin"]));
+    .catch((err) => console.log("err in name_req: " + err.data));
+  // console.log(name_req);
+  spotCache[state]["username"] = name_req["display_name"];
+  spotCache[state]["access_token"] = data.body["access_token"];
+  spotCache[state]["refresh_token"] = data.body["refresh_token"];
+  spotCache[state]["expires"] = data.body["expires_in"];
+  spotCache[state]["now"] = Date.now();
+  res.redirect(spotCache[state]["origin"]);
 });
 
 //#endregion
