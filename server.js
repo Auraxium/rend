@@ -387,7 +387,7 @@ app.post("/spotOauth", async (req, res) => {
 
 app.get("/spotifyOauth/callback", async (req, res) => {
   let state = req.query.state;
-  let data = await spotifyApi.authorizationCodeGrant(req.query.code).catch((err) => console.log("err in data_req: " + err));
+  let data = await spotifyApi.authorizationCodeGrant(req.query.code).catch((err) => console.err("err in data_req: " + err));
   // console.log(data.body);
   let { data: name_req } = await axios
     .get(`https://api.spotify.com/v1/me`, {
@@ -395,7 +395,7 @@ app.get("/spotifyOauth/callback", async (req, res) => {
         Authorization: `Bearer ${data.body["access_token"]}`,
       },
     })
-    .catch((err) => console.log("err in name_req: " + err.data));
+    .catch((err) => console.error("err in name_req: " + err.data));
   // console.log(name_req);
   spotCache[state]["username"] = name_req["display_name"];
   spotCache[state]["access_token"] = data.body["access_token"];
