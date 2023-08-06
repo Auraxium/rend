@@ -4,18 +4,18 @@ const app = express();
 var cors = require("cors");
 var { google } = require("googleapis");
 const axios = require("axios");
-const querystring = require('querystring');
+const querystring = require("querystring");
 const mongoose = require("mongoose");
 const dataModel = mongoose.model("Account2", new mongoose.Schema({ _id: {}, username: String, data: {} }));
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
+const cheerio = require('cheerio');
 const lz = require("lz-string");
 require("dotenv").config();
 
 let p = console.log;
 
 const URI = "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
-
 const YT_API_KEY = process.env.YT_API_KEY;
 // console.log(YT_API_KEY)
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
@@ -96,7 +96,7 @@ app.get("/native", (req, res) => {
 
 app.post("/getImg", async (req, res) => {
   let a = await axios(`https://i.ytimg.com/vi/${req.body.id}/default.jpg`).catch((err) => null);
-  if (!a) return res.end();
+  if (!a) return res.send("none");
   a = Buffer.from(a.data, "binary").toString("base64");
   let bound = Math.floor(a.length * 0.75);
   res.send(a.length < 17 ? a : a.substring(bound - 16, bound + 16));
@@ -141,8 +141,6 @@ app.post("/getImg", async (req, res) => {
   // fs.writeFileSync(__dirname +"/imgsMap2.json", JSON.stringify(ims), 'utf-8')
   // res.end();
 });
-
-app.post("/mognoInit", (req, res) => {});
 
 app.post("/load", (req, res) => {
   dataModel
@@ -274,6 +272,42 @@ app.post("/YTsearch", async (req, res) => {
   res.json(send);
 });
 
+app.post("/YTsearchV2", (req, res) => {
+  axios.get(`https://www.youtube.com/results?search_query=${req.body.search}`).then((ax) => {
+		let html = ax.data.replace(/mainAppWebResponseContext/g, 'initplayback?mainAppWebResponseContext');
+		const regex = /initplayback\?([^]*?)(?=initplayback\?|$)/g;
+
+		let match;
+		let map = [];
+		let limit = req.body.count || 10;
+		let temp = ''; 
+
+		while ((match = regex.exec(html)) !== null && map.length < limit) {
+			// matches.push(match[1].trim());
+			let json = {}
+			let e = match[1].trim();
+			temp = e.match(/"title":{"runs":\[{"text":"([^"]*)"/);
+			if(temp && temp[1]) json.name = temp[1];
+			else continue;
+	
+			temp = e.match(/"watchEndpoint":{"videoId":"([^"]*)"/);
+			if(temp && temp[1]) json.id = temp[1];
+			else continue;
+	
+			temp = e.match(/"}},"simpleText":"([^"]*)"},"viewCountText":{"simpleText":"/);
+			if(temp && temp[1]) json.end_raw = temp[1];
+			else continue;
+
+			map.push(json)
+		}
+    res.json(map);
+  })
+	.catch(err => {
+		console.log(err);
+		res.json(err)
+	});
+});
+
 app.post("/getYTData", async (req, res) => {
   let searches = req.body.search;
   let str = "";
@@ -330,6 +364,14 @@ app.post("/getYTData", async (req, res) => {
   res.json({ searches: searches });
 });
 
+app.post("/getYTDataV2", async (req, res) => {
+  let songs = req.body.songs;
+  let str = "";
+  let count = 0;
+  let request;
+  let save = 0;
+});
+
 //#endregion
 
 //#region  --------------SPOTIFY------------------
@@ -357,10 +399,10 @@ app.post("/spotGetAccess", async (req, res) => {
   const client_secret = spotifyCS;
 
   const authOptions = {
-    url: 'https://accounts.spotify.com/api/token',
-    headers: { 'Authorization': 'Basic ' + (Buffer.from(client_id + ':' + client_secret).toString('base64')) },
+    url: "https://accounts.spotify.com/api/token",
+    headers: { Authorization: "Basic " + Buffer.from(client_id + ":" + client_secret).toString("base64") },
     data: querystring.stringify({
-      grant_type: 'refresh_token',
+      grant_type: "refresh_token",
       refresh_token: refresh_token,
     }),
   };
@@ -373,8 +415,8 @@ app.post("/spotGetAccess", async (req, res) => {
     const access_token = response.data.access_token;
     res.json({ ac: access_token });
   } catch (error) {
-    console.error('Error refreshing access token:', error);
-    res.status(500).json({ error: 'Error refreshing access token' });
+    console.error("Error refreshing access token:", error);
+    res.status(500).json({ error: "Error refreshing access token" });
   }
 });
 
