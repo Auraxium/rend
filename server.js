@@ -6,7 +6,7 @@ var { google } = require("googleapis");
 const axios = require("axios");
 const querystring = require("querystring");
 const mongoose = require("mongoose");
-const dataModel = mongoose.model("Account2", new mongoose.Schema({ _id: {}, username: String, data: {} }));
+const dataModel = mongoose.model("Account", new mongoose.Schema({ _id: {}, username: String, data: {} }));
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
 const cheerio = require('cheerio');
@@ -17,7 +17,6 @@ let p = console.log;
 
 const URI = "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
 const YT_API_KEY = process.env.YT_API_KEY;
-// console.log(YT_API_KEY)
 const baseApiUrl = "https://www.googleapis.com/youtube/v3";
 
 const URL = process.env.URL || "http://localhost:8080";
@@ -35,7 +34,7 @@ mongoose
 
 //#region -------------FUNCTIONS------------------
 
-function delay(secs) {
+async function delay(secs) {
   return new Promise((resolve) => {
     setTimeout(() => resolve(""), secs);
   });
@@ -87,6 +86,11 @@ app.get("/", (req, res) => {
 });
 
 app.get("/test", (req, res) => {
+  res.json({ howdy: "heya", env: process.env.URL || "none", url: URL });
+});
+
+app.post("/test", (req, res) => {
+	console.log('ur testing me');
   res.json({ howdy: "heya", env: process.env.URL || "none", url: URL });
 });
 
@@ -146,47 +150,44 @@ app.post("/load", (req, res) => {
   dataModel
     .findById(req.body._id)
     .then((data) => {
-      if (!data) {
-        return res.status(501).json({ no: "data" });
-      }
-      // console.log(data);
+      if (!data) return res.status(501).json({ no: "data" });
       res.json(data);
-    })
-    .catch((err) => res.status(200).json(err));
+    }).catch((err) => res.status(400).json(err));
 });
 
+app.post('/lastSave', (req,res) => {
+	dataModel.findById(req.body._id)
+	.select('data.date')
+	.then(data => res.json(data.data.date))
+})
+
 app.post("/save", (req, res) => {
-  //console.log(req.body)
-  dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }, (err, doc) => {
-    if (err) return res.send(err);
-    if (!doc) {
-      let init = new dataModel({
-        _id: req.body._id,
-        username: "test",
-        data: {},
-      });
-      init.save().then((e) => dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }));
-      return res.send("Id not found so created new");
-    }
+		dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }, (err, doc) => {
+    if (err) return res.status(400).send(err);
+    if (!doc) return res.status(505).send("Id not found so gimme new");
     res.json({ msg: "updated", doc: doc });
   });
 });
+
+app.post("/saveUnload", (req, res) => {
+	dataModel.findById(req.body._id).select('data.date').then(data => {
+		if(req.body.last < data.data.date) return res.end();
+		dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true, acknowledge: false  }, (err) => res.end())
+	})
+})
 
 app.post("/hardSave", (req, res) => {
   dataModel.findById(req.body._id).then((data) => {
     if (!data) {
       let init = new dataModel(req.body);
       init.save();
-      return res.status(200).json("songs updated!");
+      return res.status(200).json("new account so made new");
     }
     data.data = req.body.data;
     data.save();
-    res.end();
+    res.json("saved hard");
   });
 });
-
-// app.post()
-// dataModel.findById
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, null, () => console.log("Running on " + PORT));
@@ -235,7 +236,6 @@ app.get("/googOauth/callback", async (req, res) => {
 
 app.post("/googGetToken", (req, res) => {
   let token = googCache[req.body.uuid];
-  console.log(token);
   delete googCache[req.body.uuid];
   return res.json(token);
 });
@@ -249,7 +249,6 @@ app.get("/yttest", (req, res) => {
 });
 
 app.post("/YTsearch", async (req, res) => {
-  console.log(req.body.search);
   let vids;
   await axios(
     `${baseApiUrl}/search?key=${YT_API_KEY}
@@ -273,7 +272,7 @@ app.post("/YTsearch", async (req, res) => {
 });
 
 app.post("/YTsearchV2", (req, res) => {
-  axios.get(`https://www.youtube.com/results?search_query=${req.body.search}`).then((ax) => {
+  axios.get(`https://www.youtube.com/results?search_query=${encodeURIComponent(req.body.search)}`).then((ax) => {
 		let html = ax.data.replace(/mainAppWebResponseContext/g, 'initplayback?mainAppWebResponseContext');
 		const regex = /initplayback\?([^]*?)(?=initplayback\?|$)/g;
 
@@ -349,8 +348,6 @@ app.post("/getYTData", async (req, res) => {
     request = await axios(`${baseApiUrl}/videos?id=${str}&part=contentDetails&part=snippet&key=${YT_API_KEY}`);
 
     let part = request["data"]["items"];
-    console.log(part);
-    console.log(str);
 
     for (let j = save; j < i; j++) {
       for (let k = 0; k < searches[j].length; k++) {
@@ -360,7 +357,6 @@ app.post("/getYTData", async (req, res) => {
     }
   }
 
-  console.log(searches);
   res.json({ searches: searches });
 });
 
@@ -421,7 +417,6 @@ app.post("/spotGetAccess", async (req, res) => {
 });
 
 app.post("/spotOauth", async (req, res) => {
-  console.log("???");
   spotCache[req.body.uuid] = { origin: req.body.origin };
   const authorizeUrl = await spotifyApi.createAuthorizeURL(["playlist-read-collaborative"], req.body.uuid);
   res.json({ url: authorizeUrl });
