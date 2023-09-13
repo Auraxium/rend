@@ -104,46 +104,6 @@ app.post("/getImg", async (req, res) => {
   a = Buffer.from(a.data, "binary").toString("base64");
   let bound = Math.floor(a.length * 0.75);
   res.send(a.length < 17 ? a : a.substring(bound - 16, bound + 16));
-
-  // let j = fs.readFileSync(__dirname + '/imgsMap.json', 'utf8');
-  // console.log(Object.entries(j)[9]);
-  // let rrr = {}
-  // Object.entries(j).forEach(e => {
-  // 	let bound = Math.floor(e[0].length*.75)
-  // 	rrr[e[0].substring(bound-10, bound+10)] = e[1]
-  // })
-
-  // res.json()
-
-  // console.log(req.body);
-  // return res.end()
-
-  // let ims = { none: [] };
-  // for (let i = 0; i < req.body.ids.length; i++) {
-  //   const e = req.body.ids[i];
-  //   let a = await axios(`https://i.ytimg.com/vi/${e}/default.jpg`, { responseType: "blob" }).catch(err => {
-  // 		console.log(err.data);
-  // 		return null;
-  // 	});
-  //   if (!a) {
-  //     ims.none.push(i);
-  //     continue;
-  //   }
-
-  //   a = Buffer.from(a.data, "binary").toString("base64");
-  // 	let bound = Math.floor(a.length * 0.75);
-  // 	a = a.length < 17 ? a : a.substring(bound - 16, bound + 16);
-  // 	//  lz.compre
-  // 	if(ims[a]) {
-  // 		ims[a].push(i)
-  // 		continue;
-  // 	}
-
-  // 	ims[a] = [i];
-  // }
-  // res.json(ims)
-  // fs.writeFileSync(__dirname +"/imgsMap2.json", JSON.stringify(ims), 'utf-8')
-  // res.end();
 });
 
 app.post("/load", (req, res) => {
@@ -159,6 +119,7 @@ app.post('/lastSave', (req,res) => {
 	dataModel.findById(req.body._id)
 	.select('data.date')
 	.then(data => res.json(data.data.date))
+	.catch(err => res.status(500).json(err))
 })
 
 app.post("/save", (req, res) => {
@@ -186,7 +147,8 @@ app.post("/hardSave", (req, res) => {
     data.data = req.body.data;
     data.save();
     res.json("saved hard");
-  });
+  })
+	.catch(err => res.status(500).send(err));
 });
 
 const PORT = process.env.PORT || 8080;
@@ -245,30 +207,8 @@ app.post("/googGetToken", (req, res) => {
 //#region ---------------YOUTUBE--------------------
 
 app.get("/yttest", (req, res) => {
-  axios(`${baseApiUrl}/videos?id=b8-tXG8KrWs,hZvitm7eK9c,MrLnOfYFVvQ,lcNfSwl2SmI,jcxate72OMg,oIoyTuvqHAs,cW6uJAaLfRA,xwhBRJStz7w,qn7HvnMJZd4,RDk5NB3pgJo,mg-ODPxYl9Q,CDhUvkzLsmQ,a2Cenb4UNFE,vE8zTxbifNM,yFdLSM8zVVI,uxurZPG1k-M,tRAEkH3EqGQ,MBq722OJ8QY,C6mvSrZA410,cbuV0WtQXjw,j2VtMsBYTjI&part=contentDetails&part=snippet&key=${YT_API_KEY}`).then((data) => res.json(data.data));
-});
-
-app.post("/YTsearch", async (req, res) => {
-  let vids;
-  await axios(
-    `${baseApiUrl}/search?key=${YT_API_KEY}
-		&type=video
-		&part=snippet
-		&maxResults=${req.body.count || 10}
-		&q=${req.body.search.replace(/\s+/g, "+")}`
-  )
-    .then((data) => (vids = data.data.items))
-    .catch((err) => console.log(err.response.data));
-
-  if (!vids) return;
-
-  let send = vids.map((e) => {
-    return {
-      name: e["snippet"]["title"],
-      id: e["id"]["videoId"],
-    };
-  });
-  res.json(send);
+  axios(`${baseApiUrl}/videos?id=b8-tXG8KrWs,hZvitm7eK9c,MrLnOfYFVvQ,lcNfSwl2SmI,jcxate72OMg,oIoyTuvqHAs,cW6uJAaLfRA,xwhBRJStz7w,qn7HvnMJZd4,RDk5NB3pgJo,mg-ODPxYl9Q,CDhUvkzLsmQ,a2Cenb4UNFE,vE8zTxbifNM,yFdLSM8zVVI,uxurZPG1k-M,tRAEkH3EqGQ,MBq722OJ8QY,C6mvSrZA410,cbuV0WtQXjw,j2VtMsBYTjI&part=contentDetails&part=snippet&key=${YT_API_KEY}`).then((data) => res.json(data.data))
+	.catch(err => res.status(500).send(err));;
 });
 
 app.post("/YTsearchV2", (req, res) => {
@@ -360,14 +300,6 @@ app.post("/getYTData", async (req, res) => {
   res.json({ searches: searches });
 });
 
-app.post("/getYTDataV2", async (req, res) => {
-  let songs = req.body.songs;
-  let str = "";
-  let count = 0;
-  let request;
-  let save = 0;
-});
-
 //#endregion
 
 //#region  --------------SPOTIFY------------------
@@ -409,7 +341,7 @@ app.post("/spotGetAccess", async (req, res) => {
     });
 
     const access_token = response.data.access_token;
-    res.json({ ac: access_token });
+    res.json({ ac: access_token, now: Date.now() });
   } catch (error) {
     console.error("Error refreshing access token:", error);
     res.status(500).json({ error: "Error refreshing access token" });
