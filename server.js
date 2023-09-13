@@ -418,7 +418,7 @@ app.post("/spotGetAccess", async (req, res) => {
 
 app.post("/spotOauth", async (req, res) => {
   spotCache[req.body.uuid] = { origin: req.body.origin };
-  const authorizeUrl = await spotifyApi.createAuthorizeURL(["playlist-read-collaborative"], req.body.uuid);
+  const authorizeUrl = await spotifyApi.createAuthorizeURL(["playlist-read-collaborative", "streaming", "user-read-email", "user-read-private"], req.body.uuid);
   res.json({ url: authorizeUrl });
 });
 
@@ -443,43 +443,3 @@ app.get("/spotifyOauth/callback", async (req, res) => {
 });
 
 //#endregion
-
-// const browser = await puppeteer.launch({
-//   executablePath: chromium.path,
-//   headless: true,
-// });
-// const page = await browser.newPage();
-// await page.goto(req.body.search, { timeout: 90000 });
-// console.log("SP started");
-
-// await new Promise((res, rej) => setTimeout(() => res(""), 4000));
-
-// const num = await page.$$eval(`meta[property="og:description"]`, (e) =>
-//   e.map((el) => el.getAttribute("content"))
-// );
-// let length = +num[0].replace(/\D+/g, "");
-// let songs = [];
-// console.log(length);
-
-// for (let i = 2; i < +length + 2; i++) {
-//   let song = await page.$$eval(`[aria-rowindex="${i}"]`, (e) =>
-//     e.map((el) => ({
-//       name: el.querySelector('div [aria-colindex="2"] div a div').innerText,
-//       artist: el.querySelector('div [aria-colindex="2"] div span a')
-//         .innerText,
-//       length: el.querySelector('div [aria-colindex="5"] div').innerText,
-//     }))
-//   );
-
-//   let scroll = await page.$(`[aria-rowindex="${i}"]`);
-//   if (!scroll) break;
-//   await scroll.evaluate((element) => element.scrollIntoView());
-//   await new Promise((res, rej) => setTimeout(() => res(""), 100));
-
-//   songs.push(song[0]);
-//   console.log(i + " songs");
-// }
-
-// console.log(songs);
-// await browser.close();
-// res.send(songs);
