@@ -241,7 +241,7 @@ app.post("/YTsearchV2", (req, res) => {
         else continue;
 
         temp = e.match(/"watchEndpoint":{"videoId":"([^"]*)"/);
-        if (temp && temp[1]) json.id = temp[1];
+        if (temp && temp[1]) json.yt_id = temp[1];
         else continue;
 
         temp = e.match(/"}},"simpleText":"([^"]*)"},"viewCountText":{"simpleText":"/);
