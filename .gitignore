@@ -1,3 +1,6 @@
 node_modules
 .env
 summer.mp3
+index.html
+yarn.lock
+yt.html
