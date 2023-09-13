@@ -9,7 +9,7 @@ const mongoose = require("mongoose");
 const dataModel = mongoose.model("Account", new mongoose.Schema({ _id: {}, username: String, data: {} }));
 const SpotifyWebApi = require("spotify-web-api-node");
 const fs = require("fs");
-const cheerio = require('cheerio');
+const cheerio = require("cheerio");
 const lz = require("lz-string");
 require("dotenv").config();
 
@@ -90,7 +90,7 @@ app.get("/test", (req, res) => {
 });
 
 app.post("/test", (req, res) => {
-	console.log('ur testing me');
+  console.log("ur testing me");
   res.json({ howdy: "heya", env: process.env.URL || "none", url: URL });
 });
 
@@ -112,43 +112,51 @@ app.post("/load", (req, res) => {
     .then((data) => {
       if (!data) return res.status(501).json({ no: "data" });
       res.json(data);
-    }).catch((err) => res.status(400).json(err));
+    })
+    .catch((err) => res.status(400).json(err));
 });
 
-app.post('/lastSave', (req,res) => {
-	dataModel.findById(req.body._id)
-	.select('data.date')
-	.then(data => res.json(data.data.date))
-	.catch(err => res.status(500).json(err))
-})
+app.post("/lastSave", (req, res) => {
+  dataModel
+    .findById(req.body._id)
+    .select("data.date")
+    .then((data) => res.json(data.data.date))
+    .catch((err) => res.status(500).json(err));
+});
 
 app.post("/save", (req, res) => {
-		dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }, (err, doc) => {
+  dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }, (err, doc) => {
     if (err) return res.status(400).send(err);
     if (!doc) return res.status(505).send("Id not found so gimme new");
-    res.json({ msg: "updated", doc: doc });
+    res.json({ msg: "updated" });
   });
 });
 
 app.post("/saveUnload", (req, res) => {
-	dataModel.findById(req.body._id).select('data.date').then(data => {
-		if(req.body.last < data.data.date) return res.end();
-		dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true, acknowledge: false  }, (err) => res.end())
-	})
-})
+  dataModel
+    .findById(req.body._id)
+    .select("data.date")
+    .then((data) => {
+      if (req.body.last < data.data.date) return res.end();
+      dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true, acknowledge: false }, (err) => res.end());
+    })
+		.catch(err => res.status(500).send(err));;
+});
 
 app.post("/hardSave", (req, res) => {
-  dataModel.findById(req.body._id).then((data) => {
-    if (!data) {
-      let init = new dataModel(req.body);
-      init.save();
-      return res.status(200).json("new account so made new");
-    }
-    data.data = req.body.data;
-    data.save();
-    res.json("saved hard");
-  })
-	.catch(err => res.status(500).send(err));
+  dataModel
+    .findById(req.body._id)
+    .then((data) => {
+      if (!data) {
+        let init = new dataModel(req.body);
+        init.save();
+        return res.status(200).json("new account so made new");
+      }
+      data.data = req.body.data;
+      data.save();
+      res.json("saved hard");
+    })
+    .catch((err) => res.status(500).send(err));
 });
 
 const PORT = process.env.PORT || 8080;
@@ -207,44 +215,47 @@ app.post("/googGetToken", (req, res) => {
 //#region ---------------YOUTUBE--------------------
 
 app.get("/yttest", (req, res) => {
-  axios(`${baseApiUrl}/videos?id=b8-tXG8KrWs,hZvitm7eK9c,MrLnOfYFVvQ,lcNfSwl2SmI,jcxate72OMg,oIoyTuvqHAs,cW6uJAaLfRA,xwhBRJStz7w,qn7HvnMJZd4,RDk5NB3pgJo,mg-ODPxYl9Q,CDhUvkzLsmQ,a2Cenb4UNFE,vE8zTxbifNM,yFdLSM8zVVI,uxurZPG1k-M,tRAEkH3EqGQ,MBq722OJ8QY,C6mvSrZA410,cbuV0WtQXjw,j2VtMsBYTjI&part=contentDetails&part=snippet&key=${YT_API_KEY}`).then((data) => res.json(data.data))
-	.catch(err => res.status(500).send(err));;
+  axios(`${baseApiUrl}/videos?id=b8-tXG8KrWs,hZvitm7eK9c,MrLnOfYFVvQ,lcNfSwl2SmI,jcxate72OMg,oIoyTuvqHAs,cW6uJAaLfRA,xwhBRJStz7w,qn7HvnMJZd4,RDk5NB3pgJo,mg-ODPxYl9Q,CDhUvkzLsmQ,a2Cenb4UNFE,vE8zTxbifNM,yFdLSM8zVVI,uxurZPG1k-M,tRAEkH3EqGQ,MBq722OJ8QY,C6mvSrZA410,cbuV0WtQXjw,j2VtMsBYTjI&part=contentDetails&part=snippet&key=${YT_API_KEY}`)
+    .then((data) => res.json(data.data))
+    .catch((err) => res.status(500).send(err));
 });
 
 app.post("/YTsearchV2", (req, res) => {
-  axios.get(`https://www.youtube.com/results?search_query=${encodeURIComponent(req.body.search)}`).then((ax) => {
-		let html = ax.data.replace(/mainAppWebResponseContext/g, 'initplayback?mainAppWebResponseContext');
-		const regex = /initplayback\?([^]*?)(?=initplayback\?|$)/g;
+  axios
+    .get(`https://www.youtube.com/results?search_query=${encodeURIComponent(req.body.search)}`)
+    .then((ax) => {
+      let html = ax.data.replace(/mainAppWebResponseContext/g, "initplayback?mainAppWebResponseContext");
+      const regex = /initplayback\?([^]*?)(?=initplayback\?|$)/g;
 
-		let match;
-		let map = [];
-		let limit = req.body.count || 10;
-		let temp = ''; 
+      let match;
+      let map = [];
+      let limit = req.body.count || 10;
+      let temp = "";
 
-		while ((match = regex.exec(html)) !== null && map.length < limit) {
-			// matches.push(match[1].trim());
-			let json = {}
-			let e = match[1].trim();
-			temp = e.match(/"title":{"runs":\[{"text":"([^"]*)"/);
-			if(temp && temp[1]) json.name = temp[1];
-			else continue;
-	
-			temp = e.match(/"watchEndpoint":{"videoId":"([^"]*)"/);
-			if(temp && temp[1]) json.id = temp[1];
-			else continue;
-	
-			temp = e.match(/"}},"simpleText":"([^"]*)"},"viewCountText":{"simpleText":"/);
-			if(temp && temp[1]) json.end_raw = temp[1];
-			else continue;
+      while ((match = regex.exec(html)) !== null && map.length < limit) {
+        // matches.push(match[1].trim());
+        let json = {};
+        let e = match[1].trim();
+        temp = e.match(/"title":{"runs":\[{"text":"([^"]*)"/);
+        if (temp && temp[1]) json.name = temp[1];
+        else continue;
 
-			map.push(json)
-		}
-    res.json(map);
-  })
-	.catch(err => {
-		console.log(err);
-		res.json(err)
-	});
+        temp = e.match(/"watchEndpoint":{"videoId":"([^"]*)"/);
+        if (temp && temp[1]) json.id = temp[1];
+        else continue;
+
+        temp = e.match(/"}},"simpleText":"([^"]*)"},"viewCountText":{"simpleText":"/);
+        if (temp && temp[1]) json.end_raw = temp[1];
+        else continue;
+
+        map.push(json);
+      }
+      res.json(map);
+    })
+    .catch((err) => {
+      console.log(err);
+      res.json(err);
+    });
 });
 
 app.post("/getYTData", async (req, res) => {
