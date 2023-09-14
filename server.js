@@ -82,7 +82,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb" }));
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/./index.html");
+  res.send("hey pal");
 });
 
 app.get("/test", (req, res) => {
