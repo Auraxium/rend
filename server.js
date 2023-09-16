@@ -354,7 +354,7 @@ app.post("/spotGetAccess", async (req, res) => {
     const access_token = response.data.access_token;
     res.json({ ac: access_token, now: Date.now() });
   } catch (error) {
-    console.error("Error refreshing access token:", error);
+    console.log("Error refreshing access token:", error);
     res.status(500).json({ error: "Error refreshing access token" });
   }
 });
