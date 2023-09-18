@@ -14,6 +14,7 @@ const lz = require("lz-string");
 require("dotenv").config();
 
 let p = console.log;
+const version = 0.7
 
 const URI = "mongodb+srv://Auraxium:fyeFDEQCZYydeMnR@cluster0.hcxjp2q.mongodb.net/?retryWrites=true&w=majority";
 const YT_API_KEY = process.env.YT_API_KEY;
@@ -120,11 +121,12 @@ app.post("/lastSave", (req, res) => {
   dataModel
     .findById(req.body._id)
     .select("data.date")
-    .then((data) => res.json(data.data.date))
+    .then((data) => res.json(data.data.date)) 
     .catch((err) => res.status(500).json(err));
 });
 
 app.post("/save", (req, res) => {
+	if((req.body.version || 0) < version) return res.end()
   dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }, (err, doc) => {
     if (err) return res.status(400).send(err);
     if (!doc) return res.status(505).send("Id not found so gimme new");
@@ -133,6 +135,7 @@ app.post("/save", (req, res) => {
 });
 
 app.post("/saveUnload", (req, res) => {
+	if((req.body.version || 0) < version) return res.end()
   dataModel
     .findById(req.body._id)
     .select("data.date")
@@ -144,6 +147,7 @@ app.post("/saveUnload", (req, res) => {
 });
 
 app.post("/hardSave", (req, res) => {
+	if((req.body.version || 0) < version) return res.end()
   dataModel
     .findById(req.body._id)
     .then((data) => {
