@@ -126,10 +126,12 @@ app.post("/lastSave", (req, res) => {
 });
 
 app.post("/save", (req, res) => {
-	if((req.body.version || 0) < version) return res.end()
+	// console.log(req.body);
+	if(!Object.keys(req.body)) return res.json({ msg: "body is empty, client failed to write working fetch" });
+	if((req.body.version || 0) < version) return res.json({ msg: "bad version" });
   dataModel.findByIdAndUpdate(req.body._id, req.body.parts, { new: true }, (err, doc) => {
-    if (err) return res.status(400).send(err);
-    if (!doc) return res.status(505).send("Id not found so gimme new");
+    if (err) return res.status(400).json({ msg: "server Error" });
+    if (!doc) return res.status(505).json({ msg: "Id not found so gimme new" });
     res.json({ msg: "updated" });
   });
 });
@@ -163,7 +165,7 @@ app.post("/hardSave", (req, res) => {
     .catch((err) => res.status(500).send(err));
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 2121;
 app.listen(PORT, null, () => console.log("Running on " + PORT));
 
 //#endregion
@@ -257,7 +259,13 @@ app.post("/YTsearchV2", (req, res) => {
       res.json(map);
     })
     .catch((err) => {
-      console.log(err);
+			console.error( `Error occured at ${new Date().toLocaleString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+        hour12: true, // Use false for 24-hour format
+      })}:`)
+      console.error(err);
       res.json(err);
     });
 });
